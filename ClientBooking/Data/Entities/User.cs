@@ -18,6 +18,15 @@ public class User : Entity
     [Required]
     public bool IsActive { get; set; }
     
+    [Required]
+    public string HashedPassword { get; set; }
+    
+    public bool IsLockedOut { get; set; } = false;
+    
+    public DateTime? LockoutEnd { get; set; }
+
+    public int AccessFailedCount { get; set; } = 0;
+    
     [NotMapped]
     public string FullName =>  $"{FirstName} {LastName}";
     

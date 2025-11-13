@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.AddPostGresDatabaseFromConfiguration();
+builder.AddInjectableServices();
 
 if (builder.Environment.IsProduction())
 {
