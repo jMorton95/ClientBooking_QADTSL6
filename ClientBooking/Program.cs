@@ -1,11 +1,15 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
 using ClientBooking.Components;
+using ClientBooking.Configuration;
+using ClientBooking.Data;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
+
+builder.AddPostGresDatabaseFromConfiguration();
 
 if (builder.Environment.IsProduction())
 {
@@ -28,6 +32,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 //Add Migrations here
+
+await app.ApplyStartupDatabaseMigrations();
 
 app.MapStaticAssets();
 
