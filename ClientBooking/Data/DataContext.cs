@@ -24,7 +24,20 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 continue;
             
             entity.SavedAt = DateTime.UtcNow;
-            entity.RowVersion = entity.RowVersion >= 1 ? entity.RowVersion + 1 : 1;
+            
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entity.RowVersion = 1;
+                    continue;
+                case EntityState.Modified:
+                    entity.RowVersion += 1;
+                    continue;
+                case EntityState.Detached:
+                case EntityState.Unchanged:
+                case EntityState.Deleted:
+                    continue;
+            }
         }
 
         return base.SaveChangesAsync(ct);

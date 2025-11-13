@@ -8,15 +8,14 @@ public abstract class Entity
 {
     [Required, Key]
     public int Id { get; set; }
-    
-    [Required, Timestamp]
+
+    [Required]
     public int RowVersion { get; set; }
     
     [Required]
     public DateTime SavedAt { get; set; }
     
-    [Required]
-    public int SavedById { get; set; } 
+    public int? SavedById { get; set; } 
     
     [ForeignKey(nameof(SavedById))]
     public User SavedBy { get; set; }

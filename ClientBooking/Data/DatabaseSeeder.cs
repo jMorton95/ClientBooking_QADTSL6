@@ -19,7 +19,8 @@ public static class DatabaseSeeder
             Email = "admin@joshmorton.co.uk",
             IsActive = true,
             SavedAt = now,
-            SavedById = 0
+            RowVersion = 1,
+            SavedById = null
         };
 
         var standardUser = new User
@@ -29,7 +30,8 @@ public static class DatabaseSeeder
             Email = "john@example.com",
             IsActive = true,
             SavedAt = now,
-            SavedById = 0
+            RowVersion = 1,
+            SavedById = null
         };
 
         db.Users.AddRange(adminUser, standardUser);
@@ -40,6 +42,7 @@ public static class DatabaseSeeder
         {
             Name = "Admin",
             SavedAt = now,
+            RowVersion = 1,
             SavedById = adminUser.Id
         };
 
@@ -47,6 +50,7 @@ public static class DatabaseSeeder
         {
             Name = "Standard",
             SavedAt = now,
+            RowVersion = 1,
             SavedById = adminUser.Id
         };
 
@@ -76,6 +80,7 @@ public static class DatabaseSeeder
             ClientWorkingHoursStart = new TimeSpan(9, 0, 0),
             ClientWorkingHoursEnd = new TimeSpan(17, 0, 0),
             SavedAt = now,
+            RowVersion = 1,
             SavedById = adminUser.Id
         };
 
@@ -90,6 +95,7 @@ public static class DatabaseSeeder
             EndDateTime = now.AddDays(1).AddHours(10),
             Status = "Confirmed",
             SavedAt = now,
+            RowVersion = 1,
             SavedById = adminUser.Id
         };
 
@@ -113,6 +119,7 @@ public static class DatabaseSeeder
             MaxDailyUserBookings = 5,
             AllowWeekendBookings = false,
             Version = 1,
+            RowVersion = 1,
             SavedAt = now,
             SavedById = adminUser.Id
         };

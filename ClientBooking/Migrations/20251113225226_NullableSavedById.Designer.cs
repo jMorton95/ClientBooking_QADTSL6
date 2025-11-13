@@ -3,6 +3,7 @@ using System;
 using ClientBooking.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClientBooking.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251113225226_NullableSavedById")]
+    partial class NullableSavedById
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +44,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -90,6 +95,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -124,6 +131,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -163,6 +172,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -207,6 +218,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -252,6 +265,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
@@ -286,6 +301,8 @@ namespace ClientBooking.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
