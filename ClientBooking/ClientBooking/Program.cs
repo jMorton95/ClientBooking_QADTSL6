@@ -1,5 +1,6 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
+using ClientBooking.Components;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,6 @@ app.MapStaticAssets();
 
 app.UseAntiforgery();
 
-//MapRazorComponents Here
+app.MapRazorComponents<App>();
 
 app.Run();
