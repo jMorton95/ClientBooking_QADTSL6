@@ -1,21 +1,29 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
+﻿ARG VERSION=10.0-alpine
+
+FROM mcr.microsoft.com/dotnet/aspnet:$VERSION AS base
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-ARG BUILD_CONFIGURATION=Release
+FROM mcr.microsoft.com/dotnet/sdk:$VERSION AS build
 WORKDIR /src
+
+RUN apk add --no-cache nodejs npm
+
+COPY ["package.json", "package-lock.json*", "./ClientBooking/"]
+WORKDIR "/src/ClientBooking"
+RUN npm install
+
 COPY ["ClientBooking/ClientBooking.csproj", "ClientBooking/"]
 RUN dotnet restore "ClientBooking/ClientBooking.csproj"
+
 COPY . .
 WORKDIR "/src/ClientBooking"
-RUN dotnet build "./ClientBooking.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+RUN dotnet build "ClientBooking/ClientBooking.csproj" -c Release -o /app/build
+RUN npx tailwindcss -i ClientBooking/wwwroot/app.css -o ClientBooking/wwwroot/styles.css --minify
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ClientBooking.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ClientBooking/ClientBooking.csproj" -c Release -o /app/publish -p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
