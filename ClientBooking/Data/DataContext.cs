@@ -85,50 +85,18 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
             .WithMany(u => u.Notifications)
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
         
-        //Configure deletion behaviour for related entities.
         modelBuilder.Entity<Notification>()
             .HasOne(n => n.Booking)
             .WithMany(b => b.Notifications)
             .HasForeignKey(n => n.BookingId)
             .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<Settings>()
-            .HasOne(s => s.SavedBy)
+        
+        
+        modelBuilder.Entity<Entity>()
+            .HasOne(e => e.SavedBy)
             .WithMany()
-            .HasForeignKey(s => s.SavedById)
+            .HasForeignKey(e => e.SavedById)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Client>()
-            .HasOne(c => c.SavedBy)
-            .WithMany()
-            .HasForeignKey(c => c.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.SavedBy)
-            .WithMany()
-            .HasForeignKey(b => b.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Role>()
-            .HasOne(r => r.SavedBy)
-            .WithMany()
-            .HasForeignKey(r => r.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<UserUnavailability>()
-            .HasOne(u => u.SavedBy)
-            .WithMany()
-            .HasForeignKey(u => u.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.SavedBy)
-            .WithMany()
-            .HasForeignKey(n => n.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
-    
     }
 }

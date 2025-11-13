@@ -31,8 +31,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//Add Migrations here
-
 await app.ApplyStartupDatabaseMigrations();
 
 app.MapStaticAssets();
