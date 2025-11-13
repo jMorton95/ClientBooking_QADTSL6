@@ -6,7 +6,7 @@ public static class ConfigureApplication
 {
     public static WebApplicationBuilder AddPostGresDatabaseFromConfiguration(this WebApplicationBuilder builder)
     {
-        var dbSettings = builder.Configuration.GetSection("DataaseSettings").Get<DatabaseSettings>();
+        var dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
         var connectionString =
             $"Host={dbSettings?.Host};Port={dbSettings?.Port};Database={dbSettings?.Database};Username={dbSettings?.Username};Password={dbSettings?.Password};Include Error Detail=true";
         builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
