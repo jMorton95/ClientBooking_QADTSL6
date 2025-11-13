@@ -1,6 +1,0 @@
-@ClientBooking_HostAddress = http://localhost:5195
-
-GET {{ClientBooking_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
