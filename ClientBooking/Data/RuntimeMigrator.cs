@@ -20,7 +20,7 @@ public static class RuntimeMigrator
         
         if (!await dbContext.Settings.AnyAsync())
         {
-            await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+            //await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
         }
     }    
 }

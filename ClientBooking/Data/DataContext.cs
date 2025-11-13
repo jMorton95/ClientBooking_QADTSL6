@@ -5,16 +5,16 @@ namespace ClientBooking.Data;
 
 public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
-    public DbSet<Settings> Settings { get; set; }
-    public DbSet<Client> Clients { get; set; }
-    public DbSet<Booking> Bookings { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<UserUnavailability> UserUnavailabilities { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<Settings> Settings => Set<Settings>();
+    public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
+    public DbSet<Notification> Notifications => Set<Notification>();
     
-    public DbSet<UserBooking> UserBookings { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<UserBooking> UserBookings => Set<UserBooking>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
     
     public override Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
@@ -37,11 +37,6 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
         //Composite Keys
         modelBuilder.Entity<UserBooking>().HasKey(ub => new { ub.BookingId, ub.UserId });
         modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
-
-        //Use RowVersion has concurrency provider
-        modelBuilder.Entity<Entity>()
-            .Property(e => e.RowVersion)
-            .IsConcurrencyToken();
         
         //Entity relationships
         modelBuilder.Entity<Booking>()
@@ -92,11 +87,10 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
             .HasForeignKey(n => n.BookingId)
             .OnDelete(DeleteBehavior.NoAction);
         
-        
-        modelBuilder.Entity<Entity>()
-            .HasOne(e => e.SavedBy)
+        modelBuilder.Entity<Settings>()
+            .HasOne(s => s.SavedBy)
             .WithMany()
-            .HasForeignKey(e => e.SavedById)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(s => s.SavedById)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
