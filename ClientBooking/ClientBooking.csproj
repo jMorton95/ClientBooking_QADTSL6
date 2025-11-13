@@ -8,6 +8,15 @@
         <RootNamespace>ClientBooking</RootNamespace>
         <DisableScopedCssBundling>true</DisableScopedCssBundling>
     </PropertyGroup>
+
+    <Target Name="TailwindOnBuild" BeforeTargets="Compile">
+        <Exec Command="npx tailwindcss -i wwwroot/app.css -o wwwroot/styles.css --minify"
+              Condition="'$(Configuration)' == 'Debug'" />
+    </Target>
+
+    <Target Name="TailwindOnWatch" BeforeTargets="BeforeTargets">
+        <Exec Command="npx tailwindcss -i wwwroot/app.css -o wwwroot/styles.css --watch" />
+    </Target>
     
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
