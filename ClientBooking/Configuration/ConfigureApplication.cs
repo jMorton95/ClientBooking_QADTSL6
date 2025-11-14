@@ -34,10 +34,5 @@ public static class ConfigureApplication
             builder.Services
                 .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>();
         }
-
-        public void AddCustomRequestHandlers()
-        {
-            builder.Services.AddScoped<RegistrationHandler>();
-        }
     }
 }

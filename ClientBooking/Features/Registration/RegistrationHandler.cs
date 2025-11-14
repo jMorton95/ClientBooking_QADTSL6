@@ -1,34 +1,51 @@
 using ClientBooking.Authentication;
 using ClientBooking.Data;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClientBooking.Features.Registration;
 
-
-public class RegistrationHandler(IValidator<RegistrationRequest> validator, DataContext dataContext, IPasswordHelper passwordHelper)
+public class RegistrationHandler : IRequestHandler
 {
-    public async Task<RegistrationResult> HandleAsync(RegistrationRequest request)
+    public static void Map(IEndpointRouteBuilder app)
     {
-        //Ensure the Request Object matches our validation criteria
-        var validationResult = await validator.ValidateAsync(request);
-
-        if (!validationResult.IsValid)
-            return RegistrationResult.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToArray());
-        
-        //Ensure an account for this email address doesn't already exist
-        if (await dataContext.Users.AnyAsync(u => u.Email == request.Email))
-            return RegistrationResult.Fail("Email already exists.");
-
-        //Hash the password and create the user in the database.
-        var hashedPassword = passwordHelper.HashPassword(request.PasswordTwo);
-        var newUser = request.MapRegistrationRequestToUser(hashedPassword);
-        
-        await dataContext.Users.AddAsync(newUser);
-        await dataContext.SaveChangesAsync();
-
-        return RegistrationResult.Success(newUser.Id);
+        app.MapPost("register", Handler);
     }
+    
+    private static async Task<RegistrationResult> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+        DataContext dataContext,
+        IPasswordHelper passwordHelper)
+    {
+        try
+        {
+            //Ensure the Request Object matches our validation criteria
+            var registrationRequest = request.RegistrationRequest;
+            var validationResult = await validator.ValidateAsync(registrationRequest);
 
+            if (!validationResult.IsValid)
+                return RegistrationResult.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToArray());
+        
+            //Ensure an account for this email address doesn't already exist
+            if (await dataContext.Users.AnyAsync(u => u.Email == registrationRequest.Email))
+                return RegistrationResult.Fail("Email already exists.");
+
+            //Hash the password and create the user in the database.
+            var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
+            var newUser = registrationRequest.MapRegistrationRequestToUser(hashedPassword);
+        
+            await dataContext.Users.AddAsync(newUser);
+            await dataContext.SaveChangesAsync();
+
+            return RegistrationResult.Success(newUser.Id);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return RegistrationResult.Fail(e.Message);
+        }
+    }
+    
+    public record Request(RegistrationRequest RegistrationRequest);
     
     //DTO used to communicate the result of the registration operation.
     public record RegistrationResult(bool Result, string[] ErrorMessages, int? UserId)

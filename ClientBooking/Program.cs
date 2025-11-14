@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Override Appsettings values with values injected in from Github Secerts, during pipeline run.
+//Override Appsettings values with values injected in from Github Secrets, during pipeline run.
 builder.Configuration.AddEnvironmentVariables();
 
 //Enable HTTP Context services.
@@ -31,7 +31,6 @@ builder.AddCustomAuthenticationServices();
 
 builder.AddCustomValidators();
 
-builder.AddCustomRequestHandlers();
 
 
 //Runtime environment behaviour
@@ -75,5 +74,7 @@ app.UseAntiforgery();
 //Apply our Frontend components to their defined website routes.
 app.MapRazorComponents<App>();
 
+//Map custom application endpoints, mostly POST requests.
+app.MapApplicationRequestHandlers();
 
 app.Run();

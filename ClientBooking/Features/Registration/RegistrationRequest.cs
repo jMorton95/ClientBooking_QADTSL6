@@ -2,7 +2,7 @@ using ClientBooking.Data.Entities;
 
 namespace ClientBooking.Features.Registration;
 
-public class RegistrationRequest()
+public class RegistrationRequest
 {
     public string FirstName { get; set; } = "";
     
