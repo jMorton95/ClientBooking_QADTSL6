@@ -3,20 +3,20 @@
 public interface ISessionManager
 {
     int? GetUserId();
-    void Clear();
+    void SetUserId(int userId);
+    void Logout();
+    bool IsAuthenticated();
 }
 
 public class SessionManager(IHttpContextAccessor httpContextAccessor) : ISessionManager
 {
     private ISession Session => httpContextAccessor.HttpContext!.Session;
 
-    public int? GetUserId()
-    {
-        return Session.GetInt32("UserId");
-    }
+    public int? GetUserId() => Session.GetInt32("UserId");
+    
+    public void SetUserId(int userId) => Session.SetInt32("UserId", userId);
 
-    public void Clear()
-    {
-        Session.Clear();
-    }
+    public void Logout() => Session.Clear();
+    
+    public bool IsAuthenticated() => GetUserId() != null;
 }

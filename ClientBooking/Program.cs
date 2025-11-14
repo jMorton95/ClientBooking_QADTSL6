@@ -1,5 +1,6 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
+using ClientBooking.Authentication;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
@@ -22,6 +23,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(12);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 //Configure our database connection
@@ -51,6 +54,8 @@ builder.Services.AddRazorComponents();
 
 var app = builder.Build();
 
+//Detect and apply migrations, seed on first run.
+await app.ApplyStartupDatabaseMigrations();
 
 //Add Middleware in Production for error page redirecting and strict transport security headers.
 if (!app.Environment.IsDevelopment())
@@ -62,8 +67,8 @@ if (!app.Environment.IsDevelopment())
 //Enable session state
 app.UseSession();
 
-//Detect and apply migrations, seed on first run.
-await app.ApplyStartupDatabaseMigrations();
+//Enable custom Auth Middleware
+app.UseMiddleware<AuthenticationMiddleware>();
 
 //Exposes static files such as .PNGs / Favicon etc.
 app.MapStaticAssets();

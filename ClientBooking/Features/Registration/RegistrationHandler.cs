@@ -12,9 +12,10 @@ public class RegistrationHandler : IRequestHandler
         app.MapPost("register", Handler);
     }
     
-    private static async Task<RegistrationResult> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+    private static async Task<Results<RedirectHttpResult, BadRequest<string>, ValidationProblem, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
         DataContext dataContext,
-        IPasswordHelper passwordHelper)
+        IPasswordHelper passwordHelper,
+        ISessionManager sessionManager)
     {
         try
         {
@@ -23,11 +24,11 @@ public class RegistrationHandler : IRequestHandler
             var validationResult = await validator.ValidateAsync(registrationRequest);
 
             if (!validationResult.IsValid)
-                return RegistrationResult.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToArray());
+                return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
             //Ensure an account for this email address doesn't already exist
             if (await dataContext.Users.AnyAsync(u => u.Email == registrationRequest.Email))
-                return RegistrationResult.Fail("Email already exists.");
+                return TypedResults.BadRequest("An account with this email address already exists.");
 
             //Hash the password and create the user in the database.
             var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
@@ -35,24 +36,19 @@ public class RegistrationHandler : IRequestHandler
         
             await dataContext.Users.AddAsync(newUser);
             await dataContext.SaveChangesAsync();
+            
+            sessionManager.SetUserId(newUser.Id);
 
-            return RegistrationResult.Success(newUser.Id);
+            return TypedResults.Redirect("/");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            return RegistrationResult.Fail(e.Message);
+            //TODO: Add Logging
+            Console.WriteLine(ex);
+            return TypedResults.InternalServerError(ex.Message);
         }
     }
     
+    //Wrapper DTO to capture RegistrationRequest
     public record Request(RegistrationRequest RegistrationRequest);
-    
-    //DTO used to communicate the result of the registration operation.
-    public record RegistrationResult(bool Result, string[] ErrorMessages, int? UserId)
-    {
-        public static RegistrationResult Fail(params string[] errorMessages)
-            => new (false, errorMessages, null);
-        
-        public static RegistrationResult Success(int userId) => new  (true, [], userId);
-    }
 }
