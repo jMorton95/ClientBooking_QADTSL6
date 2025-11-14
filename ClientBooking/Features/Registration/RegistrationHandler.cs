@@ -12,7 +12,7 @@ public class RegistrationHandler : IRequestHandler
         app.MapPost("register", Handler);
     }
     
-    private static async Task<Results<RedirectHttpResult, BadRequest<string>, ValidationProblem, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+    private static async Task<Results<HtmxRedirectResult, BadRequest<string>, ValidationProblem, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
         ISessionManager sessionManager)
@@ -37,9 +37,9 @@ public class RegistrationHandler : IRequestHandler
             await dataContext.Users.AddAsync(newUser);
             await dataContext.SaveChangesAsync();
             
+            //Store the userId in the newly created session and inform HTMX to redirect.
             sessionManager.SetUserId(newUser.Id);
-
-            return TypedResults.Redirect("/");
+            return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
         {
