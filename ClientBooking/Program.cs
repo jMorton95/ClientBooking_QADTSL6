@@ -8,14 +8,18 @@ using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 //Override Appsettings values with values injected in from Github Secrets, during pipeline run.
 builder.Configuration.AddEnvironmentVariables();
+
 
 //Enable HTTP Context services.
 builder.Services.AddHttpContextAccessor();
 
+
 //Enable application to store session data in application memory.
 builder.Services.AddDistributedMemoryCache();
+
 
 //Configure session stored in HTTP only cookies.
 builder.Services.AddSession(options =>
@@ -26,6 +30,7 @@ builder.Services.AddSession(options =>
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
 
 //Configure our database connection
 builder.AddPostgresDatabaseFromConfiguration();
@@ -43,6 +48,7 @@ else
     //Enables local development at runtime.
     StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 }
+
 
 //Adds Token to prevent POST request forgery
 builder.Services.AddAntiforgery();
