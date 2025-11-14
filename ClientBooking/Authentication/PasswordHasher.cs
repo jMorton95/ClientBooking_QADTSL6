@@ -3,6 +3,7 @@ using System.Text;
 
 namespace ClientBooking.Authentication;
 
+
 public interface IPasswordHasher
 {
     byte[] HashPassword(Rfc2898DeriveBytes passwordKey, byte[] salt);
@@ -19,8 +20,11 @@ public interface IPasswordHasher
 
 public class PasswordHasher : IPasswordHasher
 {
+    /// Create an empty byte 32 array
     public byte[] CreateSalt() => new byte[32];
 
+    
+    /// Merges the passwordKey and salt into a fully hashed password byte array 
     public byte[] HashPassword(Rfc2898DeriveBytes passwordKey, byte[] salt)
     {
         var passwordBytes = passwordKey.GetBytes(32);
@@ -33,6 +37,8 @@ public class PasswordHasher : IPasswordHasher
         return hashedPassword;
     }
 
+    
+    //Concatenates a hashed password byte array into a single string
     public string HashedPasswordToString(byte[] bytePassword)
     {
         var builder = new StringBuilder(bytePassword.Length * 2);
@@ -45,6 +51,7 @@ public class PasswordHasher : IPasswordHasher
         return builder.ToString();
     }
     
+    //Deconstructs a password string into a byte array of length 64
     public byte[] PasswordToBytes(string storedPassword)
     {
         var bytes = new byte[64]; 
@@ -56,6 +63,7 @@ public class PasswordHasher : IPasswordHasher
         return bytes;
     }
 
+    //Extracts the salt bytes from hashed password converted to byte array.
     public byte[] ExtractSalt(byte[] passwordBytes)
     {
         var salt = CreateSalt();
@@ -64,11 +72,14 @@ public class PasswordHasher : IPasswordHasher
         return salt;
     }
 
+    //Creates a password key from a plaintext password and a pre-generated salt
     public Rfc2898DeriveBytes CreatePasswordKey(string loginPassword, byte[] salt)
     {
         return new Rfc2898DeriveBytes(loginPassword, salt, 100000, HashAlgorithmName.SHA256);
     }
 
+    //Directly compares the bytes of a password key and password bytes
+    //This uses the length of the salt to determine exactly were in the hashed password to begin comparison.
     public bool ComparePassword(Rfc2898DeriveBytes passwordKey, byte[] salt, byte[] passwordBytes)
     {
         var hashBytes = passwordKey.GetBytes(32);
