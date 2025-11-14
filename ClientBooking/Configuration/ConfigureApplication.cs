@@ -7,7 +7,7 @@ public static class ConfigureApplication
 {
     extension(WebApplicationBuilder builder)
     {
-        public void AddPostGresDatabaseFromConfiguration()
+        public void AddPostgresDatabaseFromConfiguration()
         {
             var dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
             
@@ -19,7 +19,11 @@ public static class ConfigureApplication
 
         public void AddInjectableServices()
         {
-            builder.Services.AddTransient<IPasswordHelper, PasswordHelper>()
+            builder.Services
+                .AddScoped<ISessionManager, SessionManager>();
+                
+            builder.Services
+                .AddTransient<IPasswordHelper, PasswordHelper>()
                 .AddTransient<IPasswordHasher, PasswordHasher>();
         }
     }

@@ -18,7 +18,7 @@ public class User : Entity
     [Required]
     public bool IsActive { get; set; }
     
-    [Required]
+    [Required, StringLength(255)]
     public string HashedPassword { get; set; }
     
     public bool IsLockedOut { get; set; } = false;

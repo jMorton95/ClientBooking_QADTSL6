@@ -1,4 +1,5 @@
-﻿using ClientBooking.Data.Entities;
+﻿using ClientBooking.Authentication;
+using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Data;
@@ -9,6 +10,9 @@ public static class DatabaseSeeder
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        var passwordHelper = services.GetRequiredService<IPasswordHelper>();
+
+        var genericSeederPassword = passwordHelper.HashPassword("password");
         
         var now = DateTime.UtcNow;
         
@@ -17,6 +21,7 @@ public static class DatabaseSeeder
             FirstName = "System",
             LastName = "Admin",
             Email = "admin@joshmorton.co.uk",
+            HashedPassword = genericSeederPassword,
             IsActive = true,
             SavedAt = now,
             RowVersion = 1,
@@ -28,6 +33,7 @@ public static class DatabaseSeeder
             FirstName = "John",
             LastName = "Doe",
             Email = "john@example.com",
+            HashedPassword = genericSeederPassword,
             IsActive = true,
             SavedAt = now,
             RowVersion = 1,
