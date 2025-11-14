@@ -27,8 +27,12 @@ builder.Services.AddSession(options =>
 //Configure our database connection
 builder.AddPostgresDatabaseFromConfiguration();
 
-//Add custom services
-builder.AddInjectableServices();
+builder.AddCustomAuthenticationServices();
+
+builder.AddCustomValidators();
+
+builder.AddCustomRequestHandlers();
+
 
 //Runtime environment behaviour
 if (builder.Environment.IsProduction()) { }
