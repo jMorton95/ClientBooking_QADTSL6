@@ -8,8 +8,11 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
-        app.MapRequestHandler<RegistrationHandler>()
-            .MapRequestHandler<HealthCheckHandler>();
+        app.MapRequestHandler<RegistrationHandler>();
+            
+        var api = app.MapGroup("/api/");
+                
+        api.MapRequestHandler<HealthCheckHandler>();
     }
     
     private static IEndpointRouteBuilder MapRequestHandler<TRequestHandler>
