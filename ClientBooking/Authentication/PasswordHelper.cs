@@ -11,6 +11,7 @@ public interface IPasswordHelper
 
 public class PasswordHelper(IPasswordHasher passwordHasher) : IPasswordHelper
 {
+    //Uses the internal methods of the passwordHasher to fully hash a plaintext password.
     public string HashPassword(string password)
     {
         var rng = RandomNumberGenerator.Create();
@@ -25,6 +26,8 @@ public class PasswordHelper(IPasswordHasher passwordHasher) : IPasswordHelper
         return passwordHasher.HashedPasswordToString(hashedPassword);
     }
 
+    
+    //Uses the internal methods of the passwordHasher to safely compare a plaintext password against a hashed password.
     public bool CheckPassword(string loginPassword, string storedPassword)
     {
         var bytes = passwordHasher.PasswordToBytes(storedPassword);
