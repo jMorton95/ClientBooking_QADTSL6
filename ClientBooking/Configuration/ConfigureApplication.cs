@@ -1,5 +1,6 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Features.Login;
 using ClientBooking.Features.Registration;
 using FluentValidation;
 
@@ -32,7 +33,8 @@ public static class ConfigureApplication
         public void AddCustomValidators()
         {
             builder.Services
-                .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>();
+                .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>()
+                .AddScoped<IValidator<LoginRequest>, LoginValidator>();
         }
     }
 }

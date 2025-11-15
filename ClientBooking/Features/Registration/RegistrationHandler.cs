@@ -12,7 +12,9 @@ public class RegistrationHandler : IRequestHandler
         app.MapPost("register", Handler);
     }
     
-    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler(
+        [FromForm] Request request, 
+        IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
         ISessionManager sessionManager)
