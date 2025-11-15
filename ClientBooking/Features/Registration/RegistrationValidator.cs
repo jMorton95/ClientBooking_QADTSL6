@@ -32,8 +32,8 @@ public class RegistrationValidator : AbstractValidator<RegistrationRequest>
         RuleFor(x => x.PasswordTwo).SetValidator(passwordRuleSet);
         
         //Custom validation rule to ensure both passwords are matching.
-        RuleFor(x => x)
-            .Must(x => x.ArePasswordsEqual)
-            .WithMessage("Passwords are must be matching.");
+        RuleFor(x => x.PasswordTwo)
+            .Equal(x => x.PasswordOne)
+            .WithMessage("Passwords must be matching.");
     }
 }

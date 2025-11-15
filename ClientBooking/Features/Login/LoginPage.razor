@@ -1,7 +1,62 @@
 ﻿@page "/login"
+@using ClientBooking.Components
+@using Microsoft.AspNetCore.Components.Forms
 
-<h3>LoginPage</h3>
+<CascadingValue Value="ValidationErrors">
+    <EditForm EditContext="_editContext" hx-post="/login" hx-swap="outerHTML" id="login" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
+        <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Enter your username and password.</h2>
+
+        <div class="grid lg:grid-cols-2 items-start gap-12">
+            <div class="space-y-3 text-gray-800">
+                <div>
+                    <InputText @bind-Value="LoginRequest.Email"
+                               type="email"
+                               id="email"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Email"/>
+                    <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Email)" />
+                </div>
+
+                <div>
+                    <InputText @bind-Value="LoginRequest.Password"
+                               id="passwordOne"
+                               type="password"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Password"/>
+                    <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)" />
+                </div>
+                
+                @if (ErrorMessage != null)
+                {
+                    <div class="validation-message">
+                        <div>@ErrorMessage</div>
+                    </div>
+                }
+
+                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 mt-6!">
+                    Log in
+                </button>
+                
+                <a href="/register" class="text-blue rounded text-sm px-6 py-3 mt-6!">
+                    Sign up here
+                </a>
+                
+            </div>
+        </div>
+    </EditForm>
+</CascadingValue>
+
 
 @code {
-    
+    [Parameter] public LoginRequest LoginRequest { get; set; } = new();
+    [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; } = new();
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(LoginRequest);
+    }
+
 }

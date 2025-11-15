@@ -13,8 +13,6 @@ public class RegistrationRequest
     public string PasswordOne { get; set; } = "";
     
     public string PasswordTwo { get; set; } = "";
-    
-    public bool ArePasswordsEqual => PasswordOne == PasswordTwo;
 
     public User MapRegistrationRequestToUser(string hashedPassword) => new()
     {

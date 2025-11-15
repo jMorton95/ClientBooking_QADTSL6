@@ -1,13 +1,21 @@
-﻿@page "/"
+﻿@using ClientBooking.Authentication
+@inject ISessionManager SessionManager;
 
 <h3>Home</h3>
 
-<button hx-get="/api/healthcheck"
-        hx-trigger="click"
-        hx-swap="innerHTML">
-    Click Me!
-</button>
+@if (UserId is not null)
+{
+    <div>
+        User ID: @UserId!
+    </div>
+}
 
 @code {
+    private int? UserId { get; set; }
     
+    protected override void OnInitialized()
+    {
+        UserId = SessionManager.GetUserId();
+        Console.WriteLine(SessionManager.GetUserId());
+    }
 }

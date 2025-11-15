@@ -1,7 +1,7 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
 
-namespace ClientBooking.Features.Health;
+namespace ClientBooking.Features.HealthCheck;
 
 public class HealthCheckHandler : IRequestHandler
 {

@@ -1,5 +1,6 @@
 using ClientBooking.Features;
-using ClientBooking.Features.Health;
+using ClientBooking.Features.HealthCheck;
+using ClientBooking.Features.Home;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Registration;
 
@@ -9,7 +10,8 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
-        app.MapRequestHandler<RegistrationHandler>()
+        app.MapRequestHandler<HomeHandler>()
+            .MapRequestHandler<RegistrationHandler>()
             .MapRequestHandler<LoginHandler>();
             
         var api = app.MapGroup("/api/");
