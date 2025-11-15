@@ -1,74 +1,76 @@
 @page "/register"
+@using ClientBooking.Components
 @using Microsoft.AspNetCore.Components.Forms
 
-<EditForm EditContext="_editContext" hx-post="/register" hx-swap="outerHTML" id="registration" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
-    <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Register with us</h2>
+<CascadingValue Value="ValidationErrors">
+    <EditForm EditContext="_editContext" hx-post="/register" hx-swap="outerHTML" id="registration" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
+        <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Register with us</h2>
 
-    <div class="grid lg:grid-cols-2 items-start gap-12">
-        <div class="space-y-3 text-gray-800">
-            <div>
-                <InputText @bind-Value="RegistrationRequest.FirstName"
-                           id="firstName"
-                           class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                           placeholder="First Name"/>
-                <ValidationMessage For="@(() => RegistrationRequest.FirstName)" class="validation-message"/>
-            </div>
-            
-            <div>
-                <InputText @bind-Value="RegistrationRequest.LastName"
-                           id="lastName"
-                           class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                           placeholder="Last Name"/>
-                <ValidationMessage For="@(() => RegistrationRequest.LastName)" class="validation-message"/>
-            </div>
+        <div class="grid lg:grid-cols-2 items-start gap-12">
+            <div class="space-y-3 text-gray-800">
+                <div>
+                    <InputText @bind-Value="RegistrationRequest.FirstName"
+                               id="firstName"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="First Name"/>
+                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.FirstName)" />
+                </div>
+                
+                <div>
+                    <InputText @bind-Value="RegistrationRequest.LastName"
+                               id="lastName"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Last Name"/>
+                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.LastName)" />
+                </div>
 
-            <div>
-                <InputText @bind-Value="RegistrationRequest.Email"
-                           type="email"
-                           id="email"
-                           class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                           placeholder="Email"/>
-                <ValidationMessage For="@(() => RegistrationRequest.Email)" class="validation-message"/>
-            </div>
+                <div>
+                    <InputText @bind-Value="RegistrationRequest.Email"
+                               type="email"
+                               id="email"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Email"/>
+                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.Email)" />
+                </div>
 
-            <div>
-                <InputText @bind-Value="RegistrationRequest.PasswordOne"
-                           id="passwordOne"
-                           type="password"
-                           class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                           placeholder="Password"/>
-                <ValidationMessage For="@(() => RegistrationRequest.PasswordOne)" class="validation-message"/>
-            </div>
+                <div>
+                    <InputText @bind-Value="RegistrationRequest.PasswordOne"
+                               id="passwordOne"
+                               type="password"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Password"/>
+                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordOne)" />
+                </div>
 
-            <div>
-                <InputText @bind-Value="RegistrationRequest.PasswordTwo"
-                           id="passwordTwo"
-                           type="password"
-                           class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                           placeholder="Confirm Password"/>
-                <ValidationMessage For="@(() => RegistrationRequest.PasswordTwo)" class="validation-message"/>
-            </div>
+                <div>
+                    <InputText @bind-Value="RegistrationRequest.PasswordTwo"
+                               id="passwordTwo"
+                               type="password"
+                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                               placeholder="Confirm Password"/>
+                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordTwo)" />
+                </div>
+                
+                @if (ErrorMessage != null)
+                {
+                    <div class="validation-message">
+                        <div>@ErrorMessage</div>
+                    </div>
+                }
 
-            <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 mt-6!">
-                Register
-            </button>
+                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 mt-6!">
+                    Register
+                </button>
+            </div>
         </div>
-        
-    </div>
-
-    <style>
-        .validation-message {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-    </style>
-    
-</EditForm>
+    </EditForm>
+</CascadingValue>
 
 
 @code {
     [Parameter] public RegistrationRequest RegistrationRequest { get; set; } = new();
+    [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; } = new();
+    [Parameter] public string? ErrorMessage { get; set; }
 
     private EditContext? _editContext;
 

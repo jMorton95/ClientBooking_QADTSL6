@@ -12,7 +12,7 @@ public class RegistrationHandler : IRequestHandler
         app.MapPost("register", Handler);
     }
     
-    private static async Task<Results<HtmxRedirectResult, BadRequest<string>, ValidationProblem, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
         ISessionManager sessionManager)
@@ -24,11 +24,21 @@ public class RegistrationHandler : IRequestHandler
             var validationResult = await validator.ValidateAsync(registrationRequest);
 
             if (!validationResult.IsValid)
-                return TypedResults.ValidationProblem(validationResult.ToDictionary());
+            {
+                return new RazorComponentResult<RegistrationPage>(new {
+                    registrationRequest,
+                    ValidationErrors = validationResult.ToDictionary()
+                });
+            }
         
             //Ensure an account for this email address doesn't already exist
             if (await dataContext.Users.AnyAsync(u => u.Email == registrationRequest.Email))
-                return TypedResults.BadRequest("An account with this email address already exists.");
+            {
+                return new RazorComponentResult<RegistrationPage>(new {
+                    registrationRequest,
+                    ErrorMessage = "An account with this email address already exists."
+                });
+            }
 
             //Hash the password and create the user in the database.
             var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
