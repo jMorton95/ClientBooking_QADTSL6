@@ -1,5 +1,7 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Features.Registration;
+using FluentValidation;
 
 namespace ClientBooking.Configuration;
 
@@ -17,7 +19,7 @@ public static class ConfigureApplication
             builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         }
 
-        public void AddInjectableServices()
+        public void AddCustomAuthenticationServices()
         {
             builder.Services
                 .AddScoped<ISessionManager, SessionManager>();
@@ -25,6 +27,12 @@ public static class ConfigureApplication
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()
                 .AddTransient<IPasswordHasher, PasswordHasher>();
+        }
+
+        public void AddCustomValidators()
+        {
+            builder.Services
+                .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>();
         }
     }
 }

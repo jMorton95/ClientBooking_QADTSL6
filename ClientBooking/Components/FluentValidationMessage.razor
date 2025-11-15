@@ -1,0 +1,51 @@
+﻿@using System.Linq.Expressions
+@typeparam TModel
+
+@code {
+    //Pass a specific property of an object, alongside a dictionary of validation errors for the object.
+    [Parameter] public Expression<Func<TModel, object>>? For { get; set; }
+    [CascadingParameter] public IDictionary<string, string[]>? ValidationErrors { get; set; }
+
+    private IEnumerable<string> _messages = [];
+
+    //Access the property and find corresponding validation errors.
+    protected override void OnParametersSet()
+    {
+        if (ValidationErrors == null)
+        {
+            _messages = [];
+            return;
+        }
+
+        var memberExpression = For?.Body as MemberExpression
+                         ?? (For?.Body as UnaryExpression)?.Operand as MemberExpression;
+
+        if (memberExpression == null)
+        {
+            _messages = [];
+            return;
+        }
+
+        var propertyName = memberExpression.Member.Name;
+
+        if (ValidationErrors.TryGetValue(propertyName, out var errors))
+        {
+            _messages = errors;
+        }
+        else
+        {
+            _messages = [];
+        }
+    }
+}
+
+@* Renders validation error message, if found *@
+@if (_messages.Any())
+{
+    <div class="validation-message">
+        @foreach (var message in _messages)
+        {
+            <div>@message</div>
+        }
+    </div>
+}
