@@ -9,7 +9,7 @@ public class LoginHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("/login", HandleAsync);
+        app.MapPost("/login", HandleAsync).WithMetadata(new AllowAnonymousAttribute());
     }
 
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, InternalServerError<string>>> HandleAsync(

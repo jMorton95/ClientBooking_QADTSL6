@@ -1,7 +1,7 @@
 using ClientBooking.Features;
 using ClientBooking.Features.HealthCheck;
-using ClientBooking.Features.Home;
 using ClientBooking.Features.Login;
+using ClientBooking.Features.Logout;
 using ClientBooking.Features.Registration;
 
 namespace ClientBooking.Configuration;
@@ -10,9 +10,9 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
-        app.MapRequestHandler<HomeHandler>()
-            .MapRequestHandler<RegistrationHandler>()
-            .MapRequestHandler<LoginHandler>();
+        app.MapRequestHandler<RegistrationHandler>()
+            .MapRequestHandler<LoginHandler>()
+            .MapRequestHandler<LogoutHandler>();
             
         var api = app.MapGroup("/api/");
                 
