@@ -4,6 +4,7 @@ using ClientBooking.Authentication;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,28 +18,38 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddHttpContextAccessor();
 
 
-//Enable application to store session data in application memory.
-builder.Services.AddDistributedMemoryCache();
+//Add Token to prevent POST request forgery
+builder.Services.AddAntiforgery();
+
+//Add Frontend Pages and components.
+builder.Services.AddRazorComponents();
 
 
-//Configure session stored in HTTP only cookies.
-builder.Services.AddSession(options =>
+//Configure authentication sessions, stored in HTTP only cookies.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options => 
 {
-    options.IdleTimeout = TimeSpan.FromHours(12);
+    options.Cookie.Name = "ClientBooking.Auth";
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.ExpireTimeSpan = TimeSpan.FromHours(3);
+    options.SlidingExpiration = true;
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/login";
+    options.LogoutPath = "/logout";
 });
 
+//Configure default authorisation services.
+builder.Services.AddAuthorization();
 
-//Configure our database connection
+//Configure our database connection and custom services.
 builder.AddPostgresDatabaseFromConfiguration();
 
 builder.AddCustomAuthenticationServices();
 
 builder.AddCustomValidators();
-
 
 
 //Runtime environment behaviour
@@ -48,15 +59,6 @@ else
     //Enables local development at runtime.
     StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 }
-
-
-//Adds Token to prevent POST request forgery
-builder.Services.AddAntiforgery();
-
-//Add Frontend Pages / Code Behind.
-builder.Services.AddRazorComponents();
-
-
 
 var app = builder.Build();
 
@@ -70,21 +72,27 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//Enable session state
-
+//Server static HTML/CSS/JS files.
 app.MapStaticAssets();
-app.UseStaticFiles();
 app.UseRouting();
-app.UseSession();
 
-//Enable custom Auth Middleware
-app.UseMiddleware<AuthenticationMiddleware>();
 
-//Add middleware
+//app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
 app.UseAntiforgery();
 
-//Apply our Frontend components to their defined website routes.
-app.MapRazorComponents<App>();
+
+//app.UseMiddleware<AuthenticationMiddleware>();
+
+
+
+
+//Apply our Frontend components to their defined website routes, configure authorisation policy defaults.
+app.MapRazorComponents<App>().RequireAuthorization();
 
 //Map custom application endpoints, mostly POST requests.
 app.MapApplicationRequestHandlers();

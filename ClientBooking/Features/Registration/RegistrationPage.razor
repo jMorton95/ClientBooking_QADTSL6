@@ -1,5 +1,7 @@
 @page "/register"
+@attribute [AllowAnonymous]
 @using ClientBooking.Components
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 
 <CascadingValue Value="ValidationErrors">

@@ -1,5 +1,7 @@
 ﻿@page "/login"
+@attribute [AllowAnonymous]
 @using ClientBooking.Components
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 
 <CascadingValue Value="ValidationErrors">
@@ -37,7 +39,7 @@
                     Log in
                 </button>
                 
-                <a href="/register" class="text-blue rounded text-sm px-6 py-3 mt-6!">
+                <a href="register" class="text-blue rounded text-sm px-6 py-3 mt-6!">
                     Sign up here
                 </a>
                 

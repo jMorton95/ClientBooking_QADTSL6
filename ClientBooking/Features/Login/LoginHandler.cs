@@ -9,15 +9,15 @@ public class LoginHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("/login", HandleAsync).WithMetadata(new AllowAnonymousAttribute());
+        app.MapPost("/login", HandleAsync).AllowAnonymous();
     }
 
-    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, InternalServerError<string>>> HandleAsync(
+    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, BadRequest<string>>> HandleAsync(
         [FromForm] Request request,
         IValidator<LoginRequest> validator,
         IPasswordHelper passwordHelper,
         DataContext dataContext,
-        ISessionManager sessionManager)
+        ISessionStateManager sessionManager)
     {
         try
         {
@@ -56,7 +56,7 @@ public class LoginHandler : IRequestHandler
             }
             
             //Store the user ID in the current session and redirect to the home page.
-            sessionManager.SetUserId(user.Id);
+            await sessionManager.LoginAsync(user.Id);
             return new HtmxRedirectResult("/");
 
         }
@@ -64,7 +64,7 @@ public class LoginHandler : IRequestHandler
         {
             //TODO: Add logging
             Console.WriteLine(ex.Message);
-            return TypedResults.InternalServerError(ex.Message);
+            return TypedResults.BadRequest(ex.Message);
         }
     }
     

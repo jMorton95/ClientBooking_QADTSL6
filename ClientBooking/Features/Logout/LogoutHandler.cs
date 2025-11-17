@@ -9,9 +9,9 @@ public class LogoutHandler : IRequestHandler
         app.MapPost("/logout", Handle);
     }
 
-    private static HtmxRedirectResult Handle(ISessionManager sessionManager)
+    private static HtmxRedirectResult Handle(ISessionStateManager sessionManager)
     {
-        sessionManager.Logout();
+        sessionManager.LogoutAsync();
 
         return new HtmxRedirectResult("/login");
     }

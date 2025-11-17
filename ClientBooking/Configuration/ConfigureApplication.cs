@@ -23,7 +23,7 @@ public static class ConfigureApplication
         public void AddCustomAuthenticationServices()
         {
             builder.Services
-                .AddScoped<ISessionManager, SessionManager>();
+                .AddScoped<ISessionStateManager, SessionStateManager>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()

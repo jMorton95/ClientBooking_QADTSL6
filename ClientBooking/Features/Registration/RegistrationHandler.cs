@@ -9,7 +9,7 @@ public class RegistrationHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("register", Handler).WithMetadata(new AllowAnonymousAttribute());
+        app.MapPost("register", Handler).AllowAnonymous();
     }
     
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler(
@@ -17,7 +17,7 @@ public class RegistrationHandler : IRequestHandler
         IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
-        ISessionManager sessionManager)
+        ISessionStateManager sessionManager)
     {
         try
         {
@@ -48,9 +48,14 @@ public class RegistrationHandler : IRequestHandler
         
             await dataContext.Users.AddAsync(newUser);
             await dataContext.SaveChangesAsync();
+
+            if (sessionManager.IsAuthenticated())
+            {
+                await sessionManager.LogoutAsync();
+            }
             
             //Store the userId in the newly created session and inform HTMX to redirect.
-            sessionManager.SetUserId(newUser.Id);
+            await sessionManager.LoginAsync(newUser.Id);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
