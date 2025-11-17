@@ -1,51 +1,82 @@
 ﻿@page "/login"
+@attribute [AllowAnonymous]
+@using ClientBooking.Authentication
 @using ClientBooking.Components
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager NavigationManager
+@inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
-    <EditForm EditContext="_editContext" hx-post="/login" hx-swap="outerHTML" id="login" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
-        <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Enter your username and password.</h2>
-
-        <div class="grid lg:grid-cols-2 items-start gap-12">
-            <div class="space-y-3 text-gray-800">
-                <div>
-                    <InputText @bind-Value="LoginRequest.Email"
-                               type="email"
-                               id="email"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Email"/>
-                    <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Email)" />
-                </div>
-
-                <div>
-                    <InputText @bind-Value="LoginRequest.Password"
-                               id="passwordOne"
-                               type="password"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Password"/>
-                    <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)" />
-                </div>
-                
-                @if (ErrorMessage != null)
-                {
-                    <div class="validation-message">
-                        <div>@ErrorMessage</div>
-                    </div>
-                }
-
-                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 mt-6!">
-                    Log in
-                </button>
-                
-                <a href="/register" class="text-blue rounded text-sm px-6 py-3 mt-6!">
-                    Sign up here
-                </a>
-                
-            </div>
+  <div id="login-container-div" class="min-h-screen flex items-center justify-center p-4">
+    <EditForm EditContext="_editContext" hx-post="/login" hx-target="#login-container-div" id="login"
+              class="font-[sans-serif] w-full max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-lg p-8">
+      <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Enter your username and password.</h2>
+      
+      <div class="grid lg:grid-cols-2 gap-12">
+        
+        <div class="hidden lg:flex items-center justify-center bg-gray-50 rounded-lg p-8">
+          <div class="text-center">
+            <svg class="w-24 h-24 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Welcome Back</h3>
+            <p class="text-gray-600">Sign in to access your account and manage your bookings.</p>
+          </div>
         </div>
-    </EditForm>
-</CascadingValue>
 
+        <div class="space-y-6">
+          <div>
+            <InputText @bind-Value="LoginRequest.Email"
+                       type="email"
+                       id="email"
+                       class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                       placeholder="Email"/>
+            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Email)"/>
+          </div>
+
+          <div>
+            <InputText @bind-Value="LoginRequest.Password"
+                       id="passwordOne"
+                       type="password"
+                       class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
+                       placeholder="Password"/>
+            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)"/>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="relative flex items-center">
+              <InputCheckbox @bind-Value="LoginRequest.RememberMe"
+                             id="rememberMe"
+                             class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"/>
+            </div>
+            <label for="rememberMe" class="text-sm text-gray-800 cursor-pointer">Remember me on this device</label>
+          </div>
+
+          @if (ErrorMessage != null)
+          {
+            <div class="validation-message">
+              <div>@ErrorMessage</div>
+            </div>
+          }
+
+          <div class="space-y-4">
+            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 transition-colors duration-200">
+              Log in
+            </button>
+
+            <div class="text-center">
+              <a href="/register" class="text-blue-600 hover:text-blue-700 text-sm transition-colors duration-200">
+                Don't have an account? Sign up here
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </EditForm>
+  </div>
+</CascadingValue>
 
 @code {
     [Parameter] public LoginRequest LoginRequest { get; set; } = new();
@@ -56,7 +87,13 @@
 
     protected override void OnInitialized()
     {
+        //If the user is already logged in, redirect away from the login page for positive UX.
+        if (SessionStateManager.IsAuthenticated())
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        
         _editContext = new EditContext(LoginRequest);
     }
-
 }

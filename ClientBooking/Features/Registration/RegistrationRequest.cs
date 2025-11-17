@@ -14,6 +14,7 @@ public class RegistrationRequest
     
     public string PasswordTwo { get; set; } = "";
 
+    //Convert a password from a RegistrationRequest into a readily saveable database object.
     public User MapRegistrationRequestToUser(string hashedPassword) => new()
     {
         FirstName = FirstName,

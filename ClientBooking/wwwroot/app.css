@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@source "../**/*.razor";
+@source "../**/*.html";
+@source "../**/*.cshtml";
+
 @theme {
     --color-main-100: #7aa271
 }

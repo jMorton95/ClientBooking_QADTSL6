@@ -11,12 +11,12 @@ public class HealthCheckHandler : IRequestHandler
     }
 
     private static async Task<Results<Ok<HealthCheckResponse>, InternalServerError<string>>> 
-        HandleHealthCheck(ISessionManager sessionManager, DataContext dataContext)
+        HandleHealthCheck(ISessionStateManager sessionManager, DataContext dataContext)
     {
         try
         {
             var canConnectToDatabase = await dataContext.Database.CanConnectAsync();
-            var userSessionId = sessionManager.GetUserId();
+            var userSessionId = sessionManager.GetUserSessionId();
             
             return TypedResults.Ok(new HealthCheckResponse(canConnectToDatabase, userSessionId));
         }

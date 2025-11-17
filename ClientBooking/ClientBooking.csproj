@@ -13,10 +13,6 @@
         <Exec Command="npx tailwindcss -i wwwroot/app.css -o wwwroot/styles.css --minify"
               Condition="'$(Configuration)' == 'Debug'" />
     </Target>
-
-    <Target Name="TailwindOnWatch" BeforeTargets="BeforeTargets">
-        <Exec Command="npx tailwindcss -i wwwroot/app.css -o wwwroot/styles.css --watch" />
-    </Target>
     
     <ItemGroup>
         <PackageReference Include="FluentValidation" Version="12.1.0" />
@@ -33,10 +29,9 @@
         <Content Include="..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\" />
+        <Content Include="..\package.json">
+            <Link>package.json</Link>
+        </Content>
     </ItemGroup>
 
 </Project>

@@ -1,71 +1,101 @@
 @page "/register"
+@attribute [AllowAnonymous]
+@using ClientBooking.Authentication
 @using ClientBooking.Components
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager NavigationManager
+@inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
-    <EditForm EditContext="_editContext" hx-post="/register" hx-swap="outerHTML" id="registration" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
-        <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Register with us</h2>
+  <div id="registration-container-div" class="min-h-screen flex items-center justify-center p-4">
+    <EditForm EditContext="_editContext" hx-post="/register" hx-target="#registration-container-div" id="registration" 
+              class="font-[sans-serif] w-full max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-lg p-8">
+      <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Create Your Account</h2>
 
-        <div class="grid lg:grid-cols-2 items-start gap-12">
-            <div class="space-y-3 text-gray-800">
-                <div>
-                    <InputText @bind-Value="RegistrationRequest.FirstName"
-                               id="firstName"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="First Name"/>
-                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.FirstName)" />
-                </div>
-                
-                <div>
-                    <InputText @bind-Value="RegistrationRequest.LastName"
-                               id="lastName"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Last Name"/>
-                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.LastName)" />
-                </div>
-
-                <div>
-                    <InputText @bind-Value="RegistrationRequest.Email"
-                               type="email"
-                               id="email"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Email"/>
-                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.Email)" />
-                </div>
-
-                <div>
-                    <InputText @bind-Value="RegistrationRequest.PasswordOne"
-                               id="passwordOne"
-                               type="password"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Password"/>
-                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordOne)" />
-                </div>
-
-                <div>
-                    <InputText @bind-Value="RegistrationRequest.PasswordTwo"
-                               id="passwordTwo"
-                               type="password"
-                               class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                               placeholder="Confirm Password"/>
-                    <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordTwo)" />
-                </div>
-                
-                @if (ErrorMessage != null)
-                {
-                    <div class="validation-message">
-                        <div>@ErrorMessage</div>
-                    </div>
-                }
-
-                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 mt-6!">
-                    Register
-                </button>
-            </div>
+      <div class="grid lg:grid-cols-2 gap-12">
+        <div class="hidden lg:flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-8">
+          <div class="text-center">
+            <svg class="w-24 h-24 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Join Us Today</h3>
+            <p class="text-gray-600">Create an account to start managing your bookings and appointments with ease.</p>
+          </div>
         </div>
-    </EditForm>
-</CascadingValue>
 
+        <div class="space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <InputText @bind-Value="RegistrationRequest.FirstName"
+                         id="firstName"
+                         class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
+                         placeholder="First Name"/>
+              <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.FirstName)" />
+            </div>
+            
+            <div>
+              <InputText @bind-Value="RegistrationRequest.LastName"
+                         id="lastName"
+                         class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
+                         placeholder="Last Name"/>
+              <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.LastName)" />
+            </div>
+          </div>
+
+          <div>
+            <InputText @bind-Value="RegistrationRequest.Email"
+                       type="email"
+                       id="email"
+                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
+                       placeholder="Email Address"/>
+            <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.Email)" />
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <InputText @bind-Value="RegistrationRequest.PasswordOne"
+                         id="passwordOne"
+                         type="password"
+                         class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
+                         placeholder="Password"/>
+              <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordOne)" />
+            </div>
+
+            <div>
+              <InputText @bind-Value="RegistrationRequest.PasswordTwo"
+                         id="passwordTwo"
+                         type="password"
+                         class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
+                         placeholder="Confirm Password"/>
+              <FluentValidationMessage TModel="RegistrationRequest" For="@(x => x.PasswordTwo)" />
+            </div>
+          </div>
+
+          @if (ErrorMessage != null)
+          {
+            <div class="validation-message text-center p-3 bg-red-50 border border-red-200 rounded">
+              <div class="text-red-700">@ErrorMessage</div>
+            </div>
+          }
+
+          <div class="space-y-4 pt-2">
+            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 transition-colors duration-200 font-medium">
+              Create Account
+            </button>
+
+            <div class="text-center">
+              <a href="/login" class="text-blue-600 hover:text-blue-700 text-sm transition-colors duration-200">
+                Already have an account? Sign in here
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </EditForm>
+  </div>
+</CascadingValue>
 
 @code {
     [Parameter] public RegistrationRequest RegistrationRequest { get; set; } = new();
@@ -76,7 +106,13 @@
 
     protected override void OnInitialized()
     {
+        //If the user is already logged in, redirect away from the registration page for positive UX.
+        if (SessionStateManager.IsAuthenticated())
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        
         _editContext = new EditContext(RegistrationRequest);
     }
-
 }

@@ -1,6 +1,6 @@
 ﻿@page "/";
 @using ClientBooking.Authentication;
-@inject ISessionManager SessionManager;
+@inject ISessionStateManager SessionManager;
 
 <h3>Home</h3>
 
@@ -18,7 +18,7 @@
     
     protected override void OnInitialized()
     {
-        UserId = SessionManager.GetUserId();
-        Console.WriteLine(SessionManager.GetUserId());
+        UserId = SessionManager.GetUserSessionId();
+        Console.WriteLine(SessionManager.GetUserSessionId());
     }
 }

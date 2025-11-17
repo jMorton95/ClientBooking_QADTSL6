@@ -2,5 +2,13 @@
   "dependencies": {
     "@tailwindcss/cli": "4.1.17",
     "tailwindcss": "4.1.17"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "scripts": {
+    "dev": "tailwindcss --input ClientBooking/wwwroot/app.css --output ClientBooking/wwwroot/styles.css --watch",
+    "build:css": "tailwindcss --input wwwroot/app.css --output wwwroot/styles.css",
+    "start": "concurrently \"npm run dev\" \"dotnet watch --project ClientBooking/ClientBooking.csproj\""
   }
 }
