@@ -1,8 +1,11 @@
 @page "/register"
 @attribute [AllowAnonymous]
+@using ClientBooking.Authentication
 @using ClientBooking.Components
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager NavigationManager
+@inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
     <EditForm EditContext="_editContext" hx-post="/register" hx-swap="outerHTML" id="registration" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
@@ -78,6 +81,13 @@
 
     protected override void OnInitialized()
     {
+        //If the user is already logged in, redirect away from the login page for positive UX.
+        if (SessionStateManager.IsAuthenticated())
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        
         _editContext = new EditContext(RegistrationRequest);
     }
 

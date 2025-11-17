@@ -1,8 +1,11 @@
 ﻿@page "/login"
 @attribute [AllowAnonymous]
+@using ClientBooking.Authentication
 @using ClientBooking.Components
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager NavigationManager
+@inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
     <EditForm EditContext="_editContext" hx-post="/login" hx-swap="outerHTML" id="login" class="font-[sans-serif] max-w-6xl max-lg:max-w-3xl mx-auto my-12 mb-24 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded p-8">
@@ -26,6 +29,15 @@
                                class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
                                placeholder="Password"/>
                     <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)" />
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="relative flex items-center">
+                        <InputCheckbox @bind-Value="LoginRequest.RememberMe" 
+                                       id="rememberMe"
+                                       class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
+                    </div>
+                    <label for="rememberMe" class="text-sm text-gray-800 cursor-pointer">Remember me</label>
                 </div>
                 
                 @if (ErrorMessage != null)
@@ -58,7 +70,13 @@
 
     protected override void OnInitialized()
     {
+        //If the user is already logged in, redirect away from the login page for positive UX.
+        if (SessionStateManager.IsAuthenticated())
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        
         _editContext = new EditContext(LoginRequest);
     }
-
 }

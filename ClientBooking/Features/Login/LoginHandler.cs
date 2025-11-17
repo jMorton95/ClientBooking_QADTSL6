@@ -56,7 +56,7 @@ public class LoginHandler : IRequestHandler
             }
             
             //Store the user ID in the current session and redirect to the home page.
-            await sessionManager.LoginAsync(user.Id);
+            await sessionManager.LoginAsync(user.Id, persistSession: loginRequest.RememberMe);
             return new HtmxRedirectResult("/");
 
         }

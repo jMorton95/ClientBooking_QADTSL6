@@ -48,14 +48,9 @@ public class RegistrationHandler : IRequestHandler
         
             await dataContext.Users.AddAsync(newUser);
             await dataContext.SaveChangesAsync();
-
-            if (sessionManager.IsAuthenticated())
-            {
-                await sessionManager.LogoutAsync();
-            }
             
             //Store the userId in the newly created session and inform HTMX to redirect.
-            await sessionManager.LoginAsync(newUser.Id);
+            await sessionManager.LoginAsync(newUser.Id, persistSession: true);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
