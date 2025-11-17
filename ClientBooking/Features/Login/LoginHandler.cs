@@ -44,15 +44,60 @@ public class LoginHandler : IRequestHandler
                     ErrorMessage = "User not found."
                 });
             }
+            
+            //Early return if the user is locked out. This stops them from refreshing the lockout time, even if they enter a correct password.
+            if (user.IsLockedOut)
+            {
+                return new RazorComponentResult<LoginPage>(new
+                {
+                    loginRequest,
+                    ErrorMessage = $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
+                });
+            }
 
             //Compare DB password with request password with hash comparison
+            //If failed increase the AccessFailedCount, and lock their account if necessary.
             if (!passwordHelper.CheckPassword(loginRequest.Password, user.HashedPassword))
             {
+                user.AccessFailedCount += 1;
+
+                if (user.AccessFailedCount >= 3)
+                {
+                    user.IsLockedOut = true;
+                    user.LockoutEnd = DateTime.UtcNow.AddHours(1);
+                }
+                
+                await dataContext.SaveChangesAsync();
+
+                if (user.IsLockedOut)
+                {
+                    return new RazorComponentResult<LoginPage>(new
+                    {
+                        loginRequest,
+                        ErrorMessage = $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
+                    });
+                }
+               
                 return new RazorComponentResult<LoginPage>(new
                 {
                     loginRequest,
                     ErrorMessage = "Incorrect password."
                 });
+            }
+
+            if (user.IsLockedOut && user.LockoutEnd > DateTime.UtcNow)
+            {
+                user.IsLockedOut = false;
+            }
+
+            if (user.AccessFailedCount > 0)
+            {
+                user.AccessFailedCount = 0;
+            }
+
+            if (dataContext.ChangeTracker.HasChanges())
+            {
+                await dataContext.SaveChangesAsync();
             }
             
             //Store the user ID in the current session and redirect to the home page.

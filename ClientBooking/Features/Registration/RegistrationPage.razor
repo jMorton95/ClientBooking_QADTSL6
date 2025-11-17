@@ -8,13 +8,13 @@
 @inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <EditForm EditContext="_editContext" hx-post="/register" hx-swap="outerHTML" id="registration" 
+  <div id="registration-container-div" class="min-h-screen flex items-center justify-center p-4">
+    <EditForm EditContext="_editContext" hx-post="/register" hx-target="#registration-container-div" id="registration" 
               class="font-[sans-serif] w-full max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-lg p-8">
       <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Create Your Account</h2>
 
       <div class="grid lg:grid-cols-2 gap-12">
-        <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-8">
+        <div class="hidden lg:flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-8">
           <div class="text-center">
             <svg class="w-24 h-24 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 

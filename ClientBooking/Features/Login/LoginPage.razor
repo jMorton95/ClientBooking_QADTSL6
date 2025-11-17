@@ -8,8 +8,8 @@
 @inject ISessionStateManager SessionStateManager
 
 <CascadingValue Value="ValidationErrors">
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <EditForm EditContext="_editContext" hx-post="/login" hx-swap="outerHTML" id="login"
+  <div id="login-container-div" class="min-h-screen flex items-center justify-center p-4">
+    <EditForm EditContext="_editContext" hx-post="/login" hx-target="#login-container-div" id="login"
               class="font-[sans-serif] w-full max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-lg p-8">
       <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Enter your username and password.</h2>
       
