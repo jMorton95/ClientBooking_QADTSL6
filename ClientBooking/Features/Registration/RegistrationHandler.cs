@@ -9,10 +9,12 @@ public class RegistrationHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapPost("register", Handler);
+        app.MapPost("register", Handler).WithMetadata(new AllowAnonymousAttribute());
     }
     
-    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler([FromForm] Request request,  IValidator<RegistrationRequest> validator,
+    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler(
+        [FromForm] Request request, 
+        IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
         ISessionManager sessionManager)

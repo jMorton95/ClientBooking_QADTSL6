@@ -71,13 +71,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 //Enable session state
+
+app.MapStaticAssets();
+app.UseStaticFiles();
+app.UseRouting();
 app.UseSession();
 
 //Enable custom Auth Middleware
 app.UseMiddleware<AuthenticationMiddleware>();
-
-//Exposes static files such as .PNGs / Favicon etc.
-app.MapStaticAssets();
 
 //Add middleware
 app.UseAntiforgery();
