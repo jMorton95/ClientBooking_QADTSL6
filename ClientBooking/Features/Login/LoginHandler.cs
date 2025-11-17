@@ -1,5 +1,6 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Data.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,11 @@ public class LoginHandler : IRequestHandler
     {
         app.MapPost("/login", HandleAsync).AllowAnonymous();
     }
+    
+    //Constants to define account lockout behaviour.
+    //TODO: Make this configurable by system parameter, with environmental defaults
+    private const int MaxFailedAttempts = 3;
+    private static readonly DateTime LockoutDuration = DateTime.UtcNow.AddHours(1);
 
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, BadRequest<string>>> HandleAsync(
         [FromForm] Request request,
@@ -21,97 +27,103 @@ public class LoginHandler : IRequestHandler
     {
         try
         {
-            //Ensure the Request Object matches our validation criteria
-            var loginRequest = request.LoginRequest;
-            var validationResult = await validator.ValidateAsync(loginRequest);
-            
+            //Validate the request
+            var validationResult = await validator.ValidateAsync(request.LoginRequest);
             if (!validationResult.IsValid)
             {
                 return new RazorComponentResult<LoginPage>(new
                 {
-                    loginRequest,
+                    request.LoginRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
-            
-            //Search the database for a User with the requested email address.
-            var user = await dataContext.Users.SingleOrDefaultAsync(u => u.Email == loginRequest.Email);
-            if (user is null)
+
+            //Authenticate and handle the success/failure side effects
+            var (user, error) = await ValidateCredentialsAsync(
+                request.LoginRequest.Email, 
+                request.LoginRequest.Password, 
+                passwordHelper, 
+                dataContext);
+
+            //Inform User of authentication failure.
+            if (error is not null)
             {
                 return new RazorComponentResult<LoginPage>(new
                 {
-                    loginRequest,
-                    ErrorMessage = "User not found."
+                    request.LoginRequest,
+                    ErrorMessage = error
                 });
             }
+
             
-            //Early return if the user is locked out. This stops them from refreshing the lockout time, even if they enter a correct password.
-            if (user.IsLockedOut)
-            {
-                return new RazorComponentResult<LoginPage>(new
-                {
-                    loginRequest,
-                    ErrorMessage = $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
-                });
-            }
-
-            //Compare DB password with request password with hash comparison
-            //If failed increase the AccessFailedCount, and lock their account if necessary.
-            if (!passwordHelper.CheckPassword(loginRequest.Password, user.HashedPassword))
-            {
-                user.AccessFailedCount += 1;
-
-                if (user.AccessFailedCount >= 3)
-                {
-                    user.IsLockedOut = true;
-                    user.LockoutEnd = DateTime.UtcNow.AddHours(1);
-                }
-                
-                await dataContext.SaveChangesAsync();
-
-                if (user.IsLockedOut)
-                {
-                    return new RazorComponentResult<LoginPage>(new
-                    {
-                        loginRequest,
-                        ErrorMessage = $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
-                    });
-                }
-               
-                return new RazorComponentResult<LoginPage>(new
-                {
-                    loginRequest,
-                    ErrorMessage = "Incorrect password."
-                });
-            }
-
-            if (user.IsLockedOut && user.LockoutEnd > DateTime.UtcNow)
-            {
-                user.IsLockedOut = false;
-            }
-
-            if (user.AccessFailedCount > 0)
-            {
-                user.AccessFailedCount = 0;
-            }
-
-            if (dataContext.ChangeTracker.HasChanges())
-            {
-                await dataContext.SaveChangesAsync();
-            }
-            
-            //Store the user ID in the current session and redirect to the home page.
-            await sessionManager.LoginAsync(user.Id, persistSession: loginRequest.RememberMe);
+            //Create the user session and redirect them to the home page.
+            await sessionManager.LoginAsync(user!.Id, persistSession: request.LoginRequest.RememberMe);
             return new HtmxRedirectResult("/");
-
         }
         catch (Exception ex)
         {
-            //TODO: Add logging
             Console.WriteLine(ex.Message);
             return TypedResults.BadRequest(ex.Message);
         }
     }
     
     private record Request(LoginRequest LoginRequest);
+    
+    private static async Task<(User? user, string? error)> ValidateCredentialsAsync(
+        string email, 
+        string password, 
+        IPasswordHelper passwordHelper, 
+        DataContext dataContext)
+    {
+        var user = await dataContext.Users.SingleOrDefaultAsync(u => u.Email == email);
+        
+        if (user is null)
+        {
+            return (null, "User not found.");
+        }
+
+        //If already locked out, return early to ensure successful attempts do not bypass timeout.
+        if (user.IsLockedOut && user.LockoutEnd > DateTime.UtcNow)
+        {
+            return (user, $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}");
+        }
+
+        //If password comparison fails, incur side effects.
+        if (!passwordHelper.CheckPassword(password, user.HashedPassword))
+        {
+            await HandleFailedLoginAsync(user, dataContext);
+            return (user, user.IsLockedOut 
+                ? $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
+                : "Incorrect password.");
+        }
+
+        //Otherwise, succesfully log the user in.
+        await HandleSuccessfulLoginAsync(user, dataContext);
+        return (user, null);
+    }
+
+    //Increased the fail counter, lock out the user if max failed attempts reached.
+    private static async Task HandleFailedLoginAsync(User user, DataContext dataContext)
+    {
+        user.AccessFailedCount += 1;
+
+        if (user.AccessFailedCount >= MaxFailedAttempts)
+        {
+            user.IsLockedOut = true;
+            user.LockoutEnd = LockoutDuration;
+        }
+    
+        await dataContext.SaveChangesAsync();
+    }
+
+    //Reset account lock properties after a successful login.
+    private static async Task HandleSuccessfulLoginAsync(User user, DataContext dataContext)
+    {
+        if (user.IsLockedOut || user.AccessFailedCount > 0)
+        {
+            user.IsLockedOut = false;
+            user.AccessFailedCount = 0;
+            await dataContext.SaveChangesAsync();
+        }
+    }
 }
