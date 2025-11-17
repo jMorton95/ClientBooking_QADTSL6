@@ -7,16 +7,25 @@ namespace ClientBooking.Data.Entities;
 public class User : Entity
 {
     [Required, StringLength(50)]
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
     
     [Required, StringLength(50)]
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
     
     [Required, StringLength(255)]
-    public string Email { get; set; }
+    public required string Email { get; set; }
     
     [Required]
     public bool IsActive { get; set; }
+    
+    [Required, StringLength(255)]
+    public required string HashedPassword { get; set; }
+    
+    public bool IsLockedOut { get; set; }
+    
+    public DateTime? LockoutEnd { get; set; }
+
+    public int AccessFailedCount { get; set; } = 0;
     
     [NotMapped]
     public string FullName =>  $"{FirstName} {LastName}";

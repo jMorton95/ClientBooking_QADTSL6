@@ -1,25 +1,40 @@
-﻿using ClientBooking.Data;
+﻿using ClientBooking.Authentication;
+using ClientBooking.Data;
+using ClientBooking.Features.Login;
+using ClientBooking.Features.Registration;
+using FluentValidation;
 
 namespace ClientBooking.Configuration;
 
 public static class ConfigureApplication
 {
-    public static WebApplicationBuilder AddPostGresDatabaseFromConfiguration(this WebApplicationBuilder builder)
+    extension(WebApplicationBuilder builder)
     {
-        var dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
-        var connectionString =
-            $"Host={dbSettings?.Host};Port={dbSettings?.Port};Database={dbSettings?.Database};Username={dbSettings?.Username};Password={dbSettings?.Password};Include Error Detail=true";
-        builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
-        
-        return builder;
-    }
+        public void AddPostgresDatabaseFromConfiguration()
+        {
+            var dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
+            
+            var connectionString =
+                $"Host={dbSettings?.Host};Port={dbSettings?.Port};Database={dbSettings?.Database};Username={dbSettings?.Username};Password={dbSettings?.Password};Include Error Detail=true";
+            
+            builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
+        }
 
-    private class DatabaseSettings()
-    {
-        public string? Host { get; init; }
-        public string? Port { get; init; }
-        public string? Database { get; init; }
-        public string? Username { get; init; }
-        public string? Password { get; init; }
+        public void AddCustomAuthenticationServices()
+        {
+            builder.Services
+                .AddScoped<ISessionManager, SessionManager>();
+                
+            builder.Services
+                .AddTransient<IPasswordHelper, PasswordHelper>()
+                .AddTransient<IPasswordHasher, PasswordHasher>();
+        }
+
+        public void AddCustomValidators()
+        {
+            builder.Services
+                .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>()
+                .AddScoped<IValidator<LoginRequest>, LoginValidator>();
+        }
     }
 }

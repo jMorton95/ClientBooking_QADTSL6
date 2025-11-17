@@ -1,0 +1,24 @@
+﻿@page "/";
+@using ClientBooking.Authentication;
+@inject ISessionManager SessionManager;
+
+<h3>Home</h3>
+
+@if (UserId is not null)
+{
+    <div>
+        User ID: @UserId!
+    </div>
+}
+
+<button hx-trigger="click" hx-post="/logout">Logout</button>
+
+@code {
+    private int? UserId { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        UserId = SessionManager.GetUserId();
+        Console.WriteLine(SessionManager.GetUserId());
+    }
+}
