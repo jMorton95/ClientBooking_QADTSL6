@@ -3,20 +3,17 @@ using System;
 using ClientBooking.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ClientBooking.Migrations
+namespace ClientBooking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251113224224_SettingsNoCascade")]
-    partial class SettingsNoCascade
+    partial class DataContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,28 +36,33 @@ namespace ClientBooking.Migrations
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("NumberOfRecurrences")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecurrencePattern")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -79,15 +81,14 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeSpan>("ClientWorkingHoursEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("ClientWorkingHoursStart")
-                        .HasColumnType("interval");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -95,14 +96,12 @@ namespace ClientBooking.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -123,22 +122,23 @@ namespace ClientBooking.Migrations
                     b.Property<int?>("BookingId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("Read")
-                        .HasColumnType("boolean");
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("SentDate")
@@ -166,25 +166,10 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("SavedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SavedById")
+                    b.Property<int>("Name")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SavedById");
 
                     b.ToTable("Roles");
                 });
@@ -197,35 +182,31 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AllowWeekendBookings")
-                        .HasColumnType("boolean");
-
-                    b.Property<TimeSpan>("CompanyWorkingHoursEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("CompanyWorkingHoursStart")
-                        .HasColumnType("interval");
-
                     b.Property<int>("DefaultBookingDuration")
                         .HasColumnType("integer");
 
-                    b.Property<string>("DefaultUserRole")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<TimeSpan>("DefaultBreakTimeEnd")
+                        .HasColumnType("interval");
 
-                    b.Property<int>("MaxDailyUserBookings")
+                    b.Property<TimeSpan>("DefaultBreakTimeStart")
+                        .HasColumnType("interval");
+
+                    b.Property<int>("DefaultUserRole")
                         .HasColumnType("integer");
 
+                    b.Property<TimeSpan>("DefaultWorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("DefaultWorkingHoursStart")
+                        .HasColumnType("interval");
+
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
 
                     b.Property<int>("Version")
@@ -246,6 +227,18 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("BreakTimeEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("BreakTimeStart")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("DoesWorkWeekends")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -256,7 +249,15 @@ namespace ClientBooking.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsLockedOut")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
@@ -264,16 +265,23 @@ namespace ClientBooking.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("WorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("WorkingHoursStart")
+                        .HasColumnType("interval");
 
                     b.HasKey("Id");
 
@@ -301,14 +309,12 @@ namespace ClientBooking.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SavedById")
+                    b.Property<int?>("SavedById")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("StartTime")
@@ -370,9 +376,7 @@ namespace ClientBooking.Migrations
 
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SavedById");
 
                     b.Navigation("Client");
 
@@ -383,9 +387,7 @@ namespace ClientBooking.Migrations
                 {
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SavedById");
 
                     b.Navigation("SavedBy");
                 });
@@ -399,9 +401,7 @@ namespace ClientBooking.Migrations
 
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SavedById");
 
                     b.HasOne("ClientBooking.Data.Entities.User", "User")
                         .WithMany("Notifications")
@@ -416,24 +416,12 @@ namespace ClientBooking.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClientBooking.Data.Entities.Role", b =>
-                {
-                    b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
-                        .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SavedBy");
-                });
-
             modelBuilder.Entity("ClientBooking.Data.Entities.Settings", b =>
                 {
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
                         .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("SavedBy");
                 });
@@ -442,9 +430,7 @@ namespace ClientBooking.Migrations
                 {
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SavedById");
 
                     b.Navigation("SavedBy");
                 });
@@ -453,9 +439,7 @@ namespace ClientBooking.Migrations
                 {
                     b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
                         .WithMany()
-                        .HasForeignKey("SavedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SavedById");
 
                     b.HasOne("ClientBooking.Data.Entities.User", "User")
                         .WithMany("UnavailabilityPeriods")

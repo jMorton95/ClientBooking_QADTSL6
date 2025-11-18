@@ -1,0 +1,90 @@
+﻿@using ClientBooking.Data.Entities
+
+<div class="bg-white rounded-lg shadow-sm border">
+    <div class="p-6 border-b">
+        <h2 class="text-lg font-semibold text-gray-900">Recent Notifications</h2>
+        <p class="text-sm text-gray-600">Latest updates and alerts</p>
+    </div>
+    
+    <div class="divide-y">
+        @if (Notifications.Any())
+        {
+            @foreach (var notification in Notifications)
+            {
+                <div class="p-4 hover:bg-gray-50 transition-colors duration-150">
+                    <div class="flex items-start space-x-3">
+                        <!-- Notification Icon -->
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="@GetNotificationIconBackground(notification.NotificationType) w-8 h-8 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    @GetNotificationIcon(notification.NotificationType)
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Content -->
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-900 @(notification.IsRead ? "" : "font-semibold")">
+                                @notification.Message
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                @notification.SavedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
+                            </p>
+                        </div>
+                        
+                        <!-- Unread indicator -->
+                        @if (!notification.IsRead)
+                        {
+                            <div class="flex-shrink-0">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="p-8 text-center">
+                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <p class="text-gray-500 text-sm">No notifications</p>
+                <p class="text-gray-400 text-xs mt-1">You're all caught up!</p>
+            </div>
+        }
+    </div>
+    
+    @if (Notifications.Any())
+    {
+        <div class="p-4 border-t">
+            <a href="/notifications" class="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center">
+                View all notifications
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<Notification> Notifications { get; set; } = [];
+
+    private string GetNotificationIconBackground(NotificationType type) => type switch
+    {
+        NotificationType.Booking => "bg-blue-500",
+        NotificationType.Reminder => "bg-yellow-500",
+        NotificationType.Alert => "bg-red-500",
+        NotificationType.Info => "bg-green-500",
+        _ => "bg-gray-500"
+    };
+
+    private string GetNotificationIcon(NotificationType type) => type switch
+    {
+        NotificationType.Booking => """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />""",
+        NotificationType.Reminder => """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />""",
+        NotificationType.Alert => """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />""",
+        _ => """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />"""
+    };
+}

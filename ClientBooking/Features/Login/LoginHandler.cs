@@ -46,18 +46,17 @@ public class LoginHandler : IRequestHandler
                 dataContext);
 
             //Inform User of authentication failure.
-            if (error is not null)
+            if (user is null || error is not null)
             {
                 return new RazorComponentResult<LoginPage>(new
                 {
                     request.LoginRequest,
-                    ErrorMessage = error
+                    ErrorMessage = error ?? ""
                 });
             }
-
             
             //Create the user session and redirect them to the home page.
-            await sessionManager.LoginAsync(user!.Id, persistSession: request.LoginRequest.RememberMe);
+            await sessionManager.LoginAsync(user, persistSession: request.LoginRequest.RememberMe);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
@@ -105,8 +104,14 @@ public class LoginHandler : IRequestHandler
     //Increased the fail counter, lock out the user if max failed attempts reached.
     private static async Task HandleFailedLoginAsync(User user, DataContext dataContext)
     {
+        //Handles the case where a user was previously locked out and has begun to fail login attempts again.
+        if (user.IsLockedOut && user.LockoutEnd < DateTime.UtcNow)
+        {
+            await ResetFailedLoginAttemptsAsync(user, dataContext);
+        }
+        
         user.AccessFailedCount += 1;
-
+        
         if (user.AccessFailedCount >= MaxFailedAttempts)
         {
             user.IsLockedOut = true;
@@ -121,9 +126,14 @@ public class LoginHandler : IRequestHandler
     {
         if (user.IsLockedOut || user.AccessFailedCount > 0)
         {
-            user.IsLockedOut = false;
-            user.AccessFailedCount = 0;
-            await dataContext.SaveChangesAsync();
+            await ResetFailedLoginAttemptsAsync(user, dataContext);
         }
+    }
+
+    private static async Task ResetFailedLoginAttemptsAsync(User user, DataContext dataContext)
+    {
+        user.IsLockedOut = false;
+        user.AccessFailedCount = 0;
+        await dataContext.SaveChangesAsync();
     }
 }

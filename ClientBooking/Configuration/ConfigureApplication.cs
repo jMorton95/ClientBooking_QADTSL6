@@ -2,6 +2,7 @@
 using ClientBooking.Data;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Registration;
+using ClientBooking.Shared.Services;
 using FluentValidation;
 
 namespace ClientBooking.Configuration;
@@ -10,6 +11,7 @@ public static class ConfigureApplication
 {
     extension(WebApplicationBuilder builder)
     {
+        //Pull database settings from environment configuration and register our data context with the PG provider
         public void AddPostgresDatabaseFromConfiguration()
         {
             var dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
@@ -20,16 +22,28 @@ public static class ConfigureApplication
             builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         }
 
+        //Register custom configuration settings, injected by environment variables
+        public void AddConfigurationValues()
+        {
+            builder.Services.Configure<ConfigurationSettings>(
+                builder.Configuration.GetSection("ConfigurationSettings"));
+        }
+
+        
+        //Add business logic
         public void AddCustomAuthenticationServices()
         {
             builder.Services
-                .AddScoped<ISessionStateManager, SessionStateManager>();
+                .AddScoped<ISessionStateManager, SessionStateManager>()
+                .AddScoped<IGetUserProfileService, GetUserProfileService>()
+                .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()
                 .AddTransient<IPasswordHasher, PasswordHasher>();
         }
 
+        //Add validation logic
         public void AddCustomValidators()
         {
             builder.Services
@@ -37,4 +51,9 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<LoginRequest>, LoginValidator>();
         }
     }
+}
+
+public class ConfigurationSettings
+{
+    public string? SystemAccountPassword { get; set; }
 }
