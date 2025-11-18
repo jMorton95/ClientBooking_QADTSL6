@@ -8,10 +8,9 @@ public class Client : Entity
     public string Name { get; set; }
 
     public string Description { get; set; }
-
-    public TimeSpan ClientWorkingHoursStart { get; set; }
     
-    public TimeSpan ClientWorkingHoursEnd { get; set; }
-
+    [Required, StringLength(255)]
+    public string Email { get; set; }
+    
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

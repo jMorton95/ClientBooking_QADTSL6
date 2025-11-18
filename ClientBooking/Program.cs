@@ -1,6 +1,5 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
-using ClientBooking.Authentication;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
@@ -13,17 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 //Override Appsettings values with values injected in from Github Secrets, during pipeline run.
 builder.Configuration.AddEnvironmentVariables();
 
+//Allow injection of custom configuration variables
+builder.AddConfigurationValues();
 
 //Enable HTTP Context services.
 builder.Services.AddHttpContextAccessor();
-
 
 //Add Token to prevent POST request forgery
 builder.Services.AddAntiforgery();
 
 //Add Frontend Pages and components.
 builder.Services.AddRazorComponents();
-
 
 //Configure authentication sessions, stored in HTTP only cookies.
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -71,23 +70,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//Server static HTML/CSS/JS files.
+//Server static HTML/CSS/JS files and register routes.
 app.MapStaticAssets();
 app.UseRouting();
 
 
-//app.UseStaticFiles();
-
+//Apply auth/security middleware
 app.UseAuthentication();
 app.UseAuthorization();
-
-
 app.UseAntiforgery();
-
-
-//app.UseMiddleware<AuthenticationMiddleware>();
-
-
 
 
 //Apply our Frontend components to their defined website routes, configure authorisation policy defaults.

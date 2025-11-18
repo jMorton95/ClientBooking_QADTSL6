@@ -60,8 +60,8 @@
             .CountAsync(b => b.UserBookings.Any(ub => ub.UserId == userId) && 
                             b.StartDateTime.Day == today);
 
-        TotalClientsCount = await DataContext.Users
-            .CountAsync(u => u.UserRoles.Any(ur => ur.Role.Name == "Client"));
+        TotalClientsCount = await DataContext.Clients
+            .CountAsync();
 
         PendingNotificationsCount = await DataContext.Notifications
             .CountAsync(n => n.UserId == userId && !n.IsRead);

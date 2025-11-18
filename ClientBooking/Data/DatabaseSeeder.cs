@@ -1,6 +1,8 @@
 ﻿using ClientBooking.Authentication;
+using ClientBooking.Configuration;
 using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
+using Microsoft.Extensions.Options;
 
 namespace ClientBooking.Data;
 
@@ -10,9 +12,10 @@ public static class DatabaseSeeder
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        var configurationSettings = scope.ServiceProvider.GetRequiredService<IOptions<ConfigurationSettings>>().Value;
         var passwordHelper = services.GetRequiredService<IPasswordHelper>();
 
-        var genericSeederPassword = passwordHelper.HashPassword("password");
+        var genericSeederPassword = passwordHelper.HashPassword(configurationSettings.SystemAccountPassword ?? "");
         
         var now = DateTime.UtcNow;
         
@@ -46,7 +49,7 @@ public static class DatabaseSeeder
        
         var adminRole = new Role
         {
-            Name = "Admin",
+            Name = RoleName.User,
             SavedAt = now,
             RowVersion = 1,
             SavedById = adminUser.Id
@@ -54,7 +57,7 @@ public static class DatabaseSeeder
 
         var standardRole = new Role
         {
-            Name = "Standard",
+            Name = RoleName.Admin,
             SavedAt = now,
             RowVersion = 1,
             SavedById = adminUser.Id
@@ -81,10 +84,9 @@ public static class DatabaseSeeder
      
         var client = new Client
         {
-            Name = "Default Client",
+            Name = "John Doe",
             Description = "Example initial seeded client",
-            ClientWorkingHoursStart = new TimeSpan(9, 0, 0),
-            ClientWorkingHoursEnd = new TimeSpan(17, 0, 0),
+            Email = "john.doe@gmail.com",
             SavedAt = now,
             RowVersion = 1,
             SavedById = adminUser.Id
@@ -99,7 +101,10 @@ public static class DatabaseSeeder
             Notes = "Initial test booking",
             StartDateTime = now.AddDays(1).AddHours(9),
             EndDateTime = now.AddDays(1).AddHours(10),
-            Status = "Confirmed",
+            Status = BookingStatus.Confirmed,
+            IsRecurring = true,
+            RecurrencePattern = BookingRecurrencePattern.Weekly,
+            NumberOfRecurrences = 24,
             SavedAt = now,
             RowVersion = 1,
             SavedById = adminUser.Id
@@ -118,12 +123,12 @@ public static class DatabaseSeeder
         
         var settings = new Settings
         {
-            CompanyWorkingHoursStart = new TimeSpan(9, 0, 0),
-            CompanyWorkingHoursEnd = new TimeSpan(17, 0, 0),
+            DefaultWorkingHoursStart = new TimeSpan(9, 0, 0),
+            DefaultWorkingHoursEnd = new TimeSpan(17, 0, 0),
+            DefaultBreakTimeStart = new TimeSpan(12, 0, 0),
+            DefaultBreakTimeEnd =  new TimeSpan(13, 0, 0),
             DefaultBookingDuration = 60,
             DefaultUserRole = "Standard",
-            MaxDailyUserBookings = 5,
-            AllowWeekendBookings = false,
             Version = 1,
             RowVersion = 1,
             SavedAt = now,

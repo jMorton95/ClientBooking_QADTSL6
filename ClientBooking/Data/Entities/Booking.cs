@@ -4,6 +4,22 @@ using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Data.Entities;
 
+public enum BookingStatus
+{
+    Scheduled,
+    Confirmed,
+    Cancelled,
+    Completed
+}
+
+public enum BookingRecurrencePattern
+{
+    None,
+    Weekly,
+    Biweekly,
+    Monthly,
+}
+
 public class Booking : Entity
 {
     [Required]
@@ -20,8 +36,16 @@ public class Booking : Entity
     [Required]
     public DateTime EndDateTime { get; set; }
 
-    [StringLength(50)]
-    public string Status { get; set; }
+    [NotMapped]
+    public TimeSpan Duration => EndDateTime - StartDateTime;
+
+    public BookingStatus Status { get; set; } = BookingStatus.Scheduled;
+    
+    public bool IsRecurring { get; set; }
+    
+    public int NumberOfRecurrences { get; set; }
+
+    public BookingRecurrencePattern RecurrencePattern { get; set; } = BookingRecurrencePattern.None;
 
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();

@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ClientBooking.Migrations
+namespace ClientBooking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot
@@ -36,9 +36,18 @@ namespace ClientBooking.Migrations
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("NumberOfRecurrences")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecurrencePattern")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");
@@ -52,10 +61,8 @@ namespace ClientBooking.Migrations
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -74,15 +81,14 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeSpan>("ClientWorkingHoursEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("ClientWorkingHoursStart")
-                        .HasColumnType("interval");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -189,25 +195,25 @@ namespace ClientBooking.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AllowWeekendBookings")
-                        .HasColumnType("boolean");
-
-                    b.Property<TimeSpan>("CompanyWorkingHoursEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("CompanyWorkingHoursStart")
-                        .HasColumnType("interval");
-
                     b.Property<int>("DefaultBookingDuration")
                         .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("DefaultBreakTimeEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("DefaultBreakTimeStart")
+                        .HasColumnType("interval");
 
                     b.Property<string>("DefaultUserRole")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("MaxDailyUserBookings")
-                        .HasColumnType("integer");
+                    b.Property<TimeSpan>("DefaultWorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("DefaultWorkingHoursStart")
+                        .HasColumnType("interval");
 
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");
@@ -239,6 +245,9 @@ namespace ClientBooking.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("DoesWorkWeekends")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -267,6 +276,18 @@ namespace ClientBooking.Migrations
 
                     b.Property<DateTime?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan?>("PreferredBreakTimeEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan?>("PreferredBreakTimeStart")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan?>("PreferredWorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan?>("PreferredWorkingHoursStart")
+                        .HasColumnType("interval");
 
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");

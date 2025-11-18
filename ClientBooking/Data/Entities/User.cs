@@ -30,6 +30,16 @@ public class User : Entity
     [NotMapped]
     public string FullName =>  $"{FirstName} {LastName}";
     
+    public TimeSpan? PreferredWorkingHoursStart { get; set; }
+    
+    public TimeSpan? PreferredWorkingHoursEnd { get; set; }
+    
+    public TimeSpan? PreferredBreakTimeStart { get; set; }
+    
+    public TimeSpan? PreferredBreakTimeEnd { get; set; }
+    
+    public bool DoesWorkWeekends { get; set; }
+    
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
     public ICollection<UserUnavailability> UnavailabilityPeriods { get; set; } = new List<UserUnavailability>();
