@@ -4,14 +4,27 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ClientBooking.Migrations
+namespace ClientBooking.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialRestructure : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -22,9 +35,18 @@ namespace ClientBooking.Migrations
                     LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    HashedPassword = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    IsLockedOut = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false),
+                    WorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    WorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    BreakTimeStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    BreakTimeEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    DoesWorkWeekends = table.Column<bool>(type: "boolean", nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -33,8 +55,7 @@ namespace ClientBooking.Migrations
                         name: "FK_Users_Users_SavedById",
                         column: x => x.SavedById,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -45,11 +66,10 @@ namespace ClientBooking.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    ClientWorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    ClientWorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,30 +78,7 @@ namespace ClientBooking.Migrations
                         name: "FK_Clients_Users_SavedById",
                         column: x => x.SavedById,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
-                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Roles_Users_SavedById",
-                        column: x => x.SavedById,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -90,16 +87,16 @@ namespace ClientBooking.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CompanyWorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    CompanyWorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    DefaultWorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    DefaultWorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    DefaultBreakTimeStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    DefaultBreakTimeEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
                     DefaultBookingDuration = table.Column<int>(type: "integer", nullable: false),
-                    DefaultUserRole = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    MaxDailyUserBookings = table.Column<int>(type: "integer", nullable: false),
-                    AllowWeekendBookings = table.Column<bool>(type: "boolean", nullable: false),
+                    DefaultUserRole = table.Column<int>(type: "integer", nullable: false),
                     Version = table.Column<int>(type: "integer", nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -108,72 +105,7 @@ namespace ClientBooking.Migrations
                         name: "FK_Settings_Users_SavedById",
                         column: x => x.SavedById,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserUnavailabilities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Reason = table.Column<string>(type: "text", nullable: false),
-                    IsRecurring = table.Column<bool>(type: "boolean", nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
-                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserUnavailabilities", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserUnavailabilities_Users_SavedById",
-                        column: x => x.SavedById,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserUnavailabilities_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bookings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClientId = table.Column<int>(type: "integer", nullable: false),
-                    Notes = table.Column<string>(type: "text", nullable: false),
-                    StartDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
-                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bookings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Bookings_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bookings_Users_SavedById",
-                        column: x => x.SavedById,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -201,6 +133,71 @@ namespace ClientBooking.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserUnavailabilities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Reason = table.Column<string>(type: "text", nullable: false),
+                    IsRecurring = table.Column<bool>(type: "boolean", nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
+                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserUnavailabilities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserUnavailabilities_Users_SavedById",
+                        column: x => x.SavedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserUnavailabilities_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bookings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ClientId = table.Column<int>(type: "integer", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: false),
+                    StartDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    IsRecurring = table.Column<bool>(type: "boolean", nullable: false),
+                    NumberOfRecurrences = table.Column<int>(type: "integer", nullable: false),
+                    RecurrencePattern = table.Column<int>(type: "integer", nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
+                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bookings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Users_SavedById",
+                        column: x => x.SavedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Notifications",
                 columns: table => new
                 {
@@ -209,11 +206,12 @@ namespace ClientBooking.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     BookingId = table.Column<int>(type: "integer", nullable: true),
                     Message = table.Column<string>(type: "text", nullable: false),
+                    NotificationType = table.Column<int>(type: "integer", nullable: false),
                     SentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Read = table.Column<bool>(type: "boolean", nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: false)
+                    SavedById = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -227,8 +225,7 @@ namespace ClientBooking.Migrations
                         name: "FK_Notifications_Users_SavedById",
                         column: x => x.SavedById,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Notifications_Users_UserId",
                         column: x => x.UserId,
@@ -290,11 +287,6 @@ namespace ClientBooking.Migrations
                 name: "IX_Notifications_UserId",
                 table: "Notifications",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Roles_SavedById",
-                table: "Roles",
-                column: "SavedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Settings_SavedById",

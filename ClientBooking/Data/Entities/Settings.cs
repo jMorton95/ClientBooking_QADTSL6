@@ -1,26 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data.Entities;
 
 public class Settings : Entity
 {
     [Required]
-    public TimeSpan CompanyWorkingHoursStart { get; set; }
+    public TimeSpan DefaultWorkingHoursStart { get; set; }
 
     [Required]
-    public TimeSpan CompanyWorkingHoursEnd { get; set; }
+    public TimeSpan DefaultWorkingHoursEnd { get; set; }
+    
+    [Required]
+    public TimeSpan DefaultBreakTimeStart { get; set; }
+    
+    [Required]
+    public TimeSpan DefaultBreakTimeEnd { get; set; }
 
     [Required]
     public int DefaultBookingDuration { get; set; }
 
-    [Required, StringLength(100)]
-    public string DefaultUserRole { get; set; }
-
     [Required]
-    public int MaxDailyUserBookings { get; set; }
-
-    [Required]
-    public bool AllowWeekendBookings { get; set; }
+    public required RoleName DefaultUserRole { get; set; }
 
     [Required]
     public int Version { get; set; }

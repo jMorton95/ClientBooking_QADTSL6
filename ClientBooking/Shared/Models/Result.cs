@@ -1,4 +1,4 @@
-﻿namespace ClientBooking.Shared;
+﻿namespace ClientBooking.Shared.Models;
 
 public class Result<T>
 {

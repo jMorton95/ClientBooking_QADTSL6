@@ -20,5 +20,5 @@ public class UserUnavailability : Entity
     public string Reason { get; set; }
 
     [Required]
-    public bool IsRecurring { get; set; } = false;
+    public bool IsRecurring { get; set; }
 }

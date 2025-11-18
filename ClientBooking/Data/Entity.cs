@@ -13,7 +13,7 @@ public abstract class Entity
     public int RowVersion { get; set; }
     
     [Required]
-    public DateTime SavedAt { get; set; }
+    public DateTime SavedAt { get; set; } = DateTime.UtcNow;
     
     public int? SavedById { get; set; } 
     

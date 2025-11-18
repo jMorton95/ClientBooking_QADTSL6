@@ -27,8 +27,15 @@ public class User : Entity
 
     public int AccessFailedCount { get; set; } = 0;
     
-    [NotMapped]
-    public string FullName =>  $"{FirstName} {LastName}";
+    public TimeSpan WorkingHoursStart { get; set; }
+    
+    public TimeSpan WorkingHoursEnd { get; set; }
+    
+    public TimeSpan BreakTimeStart { get; set; }
+    
+    public TimeSpan BreakTimeEnd { get; set; }
+    
+    public bool DoesWorkWeekends { get; set; }
     
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
