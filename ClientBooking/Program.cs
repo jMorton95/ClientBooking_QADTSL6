@@ -38,7 +38,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.SlidingExpiration = true;
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/login";
-    options.LogoutPath = "/logout";
 });
 
 //Configure default authorisation services.

@@ -1,0 +1,77 @@
+﻿@using ClientBooking.Data.Entities
+
+<div class="bg-white rounded-lg shadow-sm border">
+    <div class="p-6 border-b">
+        <h2 class="text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
+        <p class="text-sm text-gray-600">Your next 5 appointments</p>
+    </div>
+    
+    <div class="divide-y">
+        @if (Bookings?.Any() == true)
+        {
+            @foreach (var booking in Bookings)
+            {
+                <div class="p-4 hover:bg-gray-50 transition-colors duration-150">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div>
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span class="text-blue-600 text-sm font-medium">
+                                        @booking.StartDateTime.ToString("HH:mm")
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">
+                                    @booking.Client?.Name
+                                </h3>
+                                <p class="text-sm text-gray-500">
+                                    @booking.StartDateTime.ToString("MMM dd, yyyy") • 
+                                    @((booking.EndDateTime.TimeOfDay - @booking.EndDateTime.TimeOfDay).TotalMinutes) minutes
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Confirmed
+                            </span>
+                            <button class="text-gray-400 hover:text-gray-600 transition-colors duration-150">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="p-8 text-center">
+                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="text-gray-500 text-sm">No upcoming bookings</p>
+                <a href="/bookings/new" class="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
+                    Schedule your first booking
+                </a>
+            </div>
+        }
+    </div>
+    
+    @if (Bookings?.Any() == true)
+    {
+        <div class="p-4 border-t">
+            <a href="/bookings" class="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center">
+                View all bookings
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<Booking> Bookings { get; set; } = new();
+}

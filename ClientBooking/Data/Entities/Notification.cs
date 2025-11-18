@@ -3,6 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBooking.Data.Entities;
 
+public enum NotificationType
+{
+    Booking,
+    Reminder,
+    Alert,
+    Info
+}
+
 public class Notification : Entity
 {
     [Required]
@@ -18,9 +26,11 @@ public class Notification : Entity
 
     [Required]
     public string Message { get; set; }
+    
+    public NotificationType NotificationType { get; set; } =  NotificationType.Info;
 
     public DateTime? SentDate { get; set; }
 
     [Required]
-    public bool Read { get; set; } = false;
+    public bool IsRead { get; set; } = false;
 }

@@ -1,24 +1,86 @@
-﻿@page "/";
-@using ClientBooking.Authentication;
-@inject ISessionStateManager SessionManager;
+﻿@page "/"
+@attribute [Authorize]
+@using ClientBooking.Authentication
+@using ClientBooking.Components.Generic
+@using ClientBooking.Data
+@using ClientBooking.Data.Entities
+@using ClientBooking.Features.RecentNotifications
+@using ClientBooking.Features.UpcomingBookings
+@using Microsoft.AspNetCore.Authorization
+@inject DataContext DataContext
+@inject ISessionStateManager SessionManager
 
-<h3>Home</h3>
-
-@if (UserId is not null)
-{
-    <div>
-        User ID: @UserId!
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-gray-600 mt-2">Welcome back! Here's your overview for today.</p>
     </div>
-}
 
-<button hx-trigger="click" hx-post="/logout">Logout</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCardComponent Title="Today's Bookings" Value="@TodayBookingsCount.ToString()" Icon="calendar" Color="blue" />
+        <StatCardComponent Title="Total Clients" Value="@TotalClientsCount.ToString()" Icon="users" Color="green" />
+        <StatCardComponent Title="Pending Notifications" Value="@PendingNotificationsCount.ToString()" Icon="bell" Color="yellow" />
+        <StatCardComponent Title="Available Hours" Value="@AvailableHours" Icon="clock" Color="purple" />
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <UpcomingBookings Bookings="@UpcomingBookings" />
+        </div>
+        
+        <div class="space-y-6">
+            <QuickActionsComponent />
+            <RecentNotifications Notifications="@RecentNotifications" />
+        </div>
+    </div>
+</div>
 
 @code {
-    private int? UserId { get; set; }
-    
-    protected override void OnInitialized()
+    private int TodayBookingsCount { get; set; }
+    private int TotalClientsCount { get; set; }
+    private int PendingNotificationsCount { get; set; }
+    private string AvailableHours { get; set; } = "0h";
+    private List<Booking> UpcomingBookings { get; set; } = [];
+    private List<Notification> RecentNotifications { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
     {
-        UserId = SessionManager.GetUserSessionId();
-        Console.WriteLine(SessionManager.GetUserSessionId());
+        var userId = SessionManager.GetUserSessionId();
+        if (userId.HasValue)
+        {
+            await LoadDashboardData(userId.Value);
+        }
+    }
+
+    //TODO: This is a pure placeholder - needs implementing in proper features.
+    private async Task LoadDashboardData(int userId)
+    {
+        var today = DateTime.UtcNow.Day;
+        TodayBookingsCount = await DataContext.Bookings
+            .CountAsync(b => b.UserBookings.Any(ub => ub.UserId == userId) && 
+                            b.StartDateTime.Day == today);
+
+        TotalClientsCount = await DataContext.Users
+            .CountAsync(u => u.UserRoles.Any(ur => ur.Role.Name == "Client"));
+
+        PendingNotificationsCount = await DataContext.Notifications
+            .CountAsync(n => n.UserId == userId && !n.IsRead);
+
+        UpcomingBookings = await DataContext.Bookings
+            .Include(b => b.Client)
+            .Where(b => b.UserBookings.Any(ub => ub.UserId == userId) && 
+                       b.StartDateTime >= DateTime.UtcNow && 
+                       b.StartDateTime <= DateTime.UtcNow.AddDays(7))
+            .OrderBy(b => b.StartDateTime)
+            .Take(5)
+            .ToListAsync();
+
+        RecentNotifications = await DataContext.Notifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.SavedAt)
+            .Take(5)
+            .ToListAsync();
+
+        AvailableHours = "8h";
     }
 }
