@@ -1,16 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ClientBooking.Data.JoiningTables;
+using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data.Entities;
 
-public enum RoleName
+public class Role
 {
-    User,
-    Admin
-}
-
-public class Role : Entity
-{
+    [Required, Key]
+    public int Id { get; set; }
     [Required]
     public RoleName Name { get; set; } =  RoleName.User;
 

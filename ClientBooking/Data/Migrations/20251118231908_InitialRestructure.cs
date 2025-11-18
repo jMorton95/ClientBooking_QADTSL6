@@ -13,6 +13,19 @@ namespace ClientBooking.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -26,10 +39,10 @@ namespace ClientBooking.Data.Migrations
                     IsLockedOut = table.Column<bool>(type: "boolean", nullable: false),
                     LockoutEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     AccessFailedCount = table.Column<int>(type: "integer", nullable: false),
-                    PreferredWorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    PreferredWorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    PreferredBreakTimeStart = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    PreferredBreakTimeEnd = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    WorkingHoursStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    WorkingHoursEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    BreakTimeStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    BreakTimeEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
                     DoesWorkWeekends = table.Column<bool>(type: "boolean", nullable: false),
                     RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -69,27 +82,6 @@ namespace ClientBooking.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    RowVersion = table.Column<int>(type: "integer", nullable: false),
-                    SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SavedById = table.Column<int>(type: "integer", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Roles_Users_SavedById",
-                        column: x => x.SavedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Settings",
                 columns: table => new
                 {
@@ -100,7 +92,7 @@ namespace ClientBooking.Data.Migrations
                     DefaultBreakTimeStart = table.Column<TimeSpan>(type: "interval", nullable: false),
                     DefaultBreakTimeEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
                     DefaultBookingDuration = table.Column<int>(type: "integer", nullable: false),
-                    DefaultUserRole = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    DefaultUserRole = table.Column<int>(type: "integer", nullable: false),
                     Version = table.Column<int>(type: "integer", nullable: false),
                     RowVersion = table.Column<int>(type: "integer", nullable: false),
                     SavedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -114,6 +106,30 @@ namespace ClientBooking.Data.Migrations
                         column: x => x.SavedById,
                         principalTable: "Users",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRole",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRole", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_UserRole_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRole_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -179,30 +195,6 @@ namespace ClientBooking.Data.Migrations
                         column: x => x.SavedById,
                         principalTable: "Users",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserRole",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRole", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_UserRole_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRole_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -295,11 +287,6 @@ namespace ClientBooking.Data.Migrations
                 name: "IX_Notifications_UserId",
                 table: "Notifications",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Roles_SavedById",
-                table: "Roles",
-                column: "SavedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Settings_SavedById",

@@ -1,24 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ClientBooking.Data.JoiningTables;
+using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data.Entities;
-
-public enum BookingStatus
-{
-    Scheduled,
-    Confirmed,
-    Cancelled,
-    Completed
-}
-
-public enum BookingRecurrencePattern
-{
-    None,
-    Weekly,
-    Biweekly,
-    Monthly,
-}
 
 public class Booking : Entity
 {

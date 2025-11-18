@@ -105,5 +105,15 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
             .WithMany()
             .HasForeignKey(s => s.SavedById)
             .OnDelete(DeleteBehavior.NoAction);
+        
+        
+        //Auto-Include navigation properties
+        modelBuilder.Entity<User>()
+            .Navigation(u => u.UserRoles)
+            .AutoInclude();
+
+        modelBuilder.Entity<UserRole>()
+            .Navigation(ur => ur.Role)
+            .AutoInclude();
     }
 }

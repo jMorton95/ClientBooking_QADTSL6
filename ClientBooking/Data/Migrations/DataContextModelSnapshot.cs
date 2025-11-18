@@ -166,23 +166,10 @@ namespace ClientBooking.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("RowVersion")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("SavedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("SavedById")
+                    b.Property<int>("Name")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SavedById");
 
                     b.ToTable("Roles");
                 });
@@ -204,10 +191,8 @@ namespace ClientBooking.Data.Migrations
                     b.Property<TimeSpan>("DefaultBreakTimeStart")
                         .HasColumnType("interval");
 
-                    b.Property<string>("DefaultUserRole")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("DefaultUserRole")
+                        .HasColumnType("integer");
 
                     b.Property<TimeSpan>("DefaultWorkingHoursEnd")
                         .HasColumnType("interval");
@@ -245,6 +230,12 @@ namespace ClientBooking.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
+                    b.Property<TimeSpan>("BreakTimeEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("BreakTimeStart")
+                        .HasColumnType("interval");
+
                     b.Property<bool>("DoesWorkWeekends")
                         .HasColumnType("boolean");
 
@@ -277,18 +268,6 @@ namespace ClientBooking.Data.Migrations
                     b.Property<DateTime?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeSpan?>("PreferredBreakTimeEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan?>("PreferredBreakTimeStart")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan?>("PreferredWorkingHoursEnd")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan?>("PreferredWorkingHoursStart")
-                        .HasColumnType("interval");
-
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");
 
@@ -297,6 +276,12 @@ namespace ClientBooking.Data.Migrations
 
                     b.Property<int?>("SavedById")
                         .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("WorkingHoursEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("WorkingHoursStart")
+                        .HasColumnType("interval");
 
                     b.HasKey("Id");
 
@@ -429,15 +414,6 @@ namespace ClientBooking.Data.Migrations
                     b.Navigation("SavedBy");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ClientBooking.Data.Entities.Role", b =>
-                {
-                    b.HasOne("ClientBooking.Data.Entities.User", "SavedBy")
-                        .WithMany()
-                        .HasForeignKey("SavedById");
-
-                    b.Navigation("SavedBy");
                 });
 
             modelBuilder.Entity("ClientBooking.Data.Entities.Settings", b =>

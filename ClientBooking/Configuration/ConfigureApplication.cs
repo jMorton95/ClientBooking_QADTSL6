@@ -2,6 +2,7 @@
 using ClientBooking.Data;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Registration;
+using ClientBooking.Shared.Services;
 using FluentValidation;
 
 namespace ClientBooking.Configuration;
@@ -33,7 +34,9 @@ public static class ConfigureApplication
         public void AddCustomAuthenticationServices()
         {
             builder.Services
-                .AddScoped<ISessionStateManager, SessionStateManager>();
+                .AddScoped<ISessionStateManager, SessionStateManager>()
+                .AddScoped<IGetUserProfileService, GetUserProfileService>()
+                .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()

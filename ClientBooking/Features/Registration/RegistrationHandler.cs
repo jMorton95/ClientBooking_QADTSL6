@@ -1,5 +1,6 @@
 using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Shared.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,8 @@ public class RegistrationHandler : IRequestHandler
         IValidator<RegistrationRequest> validator,
         DataContext dataContext,
         IPasswordHelper passwordHelper,
-        ISessionStateManager sessionManager)
+        ISessionStateManager sessionManager,
+        ICreateRegisteredUserService  createRegisteredUserService)
     {
         try
         {
@@ -44,13 +46,10 @@ public class RegistrationHandler : IRequestHandler
 
             //Hash the password and create the user in the database.
             var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
-            var newUser = registrationRequest.MapRegistrationRequestToUser(hashedPassword);
-        
-            await dataContext.Users.AddAsync(newUser);
-            await dataContext.SaveChangesAsync();
+            var newUser = await createRegisteredUserService.CreateUserWithDefaultSettings(registrationRequest, hashedPassword);
             
             //Store the userId in the newly created session and inform HTMX to redirect.
-            await sessionManager.LoginAsync(newUser.Id, persistSession: true);
+            await sessionManager.LoginAsync(newUser, persistSession: true);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)

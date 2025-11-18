@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data.Entities;
 
@@ -19,8 +20,8 @@ public class Settings : Entity
     [Required]
     public int DefaultBookingDuration { get; set; }
 
-    [Required, StringLength(100)]
-    public required string DefaultUserRole { get; set; }
+    [Required]
+    public required RoleName DefaultUserRole { get; set; }
 
     [Required]
     public int Version { get; set; }

@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using ClientBooking.Data;
+using ClientBooking.Data.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -7,7 +9,8 @@ namespace ClientBooking.Authentication;
 public interface ISessionStateManager
 {
     int? GetUserSessionId();
-    Task LoginAsync(int userId, bool persistSession = false);
+    
+    Task LoginAsync(User user, bool persistSession = false);
     Task LogoutAsync();
     bool IsAuthenticated();
 }
@@ -28,12 +31,18 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
     }
 
     //With a userId, create a cookie-based session with the active user
-    public async Task LoginAsync(int userId, bool persistSession = false)
+    public async Task LoginAsync(User user, bool persistSession = false)
     {
-        List<Claim> claims = [new(ClaimTypes.NameIdentifier, userId.ToString())];
+        List<Claim> claims = [new(ClaimTypes.NameIdentifier, user.Id.ToString())];
+        
+        //Store roles in session state.
+        foreach (var userRole in user.UserRoles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name.ToString()));
+        }
         
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
+        
         //Determines whether a session expires when the user closes the browser, or is persisted for 3 hours (and refreshed with new requests)
         var authProperties = new AuthenticationProperties
         {

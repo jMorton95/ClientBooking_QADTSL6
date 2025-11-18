@@ -2,6 +2,7 @@
 using ClientBooking.Configuration;
 using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
+using ClientBooking.Shared.Enums;
 using Microsoft.Extensions.Options;
 
 namespace ClientBooking.Data;
@@ -49,18 +50,12 @@ public static class DatabaseSeeder
        
         var adminRole = new Role
         {
-            Name = RoleName.User,
-            SavedAt = now,
-            RowVersion = 1,
-            SavedById = adminUser.Id
+            Name = RoleName.Admin
         };
 
         var standardRole = new Role
         {
-            Name = RoleName.Admin,
-            SavedAt = now,
-            RowVersion = 1,
-            SavedById = adminUser.Id
+            Name = RoleName.User
         };
 
         db.Roles.AddRange(adminRole, standardRole);
@@ -128,7 +123,7 @@ public static class DatabaseSeeder
             DefaultBreakTimeStart = new TimeSpan(12, 0, 0),
             DefaultBreakTimeEnd =  new TimeSpan(13, 0, 0),
             DefaultBookingDuration = 60,
-            DefaultUserRole = "Standard",
+            DefaultUserRole = RoleName.User,
             Version = 1,
             RowVersion = 1,
             SavedAt = now,

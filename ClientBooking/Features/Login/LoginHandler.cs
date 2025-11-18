@@ -46,18 +46,17 @@ public class LoginHandler : IRequestHandler
                 dataContext);
 
             //Inform User of authentication failure.
-            if (error is not null)
+            if (user is null || error is not null)
             {
                 return new RazorComponentResult<LoginPage>(new
                 {
                     request.LoginRequest,
-                    ErrorMessage = error
+                    ErrorMessage = error ?? ""
                 });
             }
-
             
             //Create the user session and redirect them to the home page.
-            await sessionManager.LoginAsync(user!.Id, persistSession: request.LoginRequest.RememberMe);
+            await sessionManager.LoginAsync(user, persistSession: request.LoginRequest.RememberMe);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)

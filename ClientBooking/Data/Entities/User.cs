@@ -27,16 +27,13 @@ public class User : Entity
 
     public int AccessFailedCount { get; set; } = 0;
     
-    [NotMapped]
-    public string FullName =>  $"{FirstName} {LastName}";
+    public TimeSpan WorkingHoursStart { get; set; }
     
-    public TimeSpan? PreferredWorkingHoursStart { get; set; }
+    public TimeSpan WorkingHoursEnd { get; set; }
     
-    public TimeSpan? PreferredWorkingHoursEnd { get; set; }
+    public TimeSpan BreakTimeStart { get; set; }
     
-    public TimeSpan? PreferredBreakTimeStart { get; set; }
-    
-    public TimeSpan? PreferredBreakTimeEnd { get; set; }
+    public TimeSpan BreakTimeEnd { get; set; }
     
     public bool DoesWorkWeekends { get; set; }
     
