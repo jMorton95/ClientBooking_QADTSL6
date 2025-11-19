@@ -1,30 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using ClientBooking.Components.Generic
+@inherits LayoutComponentBase
 
 <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">ClientBooking</h1>
-                </div>
-
-                <!-- Navigation -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                    <a href="/clients" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Clients</a>
-                    <a href="/bookings" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Bookings</a>
-                    <a href="/schedule" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">My Schedule</a>
-                </nav>
-
-                <!-- User Menu -->
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-700">Welcome!</span>
-                    <button hx-trigger="click" hx-post="/logout">Logout</button>
-                </div>
-            </div>
-        </div>
-    </header>
+   
+    <HeaderComponent />
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         @Body

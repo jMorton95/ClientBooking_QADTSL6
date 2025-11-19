@@ -12,7 +12,8 @@ public static class ConfigureEndpoints
     {
         app.MapRequestHandler<RegistrationHandler>()
             .MapRequestHandler<LoginHandler>()
-            .MapRequestHandler<LogoutHandler>();
+            .MapRequestHandler<LogoutHandler>()
+            .MapRequestHandler<ToggleAdminHandler>();
             
         var api = app.MapGroup("/api/");
                 
