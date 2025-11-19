@@ -12,7 +12,9 @@ public class UpdateUserHandler : IRequestHandler
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/user/get", GetHandler).RequireAuthorization();
-        app.MapPost("/user/", PostHandler).RequireAuthorization();
+        app.MapPost("/user/profile", PostHandler).RequireAuthorization();
+        app.MapPost("/user/profile/toggle-working-hours", ToggleWorkingHours).RequireAuthorization();
+        app.MapPost("/user/profile/toggle-break-time", ToggleBreakTime).RequireAuthorization();
     }
 
     private static async Task<Results<RazorComponentResult<UpdateUserComponent>, BadRequest<string>>>
@@ -32,7 +34,11 @@ public class UpdateUserHandler : IRequestHandler
             return TypedResults.BadRequest("Unable to load user context.");
         }
         
-        var userProfile = user.MapToUserProfile();
+        var systemSettings = await dataContext.Settings
+            .OrderByDescending(s => s.Version)
+            .FirstAsync();
+        
+        var userProfile = user.MapToUserProfile(systemSettings);
 
         return new RazorComponentResult<UpdateUserComponent>(new { userProfile });
 
@@ -93,6 +99,56 @@ public class UpdateUserHandler : IRequestHandler
                 ErrorMessage = ex.Message,
             });
         }
+    }
+    
+    private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleWorkingHours(
+        [FromForm] UserProfile userProfile,
+        DataContext dataContext,
+        ISessionStateManager sessionManager)
+    {
+        var userId = sessionManager.GetUserSessionId();
+        var user = await dataContext.Users.FindAsync(userId);
+        
+        if (user != null)
+        {
+            user.UseSystemWorkingHours = userProfile.UseSystemWorkingHours;
+            await dataContext.SaveChangesAsync();
+        }
+        
+        var systemSettings = await dataContext.Settings
+            .OrderByDescending(s => s.Version)
+            .FirstAsync();
+
+        return new RazorComponentResult<UpdateUserComponent>(new 
+        { 
+            UserProfile = user?.MapToUserProfile(systemSettings) ?? userProfile,
+            Section = "working-hours"
+        });
+    }
+
+    private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleBreakTime(
+        [FromForm] UserProfile userProfile,
+        [FromServices] DataContext dataContext,
+        [FromServices] ISessionStateManager sessionManager)
+    {
+        var userId = sessionManager.GetUserSessionId();
+        var user = await dataContext.Users.FindAsync(userId);
+        
+        if (user != null)
+        {
+            user.UseSystemBreakTime = userProfile.UseSystemBreakTime;
+            await dataContext.SaveChangesAsync();
+        }
+        
+        var systemSettings = await dataContext.Settings
+            .OrderByDescending(s => s.Version)
+            .FirstAsync();
+
+        return new RazorComponentResult<UpdateUserComponent>(new 
+        { 
+            UserProfile = user?.MapToUserProfile(systemSettings) ?? userProfile,
+            Section = "break-time"
+        });
     }
 }
 

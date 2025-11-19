@@ -14,7 +14,11 @@ public class GetUserProfileService(DataContext dataContext) : IGetUserProfileSer
     public async Task<UserProfile?> GetUserSessionProfile(int userId)
     {
         var user = await dataContext.Users.FindAsync(userId);
+        
+        var systemSettings = await dataContext.Settings
+            .OrderByDescending(s => s.Version)
+            .FirstAsync();
 
-        return user?.MapToUserProfile();
+        return user?.MapToUserProfile(systemSettings);
     }
 }

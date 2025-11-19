@@ -24,17 +24,21 @@ public class User : Entity
     
     public DateTime? LockoutEnd { get; set; }
 
-    public int AccessFailedCount { get; set; } = 0;
+    public int AccessFailedCount { get; set; }
     
-    public TimeSpan WorkingHoursStart { get; set; }
+    public TimeSpan? WorkingHoursStart { get; set; }
     
-    public TimeSpan WorkingHoursEnd { get; set; }
+    public TimeSpan? WorkingHoursEnd { get; set; }
     
-    public TimeSpan BreakTimeStart { get; set; }
+    public TimeSpan? BreakTimeStart { get; set; }
     
-    public TimeSpan BreakTimeEnd { get; set; }
+    public TimeSpan? BreakTimeEnd { get; set; }
     
     public bool DoesWorkWeekends { get; set; }
+    
+    public bool UseSystemWorkingHours { get; set; }
+    
+    public bool UseSystemBreakTime { get; set; }
     
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();

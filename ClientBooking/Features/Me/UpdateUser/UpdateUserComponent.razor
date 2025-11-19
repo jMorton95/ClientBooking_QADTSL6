@@ -3,126 +3,187 @@
 @using ClientBooking.Shared.Models
 @using Microsoft.AspNetCore.Components.Forms
 
-<div class="bg-white rounded-lg shadow-sm border p-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">User Profile</h1>
-            <p class="text-gray-600 mt-2">Manage your personal information and working hours.</p>
-        </div>
-    </div>
-</div>
-
-@if (ShowSuccessMessage)
+@if (Section == "working-hours")
 {
-    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span class="text-green-800 font-medium">Profile updated successfully!</span>
+    <div id="working-hours-section">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Working Hours</h3>
+        
+        <div class="flex items-center gap-3 mb-4">
+            <InputCheckbox @bind-Value="UserProfile.UseSystemWorkingHours" 
+                           name="@nameof(UserProfile.UseSystemWorkingHours)"
+                           hx-post="/user/profile/toggle-working-hours"
+                           hx-target="#working-hours-section"
+                           hx-trigger="change"
+                           hx-include="[name='FirstName'], [name='LastName']" />
+            <label class="text-sm text-gray-800 cursor-pointer">
+                Use system default working hours
+            </label>
         </div>
+
+        @if (!UserProfile.UseSystemWorkingHours)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="@nameof(UserProfile.WorkingHoursStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <InputTime Value="UserProfile.WorkingHoursStart"
+                               Name="@nameof(UserProfile.WorkingHoursStart)" />
+                    <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursStart)" />
+                </div>
+                <div>
+                    <label for="@nameof(UserProfile.WorkingHoursEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                    <InputTime Value="UserProfile.WorkingHoursEnd"
+                               Name="@nameof(UserProfile.WorkingHoursEnd)" />
+                    <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursEnd)" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-blue-800 text-sm">
+                    Using system default working hours. Change system defaults in admin settings.
+                </p>
+            </div>
+        }
     </div>
+    
+    return;
 }
 
-@if (ErrorMessage is not null)
+@if (Section == "break-time")
 {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span class="text-red-800 font-medium">@ErrorMessage</span>
+    <div id="break-time-section">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Break Time</h3>
+        
+        <div class="flex items-center gap-3 mb-4">
+            <InputCheckbox @bind-Value="UserProfile.UseSystemBreakTime" 
+                           name="@nameof(UserProfile.UseSystemBreakTime)"
+                           hx-post="/user/profile/toggle-break-time"
+                           hx-target="#break-time-section"
+                           hx-trigger="change"
+                           hx-include="[name='FirstName'], [name='LastName']" />
+            <label class="text-sm text-gray-800 cursor-pointer">
+                Use system default break time
+            </label>
         </div>
+
+        @if (!UserProfile.UseSystemBreakTime)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="@nameof(UserProfile.BreakTimeStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <InputTime Value="UserProfile.BreakTimeStart"
+                               Name="@nameof(UserProfile.BreakTimeStart)" />
+                    <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeStart)" />
+                </div>
+                <div>
+                    <label for="@nameof(UserProfile.BreakTimeEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                    <InputTime Value="UserProfile.BreakTimeEnd"
+                               Name="@nameof(UserProfile.BreakTimeEnd)" />
+                    <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeEnd)" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-blue-800 text-sm">
+                    Using system default break time. Change system defaults in admin settings.
+                </p>
+            </div>
+        }
     </div>
+    return;
 }
 
-<div class="bg-white rounded-lg shadow-sm border">
-    <EditForm EditContext="_editContext" hx-post="/user/" hx-target="#UpdateUser-container" id="user-profile-form">
-        <div id="user-profile-container" class="p-6 space-y-8">
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="@nameof(UserProfile.FirstName)" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                        <InputText @bind-Value="UserProfile.FirstName" name="@nameof(UserProfile.FirstName)"
-                                   class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.FirstName)" />
-                    </div>
-                    <div>
-                        <label for="@nameof(UserProfile.LastName)" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                        <InputText @bind-Value="UserProfile.LastName" name="@nameof(UserProfile.LastName)"
-                                   class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.LastName)" />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Working Hours</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="@nameof(UserProfile.WorkingHoursStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
-                        <InputTime Value="UserProfile.WorkingHoursStart"
-                                   Name="@nameof(UserProfile.WorkingHoursStart)" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursStart)" />
-                    </div>
-                    <div>
-                        <label for="@nameof(UserProfile.WorkingHoursEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
-                        <InputTime Value="UserProfile.WorkingHoursEnd"
-                                   Name="@nameof(UserProfile.WorkingHoursEnd)" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursEnd)" />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Break Time</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="@nameof(UserProfile.BreakTimeStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
-                        <InputTime Value="UserProfile.BreakTimeStart"
-                                   Name="@nameof(UserProfile.BreakTimeStart)" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeStart)" />
-                    </div>
-                    <div>
-                        <label for="@nameof(UserProfile.BreakTimeEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
-                        <InputTime Value="UserProfile.BreakTimeEnd"
-                                   Name="@nameof(UserProfile.BreakTimeEnd)" />
-                        <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeEnd)" />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Weekend Work</h3>
-                <div class="flex items-center gap-3">
-                    <InputCheckbox @bind-Value="UserProfile.DoesWorkWeekends" 
-                                   name="@nameof(UserProfile.DoesWorkWeekends)" />
-                    <label for="@nameof(UserProfile.DoesWorkWeekends)" class="text-sm text-gray-800 cursor-pointer">I work on weekends</label>
-                </div>
-            </div>
-
-            @if (ValidationErrors?.Any() == true)
-            {
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h4 class="text-red-800 font-medium mb-2">Please correct the following errors:</h4>
-                    <ul class="text-red-700 text-sm list-disc list-inside">
-                        @foreach (var error in ValidationErrors.Values.SelectMany(v => v))
-                        {
-                            <li>@error</li>
-                        }
-                    </ul>
-                </div>
-            }
-
-            <div class="flex items-center justify-end space-x-4 pt-6 border-t">
-                <button type="submit" 
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    Save Profile
-                </button>
+                <h1 class="text-2xl font-bold text-gray-900">User Profile</h1>
+                <p class="text-gray-600 mt-2">Manage your personal information and working hours.</p>
             </div>
         </div>
-    </EditForm>
+    </div>
+
+    @if (ShowSuccessMessage)
+    {
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-green-800 font-medium">Profile updated successfully!</span>
+            </div>
+        </div>
+    }
+
+    @if (ErrorMessage is not null)
+    {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-red-800 font-medium">@ErrorMessage</span>
+            </div>
+        </div>
+    }
+
+    <div class="bg-white rounded-lg shadow-sm border">
+        <EditForm EditContext="_editContext" hx-post="/user/profile" hx-target="#user-profile-form-container" id="user-profile-form">
+            <div id="user-profile-form-container" class="p-6 space-y-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="@nameof(UserProfile.FirstName)" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <InputText @bind-Value="UserProfile.FirstName" name="@nameof(UserProfile.FirstName)"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            <FluentValidationMessage TModel="UserProfile" For="@(x => x.FirstName)" />
+                        </div>
+                        <div>
+                            <label for="@nameof(UserProfile.LastName)" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <InputText @bind-Value="UserProfile.LastName" name="@nameof(UserProfile.LastName)"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            <FluentValidationMessage TModel="UserProfile" For="@(x => x.LastName)" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Weekend Work</h3>
+                    <div class="flex items-center gap-3">
+                        <InputCheckbox @bind-Value="UserProfile.DoesWorkWeekends" 
+                                       name="@nameof(UserProfile.DoesWorkWeekends)" />
+                        <label for="@nameof(UserProfile.DoesWorkWeekends)" class="text-sm text-gray-800 cursor-pointer">
+                            I work on weekends
+                        </label>
+                    </div>
+                </div>
+
+                @if (ValidationErrors?.Any() == true)
+                {
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <h4 class="text-red-800 font-medium mb-2">Please correct the following errors:</h4>
+                        <ul class="text-red-700 text-sm list-disc list-inside">
+                            @foreach (var error in ValidationErrors.Values.SelectMany(v => v))
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+                    <button type="submit" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Save Profile
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
 </div>
 
 @code {
@@ -130,6 +191,7 @@
     [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; }
     [Parameter] public bool ShowSuccessMessage { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string? Section { get; set; }
 
     private EditContext? _editContext;
 
