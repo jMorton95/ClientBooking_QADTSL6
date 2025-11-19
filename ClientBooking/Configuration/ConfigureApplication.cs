@@ -1,7 +1,9 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Data.Entities;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Registration;
+using ClientBooking.Features.UpdateSettings;
 using ClientBooking.Shared.Services;
 using FluentValidation;
 
@@ -48,7 +50,8 @@ public static class ConfigureApplication
         {
             builder.Services
                 .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>()
-                .AddScoped<IValidator<LoginRequest>, LoginValidator>();
+                .AddScoped<IValidator<LoginRequest>, LoginValidator>()
+                .AddScoped<IValidator<UpdateSettingsRequest>, UpdateSettingsValidator>();
         }
     }
 }

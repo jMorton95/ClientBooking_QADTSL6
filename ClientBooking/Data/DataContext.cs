@@ -1,9 +1,10 @@
-﻿using ClientBooking.Data.Entities;
+﻿using ClientBooking.Authentication;
+using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Data;
 
-public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
+public class DataContext(DbContextOptions<DataContext> options, ISessionStateManager sessionStateManager) : DbContext(options)
 {
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<Client> Clients => Set<Client>();
@@ -24,6 +25,12 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 continue;
             
             entity.SavedAt = DateTime.UtcNow;
+            entity.SavedById = sessionStateManager.GetUserSessionId() ?? null;
+            
+            if (entry is { Entity: Settings settings, State: EntityState.Added })
+            {
+                settings.Version += 1;
+            }
             
             switch (entry.State)
             {
@@ -36,7 +43,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 case EntityState.Detached:
                 case EntityState.Unchanged:
                 case EntityState.Deleted:
-                    continue;
+                    default: continue;
             }
         }
 

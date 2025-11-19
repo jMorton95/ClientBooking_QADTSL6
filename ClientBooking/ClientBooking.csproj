@@ -37,9 +37,5 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Features\NewPage\NewPage.razor" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Features\ToggleAdmin\" />
-    </ItemGroup>
 
 </Project>

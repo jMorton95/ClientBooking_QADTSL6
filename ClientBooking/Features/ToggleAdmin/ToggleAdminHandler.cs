@@ -2,11 +2,10 @@
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
-using ClientBooking.Features;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ClientBooking;
+namespace ClientBooking.Features.ToggleAdmin;
 
 public class ToggleAdminHandler : IRequestHandler
 {
