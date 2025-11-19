@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
+using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -13,6 +14,8 @@ public interface ISessionStateManager
     Task LoginAsync(User user, bool persistSession = false);
     Task LogoutAsync();
     bool IsAuthenticated();
+
+    bool IsUserSessionAdministrator();
 }
 
 public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISessionStateManager
@@ -58,4 +61,16 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
     
     //Determine whether a session is active or not.
     public bool IsAuthenticated() => GetUserSessionId() != null;
+
+    public bool IsUserSessionAdministrator()
+    {
+        var userId = GetUserSessionId();
+
+        if (userId is null)
+            return false;
+        
+        var hasAdminRole = HttpContext.User.Claims.Any(c => c is { Type: ClaimTypes.Role, Value: nameof(RoleName.Admin) });
+        
+        return hasAdminRole;
+    }
 }
