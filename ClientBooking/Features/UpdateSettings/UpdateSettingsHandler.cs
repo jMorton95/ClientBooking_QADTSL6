@@ -25,22 +25,22 @@ public class UpdateSettingsHandler : IRequestHandler
     }
     
     private static async Task<RazorComponentResult<UpdateSettingsComponent>>
-        PostHandler([FromForm] Request request, IValidator<UpdateSettingsRequest> validator, DataContext dataContext)
+        PostHandler([FromForm] UpdateSettingsRequest updateSettingsRequest, IValidator<UpdateSettingsRequest> validator, DataContext dataContext)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(request.UpdateSettingsRequest);
+            var validationResult = await validator.ValidateAsync(updateSettingsRequest);
 
             if (!validationResult.IsValid)
             {
                 return new RazorComponentResult<UpdateSettingsComponent>(new
                 {
-                    request.UpdateSettingsRequest,
+                    updateSettingsRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
 
-            var newSettingsRecord = request.UpdateSettingsRequest.ToSettingsEntity();
+            var newSettingsRecord = updateSettingsRequest.ToSettingsEntity();
             
             await dataContext.AddAsync(newSettingsRecord);
             await dataContext.SaveChangesAsync();
@@ -55,7 +55,7 @@ public class UpdateSettingsHandler : IRequestHandler
         {
             return new RazorComponentResult<UpdateSettingsComponent>(new
             {
-                request.UpdateSettingsRequest,
+                updateSettingsRequest,
                 ErrorMessage = ex.Message
             });
         }

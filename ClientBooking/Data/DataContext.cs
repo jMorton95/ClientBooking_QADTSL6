@@ -17,7 +17,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     public DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     
-    public override Task<int> SaveChangesAsync(CancellationToken ct = new())
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
         foreach (var entry in ChangeTracker.Entries())
         {
@@ -29,7 +29,8 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             
             if (entry is { Entity: Settings settings, State: EntityState.Added })
             {
-                settings.Version += 1;
+                var maxVersion = await Settings.MaxAsync(s => (int?)s.Version, ct) ?? 0;
+                settings.Version = maxVersion + 1;
             }
             
             switch (entry.State)
@@ -47,7 +48,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             }
         }
 
-        return base.SaveChangesAsync(ct);
+        return await base.SaveChangesAsync(ct);
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
