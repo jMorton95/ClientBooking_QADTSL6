@@ -1,4 +1,4 @@
-﻿namespace ClientBooking.Shared.TimeConversions;
+﻿namespace ClientBooking.Shared.Models;
 
 public static class TimeConversions
 {

@@ -60,6 +60,4 @@ public class UpdateSettingsHandler : IRequestHandler
             });
         }
     }
-    
-    private record Request(UpdateSettingsRequest UpdateSettingsRequest);
 }

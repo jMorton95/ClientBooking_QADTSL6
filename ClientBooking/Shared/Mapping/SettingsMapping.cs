@@ -1,6 +1,6 @@
 ﻿using ClientBooking.Data.Entities;
 using ClientBooking.Features.UpdateSettings;
-using ClientBooking.Shared.TimeConversions;
+using ClientBooking.Shared.Models;
 
 namespace ClientBooking.Shared.Mapping;
 
