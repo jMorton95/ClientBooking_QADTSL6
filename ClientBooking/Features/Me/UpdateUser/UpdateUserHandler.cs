@@ -101,29 +101,44 @@ public class UpdateUserHandler : IRequestHandler
         }
     }
     
+    //TODO: Refactor Handler logic for WorkingHours/BreakHours to pull shared behaviour from a single method.
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleWorkingHours(
         [FromForm] UserProfile userProfile,
         DataContext dataContext,
         ISessionStateManager sessionManager)
     {
-        var userId = sessionManager.GetUserSessionId();
-        var user = await dataContext.Users.FindAsync(userId);
-        
-        if (user != null)
+        try
         {
-            user.UseSystemWorkingHours = userProfile.UseSystemWorkingHours;
-            await dataContext.SaveChangesAsync();
-        }
+            var userId = sessionManager.GetUserSessionId();
+            var user = await dataContext.Users.FindAsync(userId);
         
-        var systemSettings = await dataContext.Settings
-            .OrderByDescending(s => s.Version)
-            .FirstAsync();
+            if (user != null)
+            {
+                user.UseSystemWorkingHours = userProfile.UseSystemWorkingHours;
+                await dataContext.SaveChangesAsync();
+            }
+        
+            var systemSettings = await dataContext.Settings
+                .OrderByDescending(s => s.Version)
+                .FirstAsync();
 
-        return new RazorComponentResult<UpdateUserComponent>(new 
-        { 
-            UserProfile = user?.MapToUserProfile(systemSettings) ?? userProfile,
-            Section = "working-hours"
-        });
+            var updatedProfile = user?.MapToUserProfile(systemSettings) ?? userProfile;
+
+            return new RazorComponentResult<UpdateUserComponent>(new 
+            { 
+                UserProfile = updatedProfile,
+                Section = "working-hours"
+            });
+        }
+        catch (Exception ex)
+        {
+            return new RazorComponentResult<UpdateUserComponent>(new 
+            { 
+                UserProfile = userProfile,
+                Section = "working-hours",
+                ErrorMessage = $"Failed to update working hours: {ex.Message} "
+            });
+        }
     }
 
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleBreakTime(
