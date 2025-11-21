@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+﻿using ClientBooking.Features.Clients.Shared;
+using FluentValidation;
 
 namespace ClientBooking.Features.Clients.Create;
 
-public class CreateClientValidator : AbstractValidator<CreateClientRequest>
+public class CreateClientValidator : AbstractValidator<ClientRequest>
 {
     public CreateClientValidator()
     {

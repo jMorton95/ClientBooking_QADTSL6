@@ -1,6 +1,7 @@
 using ClientBooking.Features;
 using ClientBooking.Features.Clients;
 using ClientBooking.Features.Clients.Create;
+using ClientBooking.Features.Clients.Update;
 using ClientBooking.Features.Clients.View;
 using ClientBooking.Features.HealthCheck;
 using ClientBooking.Features.Login;
@@ -16,21 +17,22 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
-        app.MapRequestHandler<RegistrationHandler>()
-            .MapRequestHandler<LoginHandler>()
-            .MapRequestHandler<LogoutHandler>()
-            .MapRequestHandler<ToggleAdminHandler>()
-            .MapRequestHandler<UpdateSettingsHandler>()
-            .MapRequestHandler<UpdateUserHandler>()
-            .MapRequestHandler<GetClientsHandler>()
-            .MapRequestHandler<CreateClientHandler>();
+        app.MapRequestHandlers<RegistrationHandler>()
+            .MapRequestHandlers<LoginHandler>()
+            .MapRequestHandlers<LogoutHandler>()
+            .MapRequestHandlers<ToggleAdminHandler>()
+            .MapRequestHandlers<UpdateSettingsHandler>()
+            .MapRequestHandlers<UpdateUserHandler>()
+            .MapRequestHandlers<GetClientsHandler>()
+            .MapRequestHandlers<CreateClientHandler>()
+            .MapRequestHandlers<UpdateClientHandler>();
             
         var api = app.MapGroup("/api/");
                 
-        api.MapRequestHandler<HealthCheckHandler>();
+        api.MapRequestHandlers<HealthCheckHandler>();
     }
     
-    private static IEndpointRouteBuilder MapRequestHandler<TRequestHandler>
+    private static IEndpointRouteBuilder MapRequestHandlers<TRequestHandler>
         (this IEndpointRouteBuilder app) where TRequestHandler : IRequestHandler
     {
         TRequestHandler.Map(app);

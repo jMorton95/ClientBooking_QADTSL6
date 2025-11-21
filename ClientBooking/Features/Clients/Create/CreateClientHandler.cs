@@ -1,4 +1,5 @@
 ﻿using ClientBooking.Data;
+using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Shared.Mapping;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -13,33 +14,33 @@ public class CreateClientHandler : IRequestHandler
     }
 
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<CreateClientPage>>>
-        Handler([FromForm] CreateClientRequest createClientRequest, IValidator<CreateClientRequest> validator, DataContext dataContext)
+        Handler([FromForm] ClientRequest clientRequest, IValidator<ClientRequest> validator, DataContext dataContext)
     {
         try
         {
-            var validationResult = await  validator.ValidateAsync(createClientRequest);
+            var validationResult = await  validator.ValidateAsync(clientRequest);
             
             if (!validationResult.IsValid)
             {
                 return new RazorComponentResult<CreateClientPage>(new
                 {
-                    createClientRequest,
+                    createClientRequest = clientRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
             
-            var doesClientEmailAlreadyExist = await dataContext.Clients.AnyAsync(c => c.Email == createClientRequest.Email);
+            var doesClientEmailAlreadyExist = await dataContext.Clients.AnyAsync(c => c.Email == clientRequest.Email);
 
             if (doesClientEmailAlreadyExist)
             {
                 return new RazorComponentResult<CreateClientPage>(new
                 {
-                    createClientRequest,
+                    createClientRequest = clientRequest,
                     ErrorMessage = "Client with this email address already exists.",
                 });
             }
 
-            var newClientEntity = createClientRequest.MapCreateClientRequestToEntity();
+            var newClientEntity = clientRequest.MapCreateClientRequestToEntity();
             
             await dataContext.Clients.AddAsync(newClientEntity);
             await dataContext.SaveChangesAsync();
@@ -50,7 +51,7 @@ public class CreateClientHandler : IRequestHandler
         {
             return new RazorComponentResult<CreateClientPage>(new
             {
-                createClientRequest,
+                createClientRequest = clientRequest,
                 ErrorMessage = e.Message,
             });
         }
