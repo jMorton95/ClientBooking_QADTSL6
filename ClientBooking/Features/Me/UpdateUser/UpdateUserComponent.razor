@@ -1,0 +1,224 @@
+﻿@using ClientBooking.Components
+@using ClientBooking.Components.Generic
+@using ClientBooking.Shared.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (Section == "working-hours")
+{
+    @if (!UserProfile.UseSystemWorkingHours)
+    {
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Working Hours</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="@nameof(UserProfile.WorkingHoursStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                <InputTime @bind-Value="UserProfile.WorkingHoursStart" 
+                           Name="@nameof(UserProfile.WorkingHoursStart)" />
+                <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursStart)" />
+            </div>
+            <div>
+                <label for="@nameof(UserProfile.WorkingHoursEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                <InputTime @bind-Value="UserProfile.WorkingHoursEnd" 
+                           Name="@nameof(UserProfile.WorkingHoursEnd)" />
+                <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursEnd)" />
+            </div>
+        </div>
+    }
+    return;
+}
+
+@if (Section == "break-time")
+{
+    @if (!UserProfile.UseSystemBreakTime)
+    {
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Break Time</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="@nameof(UserProfile.BreakTimeStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                <InputTime @bind-Value="UserProfile.BreakTimeStart" 
+                           Name="@nameof(UserProfile.BreakTimeStart)" />
+                <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeStart)" />
+            </div>
+            <div>
+                <label for="@nameof(UserProfile.BreakTimeEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                <InputTime @bind-Value="UserProfile.BreakTimeEnd" 
+                           Name="@nameof(UserProfile.BreakTimeEnd)" />
+                <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeEnd)" />
+            </div>
+        </div>
+    }
+    return;
+}
+
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">User Profile</h1>
+                <p class="text-gray-600 mt-2">Manage your personal information and working hours.</p>
+            </div>
+        </div>
+    </div>
+
+    @if (ShowSuccessMessage)
+    {
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-green-800 font-medium">Profile updated successfully!</span>
+            </div>
+        </div>
+    }
+
+    @if (ErrorMessage is not null)
+    {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-red-800 font-medium">@ErrorMessage</span>
+            </div>
+        </div>
+    }
+    
+    @if (ValidationErrors?.Any() == true)
+    {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
+            <h4 class="text-red-800 font-medium mb-2">Please correct the following errors:</h4>
+            <ul class="text-red-700 text-sm list-disc list-inside">
+                @foreach (var error in ValidationErrors.Values.SelectMany(v => v))
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <EditForm EditContext="_editContext" hx-post="/user/profile" hx-target="#user-profile-form-container">
+        <div id="user-profile-form-container" class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="@nameof(UserProfile.FirstName)" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <InputText @bind-Value="UserProfile.FirstName" 
+                                       Name="@nameof(UserProfile.FirstName)"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            <FluentValidationMessage TModel="UserProfile" For="@(x => x.FirstName)" />
+                        </div>
+                        <div>
+                            <label for="@nameof(UserProfile.LastName)" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <InputText @bind-Value="UserProfile.LastName" 
+                                       Name="@nameof(UserProfile.LastName)"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            <FluentValidationMessage TModel="UserProfile" For="@(x => x.LastName)" />
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Weekend Work</h3>
+                        <div class="flex items-center gap-3">
+                            <InputCheckbox @bind-Value="UserProfile.DoesWorkWeekends" 
+                                           Name="@nameof(UserProfile.DoesWorkWeekends)" />
+                            <label for="@nameof(UserProfile.DoesWorkWeekends)" class="text-sm text-gray-800 cursor-pointer">
+                                I work on weekends
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Customise your schedule</h2>
+                
+                <div class="flex items-center gap-3 gap-x-6 mb-4">
+                    <InputCheckbox @bind-Value="UserProfile.UseSystemWorkingHours" 
+                                   id="useSystemWorkingHours"
+                                   name="@nameof(UserProfile.UseSystemWorkingHours)"
+                                   hx-post="/user/profile/toggle-working-hours"
+                                   hx-target="#working-hours-container"
+                                   hx-trigger="change"/>
+                    <label for="useSystemWorkingHours" class="text-sm text-gray-800 cursor-pointer">
+                        Use system default working hours
+                    </label>
+                    
+                    <InputCheckbox @bind-Value="UserProfile.UseSystemBreakTime" 
+                                   id="useSystemBreakTime"
+                                   name="@nameof(UserProfile.UseSystemBreakTime)"
+                                   hx-post="/user/profile/toggle-break-time"
+                                   hx-target="#break-time-container"/>
+                    <label for="useSystemBreakTime" class="text-sm text-gray-800 cursor-pointer">
+                        Use system default break time
+                    </label>
+                </div>
+
+                <div id="working-hours-container">
+                    @if (!UserProfile.UseSystemWorkingHours)
+                    {
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Working Hours</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="@nameof(UserProfile.WorkingHoursStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                                <InputTime @bind-Value="UserProfile.WorkingHoursStart" 
+                                           Name="@nameof(UserProfile.WorkingHoursStart)" />
+                                <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursStart)" />
+                            </div>
+                            <div>
+                                <label for="@nameof(UserProfile.WorkingHoursEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                                <InputTime @bind-Value="UserProfile.WorkingHoursEnd" 
+                                           Name="@nameof(UserProfile.WorkingHoursEnd)" />
+                                <FluentValidationMessage TModel="UserProfile" For="@(x => x.WorkingHoursEnd)" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div id="break-time-container">
+                    @if (!UserProfile.UseSystemBreakTime)
+                    {
+                        <h3 class="text-lg font-semibold pt-4 text-gray-900 mb-4">Break Time</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="@nameof(UserProfile.BreakTimeStart)" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                                <InputTime @bind-Value="UserProfile.BreakTimeStart" 
+                                           Name="@nameof(UserProfile.BreakTimeStart)" />
+                                <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeStart)" />
+                            </div>
+                            <div>
+                                <label for="@nameof(UserProfile.BreakTimeEnd)" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                                <InputTime @bind-Value="UserProfile.BreakTimeEnd" 
+                                           Name="@nameof(UserProfile.BreakTimeEnd)" />
+                                <FluentValidationMessage TModel="UserProfile" For="@(x => x.BreakTimeEnd)" />
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="flex items-center justify-start space-x-4 pt-6 border-t mt-6">
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Save Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public required UserProfile UserProfile { get; set; }
+    [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; }
+    [Parameter] public bool ShowSuccessMessage { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string? Section { get; set; }
+
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(UserProfile);
+    }
+}

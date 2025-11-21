@@ -1,9 +1,10 @@
-﻿using ClientBooking.Data.Entities;
+﻿using ClientBooking.Authentication;
+using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Data;
 
-public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
+public class DataContext(DbContextOptions<DataContext> options, ISessionStateManager sessionStateManager) : DbContext(options)
 {
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<Client> Clients => Set<Client>();
@@ -16,7 +17,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     public DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     
-    public override Task<int> SaveChangesAsync(CancellationToken ct = new())
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
         foreach (var entry in ChangeTracker.Entries())
         {
@@ -24,6 +25,13 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 continue;
             
             entity.SavedAt = DateTime.UtcNow;
+            entity.SavedById = sessionStateManager.GetUserSessionId() ?? null;
+            
+            if (entry is { Entity: Settings settings, State: EntityState.Added })
+            {
+                var maxVersion = await Settings.MaxAsync(s => (int?)s.Version, ct) ?? 0;
+                settings.Version = maxVersion + 1;
+            }
             
             switch (entry.State)
             {
@@ -36,11 +44,11 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
                 case EntityState.Detached:
                 case EntityState.Unchanged:
                 case EntityState.Deleted:
-                    continue;
+                    default: continue;
             }
         }
 
-        return base.SaveChangesAsync(ct);
+        return await base.SaveChangesAsync(ct);
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

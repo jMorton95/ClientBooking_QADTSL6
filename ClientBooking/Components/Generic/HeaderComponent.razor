@@ -1,0 +1,55 @@
+﻿@using ClientBooking.Authentication
+@inject ISessionStateManager SessionStateManager
+
+<header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            @* <div class="flex items-center"> *@
+            @*     <h1 class="text-xl font-bold text-gray-900">ClientBooking</h1> *@
+            @* </div> *@
+
+            <nav class="hidden md:flex space-x-8">
+                <a href="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                <a href="/me" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Profile</a>
+                <a href="/clients" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Clients</a>
+                <a href="/bookings" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Bookings</a>
+                @if (IsUserAdministrator)
+                {
+                    <a href="/admin/settings" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Site Settings</a>
+                }
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <span class=" text-xs text-center text-gray-700 block">For testing, toggle to enable administrator features.</span>
+                
+                <form hx-post="/toggle/admin" hx-include="[name='AssignAdministrator']" hx-swap="none" class="flex items-center">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="AssignAdministrator" value="@((!IsUserAdministrator).ToString())" />
+        
+                    <button type="submit" 
+                            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 @(IsUserAdministrator ? "bg-blue-600" : "bg-gray-200")">
+                        <span class="sr-only">Toggle administrator mode</span>
+                        <span aria-hidden="true"
+                              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out @(IsUserAdministrator ? "translate-x-5" : "translate-x-0")">
+                        </span>
+                    </button>
+                    <span class="ml-2 text-sm font-medium text-gray-700">
+                        @(IsUserAdministrator ? "Admin" : "User")
+                    </span>
+                </form>
+                
+                <button hx-trigger="click" hx-post="/logout">Logout</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+@code {
+
+    private bool IsUserAdministrator { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        IsUserAdministrator = SessionStateManager.IsUserSessionAdministrator();
+    }
+}

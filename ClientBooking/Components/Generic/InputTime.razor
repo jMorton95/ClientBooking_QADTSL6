@@ -1,0 +1,8 @@
+﻿<InputDate Type="InputDateType.Time" step="1" name="@Name" @bind-Value="@Value" id="@Name"
+           class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+
+@code {
+    [Parameter] public TimeOnly Value { get; set; }
+    [Parameter] public string Name { get; set; } = string.Empty;
+    [Parameter] public EventCallback<TimeOnly> ValueChanged { get; set; }
+}

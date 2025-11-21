@@ -1,4 +1,5 @@
 ﻿using ClientBooking.Data;
+using ClientBooking.Shared.Mapping;
 using ClientBooking.Shared.Models;
 
 namespace ClientBooking.Shared.Services;
@@ -13,7 +14,11 @@ public class GetUserProfileService(DataContext dataContext) : IGetUserProfileSer
     public async Task<UserProfile?> GetUserSessionProfile(int userId)
     {
         var user = await dataContext.Users.FindAsync(userId);
+        
+        var systemSettings = await dataContext.Settings
+            .OrderByDescending(s => s.Version)
+            .FirstAsync();
 
-        return user is not null ? new UserProfile(user) : null;
+        return user?.MapToUserProfile(systemSettings);
     }
 }

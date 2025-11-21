@@ -33,5 +33,13 @@
             <Link>package.json</Link>
         </Content>
     </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Features\NewPage\NewPage.razor" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Features\Bookings\" />
+    </ItemGroup>
 
 </Project>
