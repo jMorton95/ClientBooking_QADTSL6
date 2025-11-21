@@ -1,4 +1,7 @@
 using ClientBooking.Features;
+using ClientBooking.Features.Clients;
+using ClientBooking.Features.Clients.Create;
+using ClientBooking.Features.Clients.View;
 using ClientBooking.Features.HealthCheck;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Logout;
@@ -18,7 +21,9 @@ public static class ConfigureEndpoints
             .MapRequestHandler<LogoutHandler>()
             .MapRequestHandler<ToggleAdminHandler>()
             .MapRequestHandler<UpdateSettingsHandler>()
-            .MapRequestHandler<UpdateUserHandler>();
+            .MapRequestHandler<UpdateUserHandler>()
+            .MapRequestHandler<GetClientsHandler>()
+            .MapRequestHandler<CreateClientHandler>();
             
         var api = app.MapGroup("/api/");
                 

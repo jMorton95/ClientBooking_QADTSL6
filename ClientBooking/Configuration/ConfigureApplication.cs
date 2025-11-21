@@ -1,6 +1,6 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
-using ClientBooking.Data.Entities;
+using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Me.UpdateUser;
 using ClientBooking.Features.Registration;
@@ -54,7 +54,8 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<RegistrationRequest>, RegistrationValidator>()
                 .AddScoped<IValidator<LoginRequest>, LoginValidator>()
                 .AddScoped<IValidator<UpdateSettingsRequest>, UpdateSettingsValidator>()
-                .AddScoped<IValidator<UserProfile>, UserProfileValidator>();
+                .AddScoped<IValidator<UserProfile>, UserProfileValidator>()
+                .AddScoped<IValidator<CreateClientRequest>, CreateClientValidator>();
         }
     }
 }

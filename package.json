@@ -9,6 +9,6 @@
   "scripts": {
     "dev": "tailwindcss --input ClientBooking/wwwroot/app.css --output ClientBooking/wwwroot/styles.css --watch",
     "build:css": "tailwindcss --input wwwroot/app.css --output wwwroot/styles.css",
-    "start": "concurrently \"npm run dev\" \"dotnet watch --project ClientBooking/ClientBooking.csproj\""
+    "start": "concurrently \"npm run dev\" \"dotnet watch --non-interactive --project ClientBooking/ClientBooking.csproj\""
   }
 }

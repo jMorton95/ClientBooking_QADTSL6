@@ -1,5 +1,4 @@
 ﻿using ClientBooking.Data;
-using ClientBooking.Data.Entities;
 using ClientBooking.Shared.Enums;
 using ClientBooking.Shared.Mapping;
 using FluentValidation;
