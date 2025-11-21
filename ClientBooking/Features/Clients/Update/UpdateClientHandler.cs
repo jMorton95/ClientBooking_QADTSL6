@@ -31,8 +31,7 @@ public class UpdateClientHandler : IRequestHandler
 
             return new RazorComponentResult<UpdateClientComponent>(new 
             { 
-                id,
-                ClientRequest = clientRequest 
+                id, ClientRequest = clientRequest 
             });
         }
         catch (Exception ex)
@@ -55,8 +54,7 @@ public class UpdateClientHandler : IRequestHandler
             {
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
-                    id,
-                    ClientRequest = clientRequest,
+                    id, ClientRequest = clientRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
