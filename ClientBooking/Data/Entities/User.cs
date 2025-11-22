@@ -44,7 +44,6 @@ public class User : Entity
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
     public ICollection<UserUnavailability> UnavailabilityPeriods { get; set; } = new List<UserUnavailability>();
-    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     
     [NotMapped]
     public string FullName => $"{FirstName} {LastName}";

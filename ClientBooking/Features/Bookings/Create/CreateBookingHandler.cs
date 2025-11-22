@@ -1,11 +1,8 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
-using ClientBooking.Data.JoiningTables;
-using ClientBooking.Shared.Enums;
 using ClientBooking.Shared.Extensions;
 using ClientBooking.Shared.Mapping;
-using ClientBooking.Shared.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,8 +12,9 @@ public class CreateBookingHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        app.MapGet("/Booking/create/get/{clientId:int}", GetHandler).RequireAuthorization();
+        app.MapGet("/booking/create/get/{clientId:int}", GetHandler).RequireAuthorization();
         app.MapPost("/booking/create", PostHandler).RequireAuthorization();
+        app.MapPost("/booking/create/{clientId:int}/toggle-recurring", ToggleRecurringSection).RequireAuthorization();
     }
 
     private static async Task<RazorComponentResult<CreateBookingComponent>> GetHandler(
@@ -38,15 +36,15 @@ public class CreateBookingHandler : IRequestHandler
             
             //Arrange default form fields based on the requested client and current user
             var bookingFormData = GetFormData(client, user, systemSettings);
-            var createBookingRequest = new BookingRequest
+            var bookingRequest = new BookingRequest
             {
                 StartDateTime = DateTime.Today.AddDays(1).Add(bookingFormData.WorkingHoursStart),
-                EndDateTime = DateTime.Today.AddDays(1).Add(bookingFormData.WorkingHoursStart.Add(TimeSpan.FromHours(systemSettings.DefaultBookingDuration)))
+                EndDateTime = DateTime.Today.AddDays(1).Add(bookingFormData.WorkingHoursStart.Add(TimeSpan.FromMinutes(30)))
             };
 
             return new RazorComponentResult<CreateBookingComponent>(new 
             { 
-                CreateBookingRequest = createBookingRequest,
+                bookingRequest,
                 BookingFormData = bookingFormData
             });
         }
@@ -85,7 +83,7 @@ public class CreateBookingHandler : IRequestHandler
             {
                 return new RazorComponentResult<CreateBookingComponent>(new
                 {
-                    CreateBookingRequest = bookingRequest,
+                    bookingRequest,
                     BookingFormData = GetFormData(client, user, systemSettings),
                     ValidationErrors = validationResult.ToDictionary()
                 });
@@ -98,7 +96,7 @@ public class CreateBookingHandler : IRequestHandler
             {
                 return new RazorComponentResult<CreateBookingComponent>(new
                 {
-                    CreateBookingRequest = bookingRequest,
+                    bookingRequest ,
                     BookingFormData = GetFormData(client, user, systemSettings),
                     analysedBookingRequestResult.ValidationErrors
                 });
@@ -117,6 +115,41 @@ public class CreateBookingHandler : IRequestHandler
             return new RazorComponentResult<CreateBookingComponent>(new
             {
                 ErrorMessage = $"An unexpected error occurred while trying to create your bookings. Please try again later. {ex.Message}"
+            });
+        }
+    }
+    
+    private static async Task<RazorComponentResult<CreateBookingComponent>> ToggleRecurringSection(
+        [FromForm] BookingRequest bookingRequest,
+        [FromRoute] int clientId,
+        DataContext dataContext,
+        ISessionStateManager sessionManager)
+    {
+        try
+        {
+            var (userId, user, client, systemSettings) = await ArrangeRequestEntities(sessionManager, clientId, dataContext);
+            if (userId is null || client is null || user is null)
+            {
+                return new RazorComponentResult<CreateBookingComponent>(new 
+                { 
+                    ErrorMessage = "Client and/or user not found." 
+                });
+            }
+
+            return new RazorComponentResult<CreateBookingComponent>(new 
+            { 
+                bookingRequest,
+                BookingFormData = GetFormData(client, user, systemSettings),
+                Section = "recurring"
+            });
+        }
+        catch (Exception ex)
+        {
+            return new RazorComponentResult<CreateBookingComponent>(new 
+            { 
+                bookingRequest,
+                Section = "recurring",
+                ErrorMessage = $"Failed to toggle recurring section: {ex.Message} "
             });
         }
     }
@@ -140,11 +173,11 @@ public class CreateBookingHandler : IRequestHandler
     }
     
     private static RazorComponentResult<CreateBookingComponent> ReturnFormWithErrors(
-        BookingRequest request, BookingFormData formData, string errorMessage)
+        BookingRequest bookingRequest, BookingFormData formData, string errorMessage)
     {
         return new RazorComponentResult<CreateBookingComponent>(new
         {
-            CreateBookingRequest = request,
+            bookingRequest,
             BookingFormData = formData,
             ErrorMessage = errorMessage
         });

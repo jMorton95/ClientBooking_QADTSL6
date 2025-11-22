@@ -16,10 +16,7 @@ public class Settings : Entity
     
     [Required]
     public TimeSpan DefaultBreakTimeEnd { get; set; }
-
-    [Required]
-    public int DefaultBookingDuration { get; set; }
-
+    
     [Required]
     public required RoleName DefaultUserRole { get; set; }
 

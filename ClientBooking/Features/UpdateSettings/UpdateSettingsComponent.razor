@@ -111,12 +111,6 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="@nameof(UpdateSettingsRequest.DefaultBookingDuration)" class="block text-sm font-medium text-gray-700 mb-2">Default Duration (minutes)</label>
-                        <InputNumber @bind-Value="UpdateSettingsRequest.DefaultBookingDuration" name="@nameof(UpdateSettingsRequest.DefaultBookingDuration)"
-                                    class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
-                        <FluentValidationMessage TModel="UpdateSettingsRequest" For="@(x => x.DefaultBookingDuration)" />
-                    </div>
-                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Default User Role</label>
                         <InputSelect @bind-Value="UpdateSettingsRequest.DefaultUserRole" name="@nameof(UpdateSettingsRequest.DefaultUserRole)"
                                     class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600">

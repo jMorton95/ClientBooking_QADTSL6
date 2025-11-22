@@ -122,7 +122,6 @@ public static class DatabaseSeeder
             DefaultWorkingHoursEnd = new TimeSpan(17, 0, 0),
             DefaultBreakTimeStart = new TimeSpan(12, 0, 0),
             DefaultBreakTimeEnd =  new TimeSpan(13, 0, 0),
-            DefaultBookingDuration = 60,
             DefaultUserRole = RoleName.User,
             Version = 1,
             RowVersion = 1,

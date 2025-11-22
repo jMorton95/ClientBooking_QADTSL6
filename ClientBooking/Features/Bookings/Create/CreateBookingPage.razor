@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/booking/create/{ClientId}"
+@page "/booking/create/{ClientId:int}"
 @using Microsoft.AspNetCore.Authorization
 
 <div class="space-y-6" hx-get="@($"/Booking/create/get/{ClientId}")" hx-trigger="load" hx-swap="innerHTML" id="create-booking-container">

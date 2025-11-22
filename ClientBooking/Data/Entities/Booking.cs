@@ -33,5 +33,4 @@ public class Booking : Entity
     public BookingRecurrencePattern RecurrencePattern { get; set; } = BookingRecurrencePattern.None;
 
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
-    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

@@ -12,7 +12,6 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
-    public DbSet<Notification> Notifications => Set<Notification>();
     
     public DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
@@ -95,18 +94,6 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             .WithMany(x => x.UnavailabilityPeriods)
             .HasForeignKey(u => u.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.User)
-            .WithMany(u => u.Notifications)
-            .HasForeignKey(n => n.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.Booking)
-            .WithMany(b => b.Notifications)
-            .HasForeignKey(n => n.BookingId)
-            .OnDelete(DeleteBehavior.NoAction);
         
         modelBuilder.Entity<Settings>()
             .HasOne(s => s.SavedBy)
