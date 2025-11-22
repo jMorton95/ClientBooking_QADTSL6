@@ -13,7 +13,7 @@ public class CreateBookingHandler : IRequestHandler
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/booking/create/get/{clientId:int}", GetHandler).RequireAuthorization();
-        app.MapPost("/booking/create", PostHandler).RequireAuthorization();
+        app.MapPost("/booking/create/{clientId:int}", PostHandler).RequireAuthorization();
         app.MapPost("/booking/create/{clientId:int}/toggle-recurring", ToggleRecurringSection).RequireAuthorization();
     }
 
@@ -59,7 +59,7 @@ public class CreateBookingHandler : IRequestHandler
 
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<CreateBookingComponent>>> PostHandler(
         [FromForm] BookingRequest bookingRequest,
-        [FromQuery] int clientId,
+        [FromRoute] int clientId,
         [FromServices] IValidator<BookingRequest> validator,
         [FromServices] DataContext dataContext,
         [FromServices] ISessionStateManager sessionManager,
@@ -108,7 +108,7 @@ public class CreateBookingHandler : IRequestHandler
             await dataContext.UserBookings.AddRangeAsync(newBookings);
             await dataContext.SaveChangesAsync();
 
-            return new HtmxRedirectResult("/bookings");
+            return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
         {
@@ -172,17 +172,6 @@ public class CreateBookingHandler : IRequestHandler
         return (userId, user, client, systemSettings);
     }
     
-    private static RazorComponentResult<CreateBookingComponent> ReturnFormWithErrors(
-        BookingRequest bookingRequest, BookingFormData formData, string errorMessage)
-    {
-        return new RazorComponentResult<CreateBookingComponent>(new
-        {
-            bookingRequest,
-            BookingFormData = formData,
-            ErrorMessage = errorMessage
-        });
-    }
-
     private static BookingFormData GetFormData(Client client, User user, Settings systemSettings)
     {
         var (workingHoursStart, workingHoursEnd, breakTimeStart, breakTimeEnd) = user.GetEffectiveWorkingHours(systemSettings);

@@ -3,76 +3,6 @@
 @using ClientBooking.Shared.Enums
 @using Microsoft.AspNetCore.Components.Forms
 
-@if (Section == "recurring")
-{
-    @if (BookingRequest.IsRecurring)
-    {
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recurrence</h3>
-        <div class="space-y-4">
-            <div class="flex items-center gap-3">
-                <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
-                               Name="@nameof(BookingRequest.IsRecurring)" 
-                               id="isRecurring"
-                               hx-post="@($"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
-                               hx-target="#recurring-section-container"
-                               hx-trigger="change"/>
-                <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
-                    This is a recurring booking
-                </label>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200 bg-blue-50 p-4 rounded-lg">
-            <div>
-                <label for="RecurrencePattern" class="block text-sm font-medium text-gray-700 mb-2">
-                    Repeat every
-                </label>
-                <select @bind="BookingRequest.RecurrencePattern"
-                        name="RecurrencePattern"
-                        id="RecurrencePattern"
-                        class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600">
-                    <option value="@BookingRecurrencePattern.None">Select pattern...</option>
-                    <option value="@BookingRecurrencePattern.Daily">Day</option>
-                    <option value="@BookingRecurrencePattern.Weekly">Week</option>
-                    <option value="@BookingRecurrencePattern.Monthly">Month</option>
-                </select>
-                <FluentValidationMessage TModel="BookingRequest" For="@(x => x.RecurrencePattern)" />
-            </div>
-            <div>
-                <label for="NumberOfRecurrences" class="block text-sm font-medium text-gray-700 mb-2">
-                    Number of occurrences
-                </label>
-                <InputNumber @bind-Value="BookingRequest.NumberOfRecurrences" 
-                             Name="@nameof(BookingRequest.NumberOfRecurrences)"
-                             id="NumberOfRecurrences"
-                             class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
-                             min="1" max="52" />
-                <FluentValidationMessage TModel="BookingRequest" For="@(x => x.NumberOfRecurrences)" />
-                <p class="text-xs text-gray-500 mt-1">Maximum 52 occurrences</p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recurrence</h3>
-        <div class="space-y-4">
-            <div class="flex items-center gap-3">
-                <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
-                               Name="@nameof(BookingRequest.IsRecurring)" 
-                               id="isRecurring"
-                               hx-post="/booking/create/toggle-recurring"
-                               hx-target="#recurring-section-container"
-                               hx-trigger="change"/>
-                <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
-                    This is a recurring booking
-                </label>
-            </div>
-        </div>
-    }
-    
-    return;
-}
-
 <div class="space-y-6" id="create-booking-container">
     <div class="bg-white rounded-lg shadow-sm border p-6">
         <div class="flex items-center justify-between">
@@ -119,7 +49,7 @@
     }
 
     <div class="bg-white rounded-lg shadow-sm border">
-        <EditForm EditContext="_editContext" hx-post="/booking/create" hx-target="#create-booking-container">
+        <EditForm EditContext="_editContext" hx-post="@($"/booking/create/{BookingFormData.Client!.Id}")" hx-target="#create-booking-container">
             <div class="p-6 space-y-8">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Date & Time</h3>
@@ -129,28 +59,22 @@
                             <label for="StartDateTime" class="block text-sm font-medium text-gray-700 mb-2">
                                 Start Date & Time *
                             </label>
-                            <input type="datetime-local"
-                                   step="1800"
-                                   @bind-Value="BookingRequest.StartDateTime"
-                                   value="@DateTime.UtcNow.AddDays(1)"
-                                   name="StartDateTime"
-                                   id="StartDateTime"
-                                   class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
-                                   min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+                            
+                            <InputDate Type="InputDateType.DateTimeLocal" step="1" name="@nameof(BookingRequest.StartDateTime)"
+                                       @bind-Value="@BookingRequest.StartDateTime" id="StartDateTime"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                          
                             <FluentValidationMessage TModel="BookingRequest" For="@(x => x.StartDateTime)"/>
                         </div>
                         <div>
                             <label for="EndDateTime" class="block text-sm font-medium text-gray-700 mb-2">
                                 End Date & Time *
                             </label>
-                            <input type="datetime-local"
-                                   @bind-Value="BookingRequest.EndDateTime"
-                                   step="1800"
-                                   value="@DateTime.UtcNow.AddDays(1).AddMinutes(30)"
-                                   id="EndDateTime"
-                                   name="EndDateTime"
-                                   class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
-                                   min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+                            
+                            <InputDate Type="InputDateType.DateTimeLocal" step="1" name="@nameof(BookingRequest.EndDateTime)" @bind-Value="@BookingRequest.EndDateTime"
+                                       id="EndDateTime"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            
                             <FluentValidationMessage TModel="BookingRequest" For="@(x => x.EndDateTime)"/>
                         </div>
                     </div>
@@ -160,48 +84,55 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Recurrence</h3>
                     <div class="space-y-4">
                         <div class="flex items-center gap-3">
-                            <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
-                                           Name="@nameof(BookingRequest.IsRecurring)" 
-                                           id="isRecurring"
-                                           hx-post="@($"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
-                                           hx-target="#recurring-section-container"
-                                           hx-trigger="change"/>
-                            <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
+                             <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
+                                            Name="@nameof(BookingRequest.IsRecurring)" 
+                                            id="isRecurring"
+                                            hx-post="@($"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
+                                            hx-target="#create-booking-container"
+                                            hx-trigger="change"/>
+                            
+                             <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
                                 This is a recurring booking
                             </label>
                         </div>
                         
                         @if (BookingRequest.IsRecurring)
-                        {
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200 bg-blue-50 p-4 rounded-lg">
-                                <div>
-                                    <label for="RecurrencePattern" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Repeat every
-                                    </label>
-                                    <select @bind="BookingRequest.RecurrencePattern"
-                                            name="RecurrencePattern"
-                                            id="RecurrencePattern"
-                                            class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600">
-                                        <option value="@BookingRecurrencePattern.None">Select pattern...</option>
-                                        <option value="@BookingRecurrencePattern.Daily">Day</option>
-                                        <option value="@BookingRecurrencePattern.Weekly">Week</option>
-                                        <option value="@BookingRecurrencePattern.Monthly">Month</option>
-                                    </select>
-                                    <FluentValidationMessage TModel="BookingRequest" For="@(x => x.RecurrencePattern)" />
+                        { 
+                            <div id="recurring-details">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200 bg-blue-50 p-4 rounded-lg">
+                                    <div>
+                                        <label for="RecurrencePattern" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Repeat every
+                                        </label>
+                                       
+                                        <InputSelect name="@nameof(BookingRequest.RecurrencePattern)"
+                                                     @bind-Value="BookingRequest.RecurrencePattern"
+                                                id="RecurrencePattern"
+                                                class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600">
+                                            <option value="@BookingRecurrencePattern.None" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.None)">Select pattern...</option>
+                                            <option value="@BookingRecurrencePattern.Daily" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Daily)">Daily</option>
+                                            <option value="@BookingRecurrencePattern.Weekly" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Weekly)">Weekly</option>
+                                            <option value="@BookingRecurrencePattern.Monthly" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Monthly)">Monthly</option>
+                                        </InputSelect>
+                                        <FluentValidationMessage TModel="BookingRequest" For="@(x => x.RecurrencePattern)" />
+                                    </div>
+                                    <div>
+                                        <label for="NumberOfRecurrences" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Number of occurrences
+                                        </label>
+                                        
+                                        <InputNumber 
+                                               name="@nameof(BookingRequest.NumberOfRecurrences)"
+                                               id="NumberOfRecurrences"
+                                               @bind-Value="BookingRequest.NumberOfRecurrences"
+                                               min="2" 
+                                               max="52"
+                                               class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                                        <FluentValidationMessage TModel="BookingRequest" For="@(x => x.NumberOfRecurrences)" />
+                                        <p class="text-xs text-gray-500 mt-1">Maximum 52 occurrences</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label for="NumberOfRecurrences" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Number of occurrences
-                                    </label>
-                                    <InputNumber @bind-Value="BookingRequest.NumberOfRecurrences" 
-                                                 Name="@nameof(BookingRequest.NumberOfRecurrences)"
-                                                 id="NumberOfRecurrences"
-                                                 class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600"
-                                                 min="1" max="52" />
-                                    <FluentValidationMessage TModel="BookingRequest" For="@(x => x.NumberOfRecurrences)" />
-                                    <p class="text-xs text-gray-500 mt-1">Maximum 52 occurrences</p>
-                                </div>
-                            </div>
+                            </div> 
                         }
                     </div>
                 </div>
@@ -212,10 +143,11 @@
                         <label for="Notes" class="block text-sm font-medium text-gray-700 mb-2">
                             Additional notes (optional)
                         </label>
-                        <textarea @bind="BookingRequest.Notes"
-                                  Name="@nameof(BookingRequest.Notes)" id="Notes"
+                        <InputTextArea name="@nameof(BookingRequest.Notes)" 
+                                       id="Notes"
+                                       @bind-Value="BookingRequest.Notes"
                                   class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600 h-32"
-                                  placeholder="Add any notes about this booking, such as specific requirements, agenda, or special instructions..."></textarea>
+                                  placeholder="Add any notes about this booking, such as specific requirements, agenda, or special instructions...">@BookingRequest.Notes</InputTextArea>
                         <FluentValidationMessage TModel="BookingRequest" For="@(x => x.Notes)" />
                     </div>
                 </div>
