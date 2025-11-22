@@ -8,6 +8,6 @@ public class BookingRequest
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; }
     public bool IsRecurring { get; set; }
-    public int NumberOfRecurrences { get; set; } = 1;
+    public int NumberOfRecurrences { get; set; }
     public BookingRecurrencePattern RecurrencePattern { get; set; } = BookingRecurrencePattern.None;
 }

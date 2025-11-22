@@ -17,9 +17,9 @@ public interface IBookingService
     
     void CheckRequestIsWithinUserSchedule(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Settings systemSettings);
     
-    Task CheckOverlappingUserBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Client client);
+    Task CheckOverlappingUserBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user);
     
-    Task CheckOverlappingClientBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Client client);
+    Task CheckOverlappingClientBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, Client client);
 }
 
 public class BookingService(DataContext dataContext) : IBookingService
@@ -54,9 +54,9 @@ public class BookingService(DataContext dataContext) : IBookingService
     {
         CheckRequestIsWithinUserSchedule(validationErrors, request, user, systemSettings);
 
-        await CheckOverlappingUserBookings(validationErrors, request, user, client);
+        await CheckOverlappingUserBookings(validationErrors, request, user);
 
-        await CheckOverlappingClientBookings(validationErrors, request, user, client);
+        await CheckOverlappingClientBookings(validationErrors, request, client);
     }
 
     public void CheckRequestIsWithinUserSchedule(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Settings systemSettings)
@@ -75,7 +75,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         }
     }
 
-    public async Task CheckOverlappingUserBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Client client)
+    public async Task CheckOverlappingUserBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user)
     {
         var overlappingUserBookings = await dataContext.UserBookings
             .Include(ub => ub.Booking)
@@ -97,7 +97,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         }
     }
 
-    public async Task CheckOverlappingClientBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Client client)
+    public async Task CheckOverlappingClientBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, Client client)
     {
         var overlappingClientBookings = await dataContext.UserBookings
             .Include(ub => ub.Booking)
