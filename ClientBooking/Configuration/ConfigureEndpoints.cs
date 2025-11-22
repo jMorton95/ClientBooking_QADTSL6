@@ -1,5 +1,6 @@
 using ClientBooking.Features;
 using ClientBooking.Features.Bookings.Create;
+using ClientBooking.Features.Bookings.View;
 using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Clients.Update;
 using ClientBooking.Features.Clients.View;
@@ -26,7 +27,8 @@ public static class ConfigureEndpoints
             .MapRequestHandlers<GetClientsHandler>()
             .MapRequestHandlers<CreateClientHandler>()
             .MapRequestHandlers<UpdateClientHandler>()
-            .MapRequestHandlers<CreateBookingHandler>();
+            .MapRequestHandlers<CreateBookingHandler>()
+            .MapRequestHandlers<BookingsHandler>();
             
         var api = app.MapGroup("/api/");
                 
