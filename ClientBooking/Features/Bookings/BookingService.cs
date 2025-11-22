@@ -73,6 +73,12 @@ public class BookingService(DataContext dataContext) : IBookingService
         {
             validationErrors.Add("BreakTime", ["Booking must not overlap your break hours."]);
         }
+
+        if (!user.DoesWorkWeekends && 
+            request is {StartDateTime.DayOfWeek: DayOfWeek.Saturday} || request.StartDateTime.DayOfWeek == DayOfWeek.Sunday)
+        {
+            validationErrors.Add("WeekendWork", ["Cannot schedule a booking for the weekend when you do not work weekends."]);
+        }
     }
 
     public async Task CheckOverlappingUserBookings(Dictionary<string, string[]> validationErrors, BookingRequest request, User user)

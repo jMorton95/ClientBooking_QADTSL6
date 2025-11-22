@@ -14,6 +14,9 @@ public class CreateBookingValidator: AbstractValidator<BookingRequest>
         RuleFor(x => x.EndDateTime)
             .NotEmpty().WithMessage("End date and time is required.")
             .GreaterThan(x => x.StartDateTime).WithMessage("End time must be after start time.");
+        
+        RuleFor(x => x.StartDateTime.DayOfWeek)
+            .Equal(x => x.EndDateTime.DayOfWeek).WithMessage("Booking must start and end on the same day.");
 
         RuleFor(x => x.Notes)
             .MaximumLength(1000).WithMessage("Notes cannot exceed 1000 characters.");
