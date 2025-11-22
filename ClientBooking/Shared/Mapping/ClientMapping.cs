@@ -1,5 +1,4 @@
 ﻿using ClientBooking.Data.Entities;
-using ClientBooking.Features.Clients;
 using ClientBooking.Features.Clients.Shared;
 
 namespace ClientBooking.Shared.Mapping;
@@ -16,20 +15,23 @@ public static class ClientMapping
         };
     }
     
-    public static ClientRequest MapClientToRequestModel(this Client client)
+    extension(Client client)
     {
-        return new ClientRequest
+        public ClientRequest MapClientToRequestModel()
         {
-            Name = client.Name,
-            Email = client.Email,
-            Description = client.Description
-        };
-    }
+            return new ClientRequest
+            {
+                Name = client.Name,
+                Email = client.Email,
+                Description = client.Description
+            };
+        }
 
-    public static void UpdateClientFromClientRequest(this Client client)
-    {
-        client.Name = client.Name;
-        client.Email = client.Email;
-        client.Description = client.Description;
+        public void UpdateClientFromClientRequest()
+        {
+            client.Name = client.Name;
+            client.Email = client.Email;
+            client.Description = client.Description;
+        }
     }
 }

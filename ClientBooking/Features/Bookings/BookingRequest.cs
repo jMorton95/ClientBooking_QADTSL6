@@ -4,7 +4,6 @@ namespace ClientBooking.Features.Bookings;
 
 public class BookingRequest
 {
-    public int ClientId { get; set; }
     public string Notes { get; set; } = string.Empty;
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; }

@@ -1,6 +1,7 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
-using ClientBooking.Features.Clients;
+using ClientBooking.Features.Bookings;
+using ClientBooking.Features.Bookings.Create;
 using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Features.Login;
@@ -42,7 +43,8 @@ public static class ConfigureApplication
             builder.Services
                 .AddScoped<ISessionStateManager, SessionStateManager>()
                 .AddScoped<IGetUserProfileService, GetUserProfileService>()
-                .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>();
+                .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
+                .AddScoped<IBookingService, BookingService>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()
@@ -57,7 +59,8 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<LoginRequest>, LoginValidator>()
                 .AddScoped<IValidator<UpdateSettingsRequest>, UpdateSettingsValidator>()
                 .AddScoped<IValidator<UserProfile>, UserProfileValidator>()
-                .AddScoped<IValidator<ClientRequest>, CreateClientValidator>();
+                .AddScoped<IValidator<ClientRequest>, CreateClientValidator>()
+                .AddScoped<IValidator<BookingRequest>, CreateBookingValidator>();
         }
     }
 }

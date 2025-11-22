@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Data.Entities;
@@ -44,4 +45,7 @@ public class User : Entity
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
     public ICollection<UserUnavailability> UnavailabilityPeriods { get; set; } = new List<UserUnavailability>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    
+    [NotMapped]
+    public string FullName => $"{FirstName} {LastName}";
 }

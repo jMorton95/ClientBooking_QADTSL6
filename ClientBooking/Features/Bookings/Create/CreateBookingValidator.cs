@@ -3,13 +3,10 @@ using FluentValidation;
 
 namespace ClientBooking.Features.Bookings.Create;
 
-public class CreateBookingValidator : AbstractValidator<BookingRequest>
+public class CreateBookingValidator: AbstractValidator<BookingRequest>
 {
     public CreateBookingValidator()
     {
-        RuleFor(x => x.ClientId)
-            .GreaterThan(0).WithMessage("Please select a client.");
-
         RuleFor(x => x.StartDateTime)
             .NotEmpty().WithMessage("Start date and time is required.")
             .GreaterThanOrEqualTo(DateTime.Today).WithMessage("Start date cannot be in the past.");
