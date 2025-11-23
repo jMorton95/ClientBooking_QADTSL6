@@ -1,0 +1,227 @@
+﻿@using ClientBooking.Components
+@using ClientBooking.Shared.Enums
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="space-y-6" id="booking-container">
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">@(IsEditMode ? "Update Booking" : "Schedule Booking")</h1>
+            <p class="text-gray-600 mt-2">
+                @(IsEditMode ? "Update the booking details" : "Create a new booking")
+                with <span class="font-semibold text-blue-600">@BookingFormData.Client?.Name</span>
+            </p>
+            <a href="@(IsEditMode ? "/bookings" : "/clients")" 
+               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                Back to @(IsEditMode ? "Bookings" : "Clients")
+            </a>
+        </div>
+    </div>
+    
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="flex items-start">
+            <svg class="w-5 h-5 text-green-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <p class="text-green-800 text-sm font-medium">Your Available Schedule</p>
+                <p class="text-green-700 text-sm mt-1">
+                     Working hours: @BookingFormData.WorkingHoursStart.ToString(@"hh\:mm") - @BookingFormData.WorkingHoursEnd.ToString(@"hh\:mm") 
+                    |  Break: @BookingFormData.BreakTimeStart.ToString(@"hh\:mm") - @BookingFormData.BreakTimeEnd.ToString(@"hh\:mm")
+                    | @(BookingFormData.DoesWorkWeekends ? "Works weekends ✅" : "Weekdays only ❌")
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    @if (ErrorMessage is not null)
+    {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-red-800 font-medium">@ErrorMessage</span>
+            </div>
+        </div>
+    }
+
+    <div class="bg-white rounded-lg shadow-sm border">
+        <EditForm EditContext="_editContext"
+                  hx-post="@(IsEditMode ? $"/booking/update/{BookingId}" : $"/booking/create/{BookingFormData.Client!.Id}")"
+                  hx-target="#booking-container">
+            <div class="p-6 space-y-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Date & Time</h3>
+                    <h4 class="text-sm font-sm text-red-600 mb-4">Please note, bookings are only available in 30 minute time-slots currently.</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="StartDateTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                Start Date & Time *
+                            </label>
+                            
+                            <InputDate Type="InputDateType.DateTimeLocal" step="1" name="@nameof(BookingRequest.StartDateTime)"
+                                       @bind-Value="@BookingRequest.StartDateTime" id="StartDateTime"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                          
+                            <FluentValidationMessage TModel="BookingRequest" For="@(x => x.StartDateTime)"/>
+                        </div>
+                        <div>
+                            <label for="EndDateTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                End Date & Time *
+                            </label>
+                            
+                            <InputDate Type="InputDateType.DateTimeLocal" step="1" name="@nameof(BookingRequest.EndDateTime)" @bind-Value="@BookingRequest.EndDateTime"
+                                       id="EndDateTime"
+                                       class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                            
+                            <FluentValidationMessage TModel="BookingRequest" For="@(x => x.EndDateTime)"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="recurring-section-container">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Recurrence</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                             <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
+                                            Name="@nameof(BookingRequest.IsRecurring)" 
+                                            id="isRecurring"
+                                            hx-post="@(IsEditMode ? $"/booking/update/{BookingId}/toggle-recurring" 
+                                                         : $"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
+                                            hx-target="#booking-container"
+                                            hx-trigger="change"/>
+                            
+                             <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
+                                This is a recurring booking
+                            </label>
+                        </div>
+                        
+                        @if (BookingRequest.IsRecurring)
+                        { 
+                            <div id="recurring-details">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200 bg-blue-50 p-4 rounded-lg">
+                                    <div>
+                                        <label for="RecurrencePattern" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Repeat every
+                                        </label>
+                                       
+                                        <InputSelect name="@nameof(BookingRequest.RecurrencePattern)"
+                                                     @bind-Value="BookingRequest.RecurrencePattern"
+                                                id="RecurrencePattern"
+                                                class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600">
+                                            <option value="@BookingRecurrencePattern.None" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.None)">Select pattern...</option>
+                                            <option value="@BookingRecurrencePattern.Daily" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Daily)">Daily</option>
+                                            <option value="@BookingRecurrencePattern.Weekly" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Weekly)">Weekly</option>
+                                            <option value="@BookingRecurrencePattern.Monthly" selected="@(BookingRequest.RecurrencePattern == BookingRecurrencePattern.Monthly)">Monthly</option>
+                                        </InputSelect>
+                                        <FluentValidationMessage TModel="BookingRequest" For="@(x => x.RecurrencePattern)" />
+                                    </div>
+                                    <div>
+                                        <label for="NumberOfRecurrences" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Number of occurrences
+                                        </label>
+                                        
+                                        <InputNumber 
+                                               name="@nameof(BookingRequest.NumberOfRecurrences)"
+                                               id="NumberOfRecurrences"
+                                               @bind-Value="BookingRequest.NumberOfRecurrences"
+                                               min="2" 
+                                               max="52"
+                                               class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
+                                        <FluentValidationMessage TModel="BookingRequest" For="@(x => x.NumberOfRecurrences)" />
+                                        <p class="text-xs text-gray-500 mt-1">Maximum 52 occurrences</p>
+                                    </div>
+                                </div>
+                            </div> 
+                        }
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Notes</h3>
+                    <div>
+                        <label for="Notes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Additional notes (optional)
+                        </label>
+                        <InputTextArea name="@nameof(BookingRequest.Notes)" 
+                                       id="Notes"
+                                       @bind-Value="BookingRequest.Notes"
+                                  class="w-full bg-gray-100 rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600 h-32"
+                                  placeholder="Add any notes about this booking, such as specific requirements, agenda, or special instructions...">@BookingRequest.Notes</InputTextArea>
+                        <FluentValidationMessage TModel="BookingRequest" For="@(x => x.Notes)" />
+                    </div>
+                </div>
+
+                @if (ValidationErrors?.Any() == true)
+                {
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <h4 class="text-red-800 font-medium">Please correct the following errors:</h4>
+                        </div>
+                        <ul class="text-red-700 text-sm list-disc list-inside ml-2">
+                            @foreach (var error in ValidationErrors.Values.SelectMany(v => v))
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="flex items-center justify-between space-x-4 pt-6 border-t">
+                    <a href="/clients" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <div class="flex space-x-3">
+                        <button type="submit" 
+                                class="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            @(IsEditMode ? "Update Booking" : "Schedule Booking")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Booking Guidelines</h3>
+        <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+            <li>Bookings must be scheduled within your working hours</li>
+            <li>Avoid scheduling during your break times</li>
+            <li>Ensure the client doesn't have overlapping bookings</li>
+            <li>Recurring bookings will create multiple instances automatically</li>
+            <li>You can always modify or cancel bookings later</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter] public required BookingRequest BookingRequest { get; set; }
+    [Parameter] public required BookingFormData BookingFormData { get; set; }
+    [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string? Section { get; set; }
+    
+    [Parameter] public int? BookingId { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
+
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(BookingRequest);
+    }
+}
+
+<style>
+    input[type="datetime-local"]:invalid {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+    }
+</style>

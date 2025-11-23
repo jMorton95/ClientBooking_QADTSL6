@@ -16,6 +16,5 @@ public class UserProfile
     public bool UseSystemWorkingHours { get; set; } = true;
     public bool UseSystemBreakTime { get; set; } = true;
     public List<UserBooking> UserBookings { get; set; } 
-    public List<UserUnavailability> UnavailabilityPeriods { get; set; } 
-    public List<Notification> Notifications { get; set; } 
+    public List<UserUnavailability> UnavailabilityPeriods { get; set; }
 }

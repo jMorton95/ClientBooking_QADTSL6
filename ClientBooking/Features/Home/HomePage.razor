@@ -4,7 +4,6 @@
 @using ClientBooking.Components.Generic
 @using ClientBooking.Data
 @using ClientBooking.Data.Entities
-@using ClientBooking.Features.RecentNotifications
 @using ClientBooking.Features.UpcomingBookings
 @using Microsoft.AspNetCore.Authorization
 @inject DataContext DataContext
@@ -26,7 +25,6 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="space-y-6">
             <QuickActionsComponent />
-            <RecentNotifications Notifications="@RecentNotifications" />
         </div>
         
         <div class="lg:col-span-2">
@@ -41,7 +39,6 @@
     private int PendingNotificationsCount { get; set; }
     private string AvailableHours { get; set; } = "0h";
     private List<Booking> UpcomingBookings { get; set; } = [];
-    private List<Notification> RecentNotifications { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,10 +59,7 @@
 
         TotalClientsCount = await DataContext.Clients
             .CountAsync();
-
-        PendingNotificationsCount = await DataContext.Notifications
-            .CountAsync(n => n.UserId == userId && !n.IsRead);
-
+        
         UpcomingBookings = await DataContext.Bookings
             .Include(b => b.Client)
             .Where(b => b.UserBookings.Any(ub => ub.UserId == userId) && 
@@ -74,13 +68,7 @@
             .OrderBy(b => b.StartDateTime)
             .Take(5)
             .ToListAsync();
-
-        RecentNotifications = await DataContext.Notifications
-            .Where(n => n.UserId == userId)
-            .OrderByDescending(n => n.SavedAt)
-            .Take(5)
-            .ToListAsync();
-
+        
         AvailableHours = "8h";
     }
 }

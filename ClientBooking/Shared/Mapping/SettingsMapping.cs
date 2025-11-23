@@ -14,7 +14,6 @@ public static class SettingsMapping
             DefaultWorkingHoursEnd = settings.DefaultWorkingHoursEnd.ToTimeOnly(),
             DefaultBreakTimeStart = settings.DefaultBreakTimeStart.ToTimeOnly(),
             DefaultBreakTimeEnd = settings.DefaultBreakTimeEnd.ToTimeOnly(),
-            DefaultBookingDuration = settings.DefaultBookingDuration,
             DefaultUserRole = settings.DefaultUserRole,
             Version = settings.Version
         };
@@ -28,7 +27,6 @@ public static class SettingsMapping
             DefaultWorkingHoursEnd = request.DefaultWorkingHoursEnd.ToTimeSpan(),
             DefaultBreakTimeStart = request.DefaultBreakTimeStart.ToTimeSpan(),
             DefaultBreakTimeEnd = request.DefaultBreakTimeEnd.ToTimeSpan(),
-            DefaultBookingDuration = request.DefaultBookingDuration,
             DefaultUserRole = request.DefaultUserRole
         };
     }

@@ -3,6 +3,7 @@ using System;
 using ClientBooking.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClientBooking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251122235731_RemoveNotifications")]
+    partial class RemoveNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,9 +51,6 @@ namespace ClientBooking.Data.Migrations
 
                     b.Property<int>("RecurrencePattern")
                         .HasColumnType("integer");
-
-                    b.Property<Guid?>("RecurrenceSeriesId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");
