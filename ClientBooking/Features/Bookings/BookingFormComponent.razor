@@ -1,21 +1,18 @@
 ﻿@using ClientBooking.Components
-@using ClientBooking.Features.Bookings
 @using ClientBooking.Shared.Enums
 @using Microsoft.AspNetCore.Components.Forms
 
-<div class="space-y-6" id="create-booking-container">
+<div class="space-y-6" id="booking-container">
     <div class="bg-white rounded-lg shadow-sm border p-6">
         <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Schedule Booking</h1>
-                <p class="text-gray-600 mt-2">
-                    Create a new booking with 
-                    <span class="font-semibold text-blue-600">@BookingFormData.Client?.Name</span>
-                </p>
-            </div>
-            <a href="/clients" 
+            <h1 class="text-2xl font-bold text-gray-900">@(IsEditMode ? "Update Booking" : "Schedule Booking")</h1>
+            <p class="text-gray-600 mt-2">
+                @(IsEditMode ? "Update the booking details" : "Create a new booking")
+                with <span class="font-semibold text-blue-600">@BookingFormData.Client?.Name</span>
+            </p>
+            <a href="@(IsEditMode ? "/bookings" : "/clients")" 
                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                Back to Clients
+                Back to @(IsEditMode ? "Bookings" : "Clients")
             </a>
         </div>
     </div>
@@ -49,7 +46,9 @@
     }
 
     <div class="bg-white rounded-lg shadow-sm border">
-        <EditForm EditContext="_editContext" hx-post="@($"/booking/create/{BookingFormData.Client!.Id}")" hx-target="#create-booking-container">
+        <EditForm EditContext="_editContext"
+                  hx-post="@(IsEditMode ? $"/booking/update/{BookingId}" : $"/booking/create/{BookingFormData.Client!.Id}")"
+                  hx-target="#booking-container">
             <div class="p-6 space-y-8">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Date & Time</h3>
@@ -87,8 +86,9 @@
                              <InputCheckbox @bind-Value="BookingRequest.IsRecurring" 
                                             Name="@nameof(BookingRequest.IsRecurring)" 
                                             id="isRecurring"
-                                            hx-post="@($"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
-                                            hx-target="#create-booking-container"
+                                            hx-post="@(IsEditMode ? $"/booking/update/{BookingId}/toggle-recurring" 
+                                                         : $"/booking/create/{BookingFormData.Client!.Id}/toggle-recurring")"
+                                            hx-target="#booking-container"
                                             hx-trigger="change"/>
                             
                              <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
@@ -181,7 +181,7 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            Schedule Booking
+                            @(IsEditMode ? "Update Booking" : "Schedule Booking")
                         </button>
                     </div>
                 </div>
@@ -207,6 +207,9 @@
     [Parameter] public Dictionary<string, string[]>? ValidationErrors { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
     [Parameter] public string? Section { get; set; }
+    
+    [Parameter] public int? BookingId { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
 
     private EditContext? _editContext;
 

@@ -1,0 +1,11 @@
+﻿@page "/booking/update/{BookingId:int}"
+
+<div class="space-y-6" hx-get="@($"/booking/update/get/{BookingId}")" hx-trigger="load" hx-swap="innerHTML" id="create-booking-container">
+    <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+    <p class="mt-4 text-gray-600">Loading booking form...</p>
+</div>
+
+
+@code {
+    [Parameter] public int BookingId { get; set; }
+}

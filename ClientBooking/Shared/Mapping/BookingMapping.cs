@@ -25,7 +25,7 @@ public static class BookingMapping
 
     extension(List<BookingRequest> bookingRequests)
     {
-        public List<UserBooking> ToNewBookings(Client client, User user)
+        public List<UserBooking> ToNewBookings(Client client, int userId, Guid? seriesId)
         {
             return bookingRequests.Select(x => new UserBooking
             {
@@ -39,9 +39,10 @@ public static class BookingMapping
                     Status = BookingStatus.Scheduled,
                     IsRecurring = x.IsRecurring,
                     NumberOfRecurrences = x.NumberOfRecurrences,
-                    RecurrencePattern = x.RecurrencePattern
+                    RecurrencePattern = x.RecurrencePattern,
+                    RecurrenceSeriesId =  seriesId
                 },
-                User = user
+                UserId = userId
             }).ToList();
            
         }

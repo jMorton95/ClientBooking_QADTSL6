@@ -1,5 +1,5 @@
 ﻿@attribute [Authorize]
-@page "/client/edit/{Id}"
+@page "/client/edit/{Id:int}"
 @using Microsoft.AspNetCore.Authorization
 
 <div class="space-y-6" hx-get="@($"/client/edit/get/{Id}")" hx-trigger="load" hx-swap="innerHTML" id="edit-client-container">
@@ -8,5 +8,5 @@
 </div>
 
 @code {
-    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public int Id { get; set; }
 }

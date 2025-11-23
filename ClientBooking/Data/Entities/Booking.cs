@@ -29,6 +29,8 @@ public class Booking : Entity
     public bool IsRecurring { get; set; }
     
     public int NumberOfRecurrences { get; set; }
+    
+    public Guid? RecurrenceSeriesId { get; set; }
 
     public BookingRecurrencePattern RecurrencePattern { get; set; } = BookingRecurrencePattern.None;
 
