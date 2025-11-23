@@ -1,0 +1,92 @@
+﻿<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="cancel-booking-modal">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Cancel Booking</h3>
+            <button type="button" 
+                    onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        @if (ErrorMessage is not null)
+        {
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span class="text-red-800 font-medium">@ErrorMessage</span>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" 
+                        onclick="closeModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Close
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="mb-6">
+                <p class="text-gray-600 mb-4">Are you sure you want to cancel this booking?</p>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span class="text-yellow-800 font-medium">This action cannot be undone.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Keep Booking
+                </button>
+                <button type="button"
+                        hx-post="@($"/booking/{BookingId}/cancel")"
+                        hx-target="#cancel-booking-modal"
+                        hx-swap="outerHTML"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+                    Cancel Booking
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int BookingId { get; set; }
+    [Parameter] public int? UserId { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+}
+
+<script>
+    function closeModal() {
+        const modal = document.getElementById('cancel-booking-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('cancel-booking-modal');
+        if (modal && event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>

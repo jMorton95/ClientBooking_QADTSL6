@@ -1,8 +1,5 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
-using ClientBooking.Data.Entities;
-using ClientBooking.Data.JoiningTables;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ClientBooking.Features.Bookings.View;
 
