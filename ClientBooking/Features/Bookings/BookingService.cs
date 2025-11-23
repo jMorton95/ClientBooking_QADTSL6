@@ -24,8 +24,8 @@ public interface IBookingService
     
     Task UpdateBooking(Booking existingBooking, List<BookingRequest> validatedUpdatedBooking, Client client, int userId);
     
-    Task<List<Booking>> GetBookingsInSeriesAsync(Guid recurrenceSeriesId);
-    Task CancelEntireSeriesAsync(Guid recurrenceSeriesId, int userId);
+    Task<List<Booking>> GetBookingsInSeriesAsync(Guid recurrenceSeriesId, int? bookingIdToExclude = null);
+    Task CancelEntireSeriesAsync(Guid recurrenceSeriesId, int userId, int? bookingIdToExclude = null);
 }
 
 public class BookingService(DataContext dataContext) : IBookingService
@@ -207,7 +207,6 @@ public class BookingService(DataContext dataContext) : IBookingService
 
             nextBookingRequest.StartDateTime = requestedRecurrencePattern switch
             {
-                BookingRecurrencePattern.Daily   => request.StartDateTime.AddDays(i),
                 BookingRecurrencePattern.Weekly  => request.StartDateTime.AddDays(7 * i),
                 BookingRecurrencePattern.Monthly => request.StartDateTime.AddMonths(i),
                 _ => throw new ArgumentOutOfRangeException(nameof(request.RecurrencePattern),
@@ -216,7 +215,6 @@ public class BookingService(DataContext dataContext) : IBookingService
 
             nextBookingRequest.EndDateTime = requestedRecurrencePattern switch
             {
-                BookingRecurrencePattern.Daily   => request.EndDateTime.AddDays(i),
                 BookingRecurrencePattern.Weekly  => request.EndDateTime.AddDays(7 * i),
                 BookingRecurrencePattern.Monthly => request.EndDateTime.AddMonths(i),
                 _ => throw new ArgumentOutOfRangeException(nameof(request.RecurrencePattern),
@@ -241,6 +239,7 @@ public class BookingService(DataContext dataContext) : IBookingService
     public async Task UpdateBooking(Booking existingBooking, List<BookingRequest> validatedUpdatedBooking, Client client, int userId)
     {
         var existingBookingRequest = validatedUpdatedBooking.First();
+        var wasPreviouslyRecurring = existingBooking.IsRecurring; 
         
         existingBooking.StartDateTime = existingBookingRequest.StartDateTime;
         existingBooking.EndDateTime = existingBookingRequest.EndDateTime;
@@ -251,13 +250,18 @@ public class BookingService(DataContext dataContext) : IBookingService
 
         if (existingBookingRequest.IsRecurring && validatedUpdatedBooking.Count > 1)
         {
+            if (existingBooking.RecurrenceSeriesId != null)
+            {
+                await CancelEntireSeriesAsync(existingBooking.RecurrenceSeriesId!.Value, userId);
+            }
+            
             var newSeriesId = Guid.NewGuid();
             existingBooking.RecurrenceSeriesId = newSeriesId;
             
             var newRecurringBookings = validatedUpdatedBooking.Skip(1).ToList().ToNewBookings(client, userId, newSeriesId);
             await dataContext.UserBookings.AddRangeAsync(newRecurringBookings);
         }
-        else if (existingBooking.IsRecurring && !existingBookingRequest.IsRecurring && existingBooking.RecurrenceSeriesId.HasValue)
+        else if (wasPreviouslyRecurring && !existingBookingRequest.IsRecurring && existingBooking.RecurrenceSeriesId.HasValue)
         {
             var seriesId = existingBooking.RecurrenceSeriesId.Value;
             existingBooking.RecurrenceSeriesId = null;
@@ -265,7 +269,7 @@ public class BookingService(DataContext dataContext) : IBookingService
             existingBooking.NumberOfRecurrences = 1;
             existingBooking.RecurrencePattern = BookingRecurrencePattern.None;
             
-            await CancelEntireSeriesAsync(seriesId, userId);
+            await CancelEntireSeriesAsync(seriesId, userId, existingBooking.Id);
         }
         else if (!existingBookingRequest.IsRecurring)
         {
@@ -277,17 +281,20 @@ public class BookingService(DataContext dataContext) : IBookingService
         await dataContext.SaveChangesAsync(); 
     }
 
-    public async Task<List<Booking>> GetBookingsInSeriesAsync(Guid recurrenceSeriesId)
+    public Task<List<Booking>> GetBookingsInSeriesAsync(Guid recurrenceSeriesId, int? bookingIdToExclude = null)
     {
-        return await dataContext.Bookings
-            .Where(b => b.RecurrenceSeriesId == recurrenceSeriesId && b.Status != BookingStatus.Cancelled)
-            .OrderBy(b => b.StartDateTime)
-            .ToListAsync();
+        var query = dataContext.Bookings
+            .Where(b => b.RecurrenceSeriesId == recurrenceSeriesId && b.Status != BookingStatus.Cancelled);
+
+        if (bookingIdToExclude.HasValue)
+            query = query.Where(b => b.Id != bookingIdToExclude.Value);
+
+        return query.OrderBy(b => b.StartDateTime).ToListAsync();
     }
 
-    public async Task CancelEntireSeriesAsync(Guid recurrenceSeriesId, int userId)
+    public async Task CancelEntireSeriesAsync(Guid recurrenceSeriesId, int userId, int? bookingIdToExclude = null)
     {
-        var seriesBookings = await GetBookingsInSeriesAsync(recurrenceSeriesId);
+        var seriesBookings = await GetBookingsInSeriesAsync(recurrenceSeriesId, bookingIdToExclude);
 
         var bookingsToRemove = seriesBookings.Where(x => x.StartDateTime > DateTime.UtcNow);
 

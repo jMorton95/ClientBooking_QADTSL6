@@ -80,7 +80,7 @@ public class UpdateClientHandler : IRequestHandler
                 });
             }
             
-            client.UpdateClientFromClientRequest();
+            client.UpdateClientFromClientRequest(clientRequest);
 
             await dataContext.SaveChangesAsync();
             

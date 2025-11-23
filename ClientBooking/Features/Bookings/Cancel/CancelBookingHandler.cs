@@ -57,6 +57,7 @@ public class CancelBookingHandler : IRequestHandler
                 });
             }
 
+            booking!.RecurrenceSeriesId = null;
             booking!.Status = BookingStatus.Cancelled;
             await dataContext.SaveChangesAsync();
 

@@ -13,9 +13,5 @@ public class UpdateSettingsValidator : AbstractValidator<UpdateSettingsRequest>
         RuleFor(x => x.DefaultBreakTimeStart)
             .LessThan(x => x.DefaultBreakTimeEnd)
             .WithMessage("Break time start must be before end");
-
-        RuleFor(x => x.DefaultBookingDuration)
-            .InclusiveBetween(15, 480)
-            .WithMessage("Booking duration must be between 15 and 480 minutes");
     }
 }
