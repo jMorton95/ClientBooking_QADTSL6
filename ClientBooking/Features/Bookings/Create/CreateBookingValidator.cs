@@ -27,7 +27,7 @@ public class CreateBookingValidator: AbstractValidator<BookingRequest>
                 .NotEqual(BookingRecurrencePattern.None).WithMessage("Please select a recurrence pattern.");
 
             RuleFor(x => x.NumberOfRecurrences)
-                .InclusiveBetween(1, 52).WithMessage("Number of recurrences must be between 1 and 52.");
+                .InclusiveBetween(1, 12).WithMessage("Number of recurrences must be between 1 and 12.");
         });
     }
 }

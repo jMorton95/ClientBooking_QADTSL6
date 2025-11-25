@@ -92,8 +92,11 @@
                                             hx-trigger="change"/>
                             
                              <label for="isRecurring" class="text-sm text-gray-800 cursor-pointer font-medium">
-                                This is a recurring booking
-                            </label>
+                                 Do you want to create a series of bookings?
+                             </label>
+                             <p class="text-sm text-grey-700">
+                                 Changes made to the series will update all bookings within the series.
+                             </p>
                         </div>
                         
                         @if (BookingRequest.IsRecurring)
@@ -128,7 +131,7 @@
                                                max="52"
                                                class="w-full bg-white rounded py-3 px-4 text-sm focus:bg-transparent focus:outline-blue-600" />
                                         <FluentValidationMessage TModel="BookingRequest" For="@(x => x.NumberOfRecurrences)" />
-                                        <p class="text-xs text-gray-500 mt-1">Maximum 52 occurrences</p>
+                                        <p class="text-xs text-gray-500 mt-1">Maximum 12 occurrences</p>
                                     </div>
                                 </div>
                             </div> 

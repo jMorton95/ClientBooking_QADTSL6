@@ -100,17 +100,18 @@ public class BookingService(DataContext dataContext) : IBookingService
             || request.EndDateTime.TimeOfDay > userWorkingHoursEnd
             || request.StartDateTime.Date != request.EndDateTime.Date)
         {
-            validationErrors.Add("WorkingHours", ["Booking must start and end within your time range."]);
+            validationErrors.TryAdd("WorkingHours",
+                [$"Booking must start and end within your time range. Reminder, your working hours are: {userWorkingHoursStart} - {userWorkingHoursEnd}."]);
         }
 
         if (request.StartDateTime.TimeOfDay < userBreakTimeEnd && request.EndDateTime.TimeOfDay > userBreakTimeStart)
         {
-            validationErrors.Add("BreakTime", ["Booking must not overlap your break hours."]);
+            validationErrors.TryAdd("BreakTime", [$"Booking must not overlap your break hours. Reminder, your break time is: {userWorkingHoursStart} - {userWorkingHoursEnd}."]);
         }
 
         if (!user.DoesWorkWeekends && request.StartDateTime.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
         {
-            validationErrors.Add("WeekendWork", ["Cannot schedule a booking for the weekend when you do not work weekends."]);
+            validationErrors.TryAdd("WeekendWork", ["Cannot schedule a booking for the weekend when you do not work weekends."]);
         }
     }
 

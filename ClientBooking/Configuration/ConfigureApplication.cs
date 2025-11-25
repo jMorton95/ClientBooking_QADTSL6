@@ -5,6 +5,7 @@ using ClientBooking.Features.Bookings.Create;
 using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Features.Login;
+using ClientBooking.Features.Me;
 using ClientBooking.Features.Me.UpdateUser;
 using ClientBooking.Features.Registration;
 using ClientBooking.Features.UpdateSettings;
@@ -44,7 +45,8 @@ public static class ConfigureApplication
                 .AddScoped<ISessionStateManager, SessionStateManager>()
                 .AddScoped<IGetUserProfileService, GetUserProfileService>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
-                .AddScoped<IBookingService, BookingService>();
+                .AddScoped<IBookingService, BookingService>()
+                .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()
