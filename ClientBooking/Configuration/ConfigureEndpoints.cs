@@ -7,6 +7,7 @@ using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Clients.Update;
 using ClientBooking.Features.Clients.View;
 using ClientBooking.Features.HealthCheck;
+using ClientBooking.Features.Home;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Logout;
 using ClientBooking.Features.Me.UpdateUser;
@@ -23,6 +24,7 @@ public static class ConfigureEndpoints
         app.MapRequestHandlers<RegistrationHandler>()
             .MapRequestHandlers<LoginHandler>()
             .MapRequestHandlers<LogoutHandler>()
+            .MapRequestHandlers<HomePageHandler>()
             .MapRequestHandlers<ToggleAdminHandler>()
             .MapRequestHandlers<UpdateSettingsHandler>()
             .MapRequestHandlers<UpdateUserHandler>()

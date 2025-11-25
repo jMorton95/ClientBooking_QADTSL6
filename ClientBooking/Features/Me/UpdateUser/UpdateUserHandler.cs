@@ -41,7 +41,6 @@ public class UpdateUserHandler : IRequestHandler
         var userProfile = user.MapToUserProfile(systemSettings);
 
         return new RazorComponentResult<UpdateUserComponent>(new { userProfile });
-
     }
 
     private static async Task<RazorComponentResult<UpdateUserComponent>>
