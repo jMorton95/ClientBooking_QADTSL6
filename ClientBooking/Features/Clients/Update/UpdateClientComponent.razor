@@ -1,4 +1,5 @@
 ﻿@using ClientBooking.Components
+@using ClientBooking.Components.Generic
 @using ClientBooking.Features.Clients.Shared
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -18,15 +19,7 @@
 
     @if (ShowSuccessMessage)
     {
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span class="text-green-800 font-medium">Client updated successfully!</span>
-                <a href="/clients" class="ml-4 text-green-600 hover:text-green-800 underline">View all clients</a>
-            </div>
-        </div>
+        <SuccessToaster Message="Client updated successfully!" />
     }
 
     @if (ErrorMessage is not null)

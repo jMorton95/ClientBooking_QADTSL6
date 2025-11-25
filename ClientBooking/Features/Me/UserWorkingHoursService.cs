@@ -12,6 +12,7 @@ public class UserWorkingHoursService(DataContext dataContext) : IUserWorkingHour
 {
     public async Task<Result<UserProfile>> EnforceUserWorkingHoursRules(UserProfile userProfile)
     {
+        //Grab effective working hours for validation purposes, as these properties can come from a mixture of the request and system default settings
         if (userProfile.UseSystemBreakTime || userProfile.UseSystemWorkingHours)
         {
             var systemSettings = await dataContext.Settings.OrderByDescending(x => x.Version).FirstAsync();
@@ -29,7 +30,7 @@ public class UserWorkingHoursService(DataContext dataContext) : IUserWorkingHour
     {
         var errors = new Dictionary<string, string[]>();
 
-        // Validate break time is within working hours
+        //Validate break time is within working hours
         if (userProfile.BreakTimeStart < userProfile.WorkingHoursStart || 
             userProfile.BreakTimeEnd > userProfile.WorkingHoursEnd)
         {
@@ -37,6 +38,7 @@ public class UserWorkingHoursService(DataContext dataContext) : IUserWorkingHour
                 [$"Your break time (currently {userProfile.BreakTimeStart} to {userProfile.BreakTimeEnd}) must be within your working hours range of {userProfile.WorkingHoursStart} and {userProfile.WorkingHoursEnd} hours."];
         }
 
+        //Ensure users schedules are at minimum 7 hours.
         var workingDuration = userProfile.WorkingHoursEnd - userProfile.WorkingHoursStart;
         var breakDuration = userProfile.BreakTimeEnd - userProfile.BreakTimeStart;
         var netWorkingHours = workingDuration - breakDuration;
