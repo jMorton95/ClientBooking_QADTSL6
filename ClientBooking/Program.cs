@@ -47,15 +47,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });
 
 //Configure authorisation services.
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(nameof(RoleName.User), 
-        policy => policy.RequireAuthenticatedUser());
-
-    options.AddPolicy(nameof(RoleName.Admin), 
-        policy => policy.RequireAuthenticatedUser()
-            .RequireRole(nameof(RoleName.Admin)));
-});
+builder.Services.AddAuthorizationBuilder()
+       .AddPolicy(nameof(RoleName.User), policy => policy.RequireAuthenticatedUser())
+       .AddPolicy(nameof(RoleName.Admin), policy => policy.RequireAuthenticatedUser()
+           .RequireRole(nameof(RoleName.Admin)))
+       .AddPolicy(nameof(RoleName.Audit), policy => policy.RequireAuthenticatedUser()
+           .RequireRole(nameof(RoleName.Audit)));
 
 //Configure our database connection and custom services.
 builder.AddPostgresDatabaseFromConfiguration();
@@ -93,6 +90,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+
+
+app.Use(async (context, next) => 
+{
+    context.Response.Headers.XFrameOptions = "DENY";
+    await next();
+});
 
 
 //Apply our Frontend components to their defined website routes, configure authorisation policy defaults.

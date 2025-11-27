@@ -25,7 +25,6 @@ public class CreateRegisteredUserService(DataContext dataContext) : ICreateRegis
 
         return user;
     }
-
     
     //In the rare case our default role doesn't exist, create it.
     private async Task<Role> CreateDefaultRole()

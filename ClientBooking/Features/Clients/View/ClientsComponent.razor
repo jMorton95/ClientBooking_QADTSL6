@@ -1,4 +1,5 @@
-﻿@using ClientBooking.Data.Entities
+﻿@using ClientBooking.Components.Generic
+@using ClientBooking.Data.Entities
 
 <div class="space-y-6">
     <div class="bg-white rounded-lg shadow-sm border p-6">
@@ -68,6 +69,11 @@
     
     @if (Clients?.Any() == true)
     {
+        if (!string.IsNullOrEmpty(SearchTerm))
+        {
+            <SuccessToaster Message="@($"Found {Clients.Count} match{(Clients.Count > 1 ? "es" : "")}!")" />
+        }
+        
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach (var client in Clients)
             {

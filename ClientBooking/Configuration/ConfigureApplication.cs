@@ -5,6 +5,7 @@ using ClientBooking.Features.Bookings.Create;
 using ClientBooking.Features.Clients.Create;
 using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Features.Login;
+using ClientBooking.Features.Me;
 using ClientBooking.Features.Me.UpdateUser;
 using ClientBooking.Features.Registration;
 using ClientBooking.Features.UpdateSettings;
@@ -35,7 +36,6 @@ public static class ConfigureApplication
             builder.Services.Configure<ConfigurationSettings>(
                 builder.Configuration.GetSection("ConfigurationSettings"));
         }
-
         
         //Add business logic
         public void AddCustomAuthenticationServices()
@@ -44,7 +44,8 @@ public static class ConfigureApplication
                 .AddScoped<ISessionStateManager, SessionStateManager>()
                 .AddScoped<IGetUserProfileService, GetUserProfileService>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
-                .AddScoped<IBookingService, BookingService>();
+                .AddScoped<IBookingService, BookingService>()
+                .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();
                 
             builder.Services
                 .AddTransient<IPasswordHelper, PasswordHelper>()
@@ -68,4 +69,5 @@ public static class ConfigureApplication
 public class ConfigurationSettings
 {
     public string? SystemAccountPassword { get; set; }
+    public string? AuditLogPassword { get; set; }
 }

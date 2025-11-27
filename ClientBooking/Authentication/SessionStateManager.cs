@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.ComponentModel;
+using System.Security.Claims;
+using ClientBooking.Data;
 using ClientBooking.Data.Entities;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Authentication;
@@ -9,12 +11,12 @@ namespace ClientBooking.Authentication;
 public interface ISessionStateManager
 {
     int? GetUserSessionId();
-    
     Task LoginAsync(User user, bool persistSession = false);
     Task LogoutAsync();
     bool IsAuthenticated();
-
     bool IsUserSessionAdministrator();
+    bool IsUserSessionAuditor();
+    Task RefreshUserSession(DataContext dataContext);
 }
 
 public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISessionStateManager
@@ -49,7 +51,8 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
         var authProperties = new AuthenticationProperties
         {
             IsPersistent = persistSession,
-            ExpiresUtc = persistSession ? DateTimeOffset.UtcNow.Add(TimeSpan.FromHours(3)) : null
+            IssuedUtc = DateTimeOffset.UtcNow,
+            ExpiresUtc = persistSession ? DateTimeOffset.UtcNow.Add(TimeSpan.FromHours(3)) : null,
         };
         
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
@@ -61,15 +64,36 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
     //Determine whether a session is active or not.
     public bool IsAuthenticated() => GetUserSessionId() != null;
 
-    public bool IsUserSessionAdministrator()
+    public bool IsUserSessionAdministrator() => HasSpecificRole(RoleName.Admin);
+
+    public bool IsUserSessionAuditor() => HasSpecificRole(RoleName.Audit);
+
+    private bool HasSpecificRole(RoleName roleName)
     {
+        if (!Enum.IsDefined(roleName))
+            throw new InvalidEnumArgumentException(nameof(roleName), (int)roleName, typeof(RoleName));
+        
         var userId = GetUserSessionId();
 
         if (userId is null)
             return false;
         
-        var hasAdminRole = HttpContext.User.Claims.Any(c => c is { Type: ClaimTypes.Role, Value: nameof(RoleName.Admin) });
+        var hasSpecificRole = HttpContext.User.Claims.Any(
+            c => c.Type == ClaimTypes.Role && c.Value == roleName.ToString());
         
-        return hasAdminRole;
+        return hasSpecificRole;
+    }
+    
+    public async Task RefreshUserSession(DataContext dataContext)
+    {
+        var userId = GetUserSessionId();
+        var user = await dataContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+        if (user is null)
+        {
+            return;
+        }
+        
+        await LoginAsync(user);
     }
 }

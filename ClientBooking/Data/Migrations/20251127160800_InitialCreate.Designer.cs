@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClientBooking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251122235731_RemoveNotifications")]
-    partial class RemoveNotifications
+    [Migration("20251127160800_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,44 @@ namespace ClientBooking.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ClientBooking.Data.Entities.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Action")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogs");
+                });
 
             modelBuilder.Entity("ClientBooking.Data.Entities.Booking", b =>
                 {
@@ -51,6 +89,9 @@ namespace ClientBooking.Data.Migrations
 
                     b.Property<int>("RecurrencePattern")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("RecurrenceSeriesId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("RowVersion")
                         .HasColumnType("integer");
@@ -170,6 +211,20 @@ namespace ClientBooking.Data.Migrations
                     b.HasIndex("SavedById");
 
                     b.ToTable("Settings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DefaultBreakTimeEnd = new TimeSpan(0, 13, 0, 0, 0),
+                            DefaultBreakTimeStart = new TimeSpan(0, 12, 0, 0, 0),
+                            DefaultUserRole = 0,
+                            DefaultWorkingHoursEnd = new TimeSpan(0, 17, 0, 0, 0),
+                            DefaultWorkingHoursStart = new TimeSpan(0, 9, 0, 0, 0),
+                            RowVersion = 1,
+                            SavedAt = new DateTime(2025, 11, 27, 15, 29, 5, 0, DateTimeKind.Utc),
+                            Version = 1
+                        });
                 });
 
             modelBuilder.Entity("ClientBooking.Data.Entities.User", b =>
@@ -323,6 +378,15 @@ namespace ClientBooking.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRole");
+                });
+
+            modelBuilder.Entity("ClientBooking.Data.Entities.AuditLog", b =>
+                {
+                    b.HasOne("ClientBooking.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ClientBooking.Data.Entities.Booking", b =>

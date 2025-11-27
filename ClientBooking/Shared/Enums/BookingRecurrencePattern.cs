@@ -4,6 +4,5 @@ public enum BookingRecurrencePattern
 {
     None,
     Weekly,
-    Daily,
     Monthly,
 }

@@ -15,7 +15,7 @@ public class UserProfileValidator : AbstractValidator<UserProfile>
             .NotEmpty().WithMessage("Last name is required.")
             .MaximumLength(50).WithMessage("Last name cannot exceed 50 characters.");
 
-        //Only validate custom hours if user is overriding system defaults, assume system defaults are independently validated elsewhere
+        // Only validate that custom hours are provided and valid when overriding system defaults
         When(x => !x.UseSystemWorkingHours, () =>
         {
             RuleFor(x => x.WorkingHoursStart)
@@ -37,26 +37,5 @@ public class UserProfileValidator : AbstractValidator<UserProfile>
             RuleFor(x => x.BreakTimeEnd)
                 .NotNull().WithMessage("Break time end is required when overriding system defaults.");
         });
-        
-        RuleFor(x => x)
-            .Must(HaveMinimumEightHourShift)
-            .WithMessage("Total shift time must be at least 7 hours (excluding breaks).")
-            .When(x => !x.UseSystemWorkingHours && !x.UseSystemBreakTime);
-    }
-
-    
-    //Ensure shifts are at minimum 7 cumulative hours.
-    private bool HaveMinimumEightHourShift(UserProfile request)
-    {
-        if (request is { UseSystemWorkingHours: true, UseSystemBreakTime: true })
-        {
-            return true;
-        }
-        
-        var workingDuration = request.WorkingHoursEnd - request.WorkingHoursStart;
-        var breakDuration = request.BreakTimeEnd - request.BreakTimeStart;
-        var netWorkingHours = workingDuration - breakDuration;
-
-        return netWorkingHours >= TimeSpan.FromHours(7);
     }
 }

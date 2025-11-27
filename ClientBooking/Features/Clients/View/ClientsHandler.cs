@@ -18,18 +18,16 @@ public class GetClientsHandler : IRequestHandler
         [FromQuery] string sortDirection = "asc",
         [FromQuery] string search = "")
     {
-        //Construct initial query
         var query = dataContext.Clients
             .Include(c => c.Bookings)
             .AsQueryable();
 
-        //Apply search filter and sort options
         if (!string.IsNullOrEmpty(search))
         {
             query = query.Where(c => 
-                c.Name.Contains(search) || 
-                c.Email.Contains(search) ||
-                c.Description.Contains(search));
+                c.Name.ToLower().Contains(search.ToLower()) || 
+                c.Email.ToLower().Contains(search.ToLower()) ||
+                c.Description.ToLower().Contains(search.ToLower()));
         }
 
         query = sortBy.ToLower() switch
@@ -45,7 +43,6 @@ public class GetClientsHandler : IRequestHandler
                 : query.OrderBy(c => c.Name)
         };
 
-        //Apply pagination logic
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)ClientsPagePageSize);
         

@@ -1,16 +1,10 @@
-﻿@using ClientBooking.Data.Entities
+﻿@using ClientBooking.Components.Generic
+@using ClientBooking.Data.Entities
 @using ClientBooking.Shared.Enums
 
 @if (ErrorMessage is not null)
 {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span class="text-red-800 font-medium">@ErrorMessage</span>
-        </div>
-    </div>
+    <ErrorMessageComponent ErrorMessage="@ErrorMessage" />
 }
 
 @if (IsCriticalError)
@@ -24,11 +18,11 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">My Bookings</h1>
                 <p class="text-gray-600 mt-2">
-                    Manage your upcoming appointments and review past bookings.
                     @if (User != null)
                     {
                         <span class="font-medium">Welcome back, @User.FirstName!</span>
                     }
+                    Manage your upcoming appointments and review past bookings.
                 </p>
             </div>
             <a href="/clients" 
@@ -62,7 +56,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900">@PastBookings.Count</p>
+                    <p class="text-2xl font-bold text-gray-900">@PastBookings.Count(x => x.Status != BookingStatus.Cancelled)</p>
                 </div>
             </div>
         </div>
@@ -201,7 +195,7 @@
                     {
                         <div class="p-6 hover:bg-gray-50 transition-colors">
                             <div class="flex items-start justify-between">
-                                <div class="flex-1">
+                                <div class="flex-1 pe-28">
                                     <div class="flex items-center space-x-3 mb-2">
                                         <h3 class="text-lg font-semibold text-gray-900">@booking.Client.Name</h3>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @(booking.Status == BookingStatus.Cancelled ? "bg-red-300" : "bg-gray-100")  text-gray-800">
@@ -236,20 +230,6 @@
                                             <p class="text-sm text-gray-600">@booking.Notes</p>
                                         </div>
                                     }
-                                </div>
-
-                                <div class="flex items-center space-x-2 ml-4">
-                                    <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="View details">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </button>
-                                    <button class="p-2 text-gray-400 hover:text-green-600 transition-colors" title="Re-book client">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>

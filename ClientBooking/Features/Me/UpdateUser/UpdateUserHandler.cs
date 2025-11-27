@@ -41,25 +41,14 @@ public class UpdateUserHandler : IRequestHandler
         var userProfile = user.MapToUserProfile(systemSettings);
 
         return new RazorComponentResult<UpdateUserComponent>(new { userProfile });
-
     }
 
     private static async Task<RazorComponentResult<UpdateUserComponent>>
-        PostHandler([FromForm] UserProfile userProfile, ISessionStateManager sessionStateManager, IValidator<UserProfile> validator, DataContext dataContext)
+        PostHandler([FromForm] UserProfile userProfile, ISessionStateManager sessionStateManager,
+            IValidator<UserProfile> validator, DataContext dataContext, IUserWorkingHoursService userWorkingHoursService)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(userProfile);
-            
-            if (!validationResult.IsValid)
-            {
-                return new RazorComponentResult<UpdateUserComponent>(new
-                {
-                    userProfile,
-                    ValidationErrors = validationResult.ToDictionary()
-                });
-            }
-            
             var userId = sessionStateManager.GetUserSessionId();
             
             if (userId is null)
@@ -79,6 +68,36 @@ public class UpdateUserHandler : IRequestHandler
                 { 
                     userProfile,
                     ErrorMessage = "User not found." 
+                });
+            }
+            
+            var allValidationErrors = new Dictionary<string, string[]>();
+            var validationResult = await validator.ValidateAsync(userProfile);
+            
+            if (!validationResult.IsValid)
+            {
+                foreach (var kvp in validationResult.ToDictionary())
+                {
+                    allValidationErrors.TryAdd(kvp.Key, kvp.Value);
+                }
+            }
+
+            var userWorkingHoursValidation = await userWorkingHoursService.EnforceUserWorkingHoursRules(userProfile);
+
+            if (userWorkingHoursValidation is { IsSuccess: false, ValidationErrors.Count: > 0 })
+            {
+                foreach (var kvp in userWorkingHoursValidation.ValidationErrors)
+                {
+                    allValidationErrors.TryAdd(kvp.Key, kvp.Value);
+                }
+            }
+            
+            if (allValidationErrors.Count > 0)
+            {
+                return new RazorComponentResult<UpdateUserComponent>(new
+                {
+                    userProfile,
+                    ValidationErrors = allValidationErrors
                 });
             }
             

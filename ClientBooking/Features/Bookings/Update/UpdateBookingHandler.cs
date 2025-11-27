@@ -123,13 +123,12 @@ public class UpdateBookingHandler : IRequestHandler
                 });
             }
             
+            var user = await dataContext.Users.FindAsync(userId);
             var systemSettings = await dataContext.Settings.OrderByDescending(s => s.Version).FirstAsync();
 
             var validationResult = await validator.ValidateAsync(bookingRequest);
             if (!validationResult.IsValid)
             {
-                var user = await dataContext.Users.FindAsync(userId);
-                
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
                     BookingRequest = bookingRequest,
@@ -150,8 +149,6 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (analysedBookingRequestResult is { IsSuccess: false, ValidationErrors.Count: > 0 })
             {
-                var user = await dataContext.Users.FindAsync(userId);
-                
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
                     BookingRequest = bookingRequest,
@@ -161,12 +158,9 @@ public class UpdateBookingHandler : IRequestHandler
                     analysedBookingRequestResult.ValidationErrors
                 });
             }
-
-
+            
             await bookingService.UpdateBooking(existingBooking, analysedBookingRequestResult.Value, existingBooking.Client, userId.Value);
-
-            await dataContext.SaveChangesAsync();
-
+            
             return new HtmxRedirectResult("/bookings");
         }
         catch (Exception ex)

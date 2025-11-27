@@ -1,5 +1,4 @@
 ﻿using ClientBooking.Data.Entities;
-using ClientBooking.Data.JoiningTables;
 
 namespace ClientBooking.Shared.Models;
 
@@ -15,6 +14,12 @@ public class UserProfile
     
     public bool UseSystemWorkingHours { get; set; } = true;
     public bool UseSystemBreakTime { get; set; } = true;
-    public List<UserBooking> UserBookings { get; set; } 
-    public List<UserUnavailability> UnavailabilityPeriods { get; set; }
+    
+    public void AssignEffectiveHours(Settings systemSettings)
+    {
+        WorkingHoursStart = UseSystemWorkingHours ? systemSettings.DefaultWorkingHoursStart.ToTimeOnly() : WorkingHoursStart;
+        WorkingHoursEnd = UseSystemWorkingHours ? systemSettings.DefaultWorkingHoursEnd.ToTimeOnly() : WorkingHoursEnd;
+        BreakTimeStart = UseSystemBreakTime ? systemSettings.DefaultBreakTimeStart.ToTimeOnly() : BreakTimeStart;
+        BreakTimeEnd = UseSystemBreakTime ? systemSettings.DefaultBreakTimeEnd.ToTimeOnly() : BreakTimeEnd;
+    }
 }

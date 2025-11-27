@@ -27,11 +27,11 @@ public static class ClientMapping
             };
         }
 
-        public void UpdateClientFromClientRequest()
+        public void UpdateClientFromClientRequest(ClientRequest clientRequest)
         {
-            client.Name = client.Name;
-            client.Email = client.Email;
-            client.Description = client.Description;
+            client.Name = clientRequest.Name;
+            client.Email = clientRequest.Email;
+            client.Description = clientRequest.Description;
         }
     }
 }
