@@ -1,0 +1,169 @@
+﻿@using ClientBooking.Data.Entities
+
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Audit Log</h1>
+                <p class="text-gray-600 mt-2">
+                    System activity and changes audit trail.
+                </p>
+            </div>
+            <div class="text-sm text-gray-500">
+                Total: @TotalCount entries
+            </div>
+        </div>
+    </div>
+
+    @if (AuditLogs?.Any() == true)
+    {
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var log in AuditLogs)
+                        {
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @log.Timestamp.ToString("MMM dd, yyyy HH:mm:ss")
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if (!string.IsNullOrEmpty(log.UserName))
+                                    {
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                            @log.UserName
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400">System</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @GetActionBadgeClass(log.Action)">
+                                        @log.Action.ToString()
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                        </svg>
+                                        @log.EntityName
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                                    @log.EntityId
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (TotalPages > 1)
+        {
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                        Showing <span class="font-medium">@((PageNumber - 1) * 60 + 1)</span> to 
+                        <span class="font-medium">@Math.Min(PageNumber * 60, TotalCount)</span> of 
+                        <span class="font-medium">@TotalCount</span> audit logs
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        @if (PageNumber > 1)
+                        {
+                            <button class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                    hx-get="/audit/get"
+                                    hx-target="#audit-container"
+                                    name="page"
+                                    value="@(PageNumber - 1)">
+                                Previous
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="px-3 py-2 border opacity-50 border-gray-300 rounded-md text-sm font-medium text-gray-710"
+                                    name="page"
+                                    disabled>
+                                Previous
+                            </button>
+                        }
+
+                        @for (var i = Math.Max(1, PageNumber - 2); i <= Math.Min(TotalPages, PageNumber + 2); i++)
+                        {
+                            <button class="px-3 py-2 border text-sm font-medium transition-colors 
+                                          @(i == PageNumber ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-300 text-gray-700 hover:bg-gray-50")"
+                                    hx-get="/audit/get"
+                                    hx-target="#audit-container"
+                                    name="page"
+                                    value="@i">
+                                @i
+                            </button>
+                        }
+
+                        @if (PageNumber < TotalPages)
+                        {
+                            <button class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                    hx-get="/audit/get"
+                                    hx-target="#audit-container"
+                                    name="page"
+                                    value="@(PageNumber + 1)">
+                                Next
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="px-3 py-2 opacity-50 border border-gray-300 rounded-md text-sm font-medium text-gray-700"
+                                    name="page"
+                                    disabled>
+                                Next
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="bg-white rounded-lg shadow-sm border p-12 text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No audit logs found</h3>
+            <p class="text-gray-600">There are no audit logs to display at this time.</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<AuditLog>? AuditLogs { get; set; }
+    [Parameter] public int TotalCount { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public int PageNumber { get; set; } = 1;
+
+    private string GetActionBadgeClass(AuditAction action)
+    {
+        return action switch
+        {
+            AuditAction.Create => "bg-green-100 text-green-800",
+            AuditAction.Update => "bg-blue-100 text-blue-800",
+            _ => "bg-gray-100 text-gray-800"
+        };
+    }
+}

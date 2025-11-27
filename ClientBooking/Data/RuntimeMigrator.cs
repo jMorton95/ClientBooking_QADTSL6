@@ -18,9 +18,9 @@ public static class RuntimeMigrator
             await dbContext.Database.MigrateAsync();
         }
         
-        if (!await dbContext.Settings.AnyAsync())
-        {
-            await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
-        }
+        // if (!await dbContext.Settings.AnyAsync())
+        // {
+        //     await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+        // }
     }    
 }

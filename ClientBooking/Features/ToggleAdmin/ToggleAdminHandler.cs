@@ -58,7 +58,7 @@ public class ToggleAdminHandler : IRequestHandler
             //Commit to database, and ensure user session picks up new roles.
             await dataContext.SaveChangesAsync();
             
-            await RefreshUserSession(dataContext, sessionStateManager, userId.Value);
+            await sessionStateManager.RefreshUserSession(dataContext);
             
             return new HtmxRedirectResult("/");
         }

@@ -3,5 +3,6 @@
 public enum RoleName
 {
     User,
-    Admin
+    Admin,
+    Audit
 }

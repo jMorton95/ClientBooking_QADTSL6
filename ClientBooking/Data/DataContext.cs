@@ -1,6 +1,7 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
+using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data;
 
@@ -15,9 +16,12 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     
     public DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     
     public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
+        var auditLogsToAdd = new List<AuditLog>();
+        
         foreach (var entry in ChangeTracker.Entries())
         {
             if (entry.Entity is not Entity entity)
@@ -28,24 +32,46 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             
             if (entry is { Entity: Settings settings, State: EntityState.Added })
             {
-                var maxVersion = await Settings.MaxAsync(s => (int?)s.Version, ct) ?? 0;
-                settings.Version = maxVersion + 1;
+                var lastVersion = await Settings.OrderByDescending(s => s.Version).LastOrDefaultAsync(ct);
+                settings.Version = lastVersion?.Version + 1 ?? 1;
             }
             
             switch (entry.State)
             {
                 case EntityState.Added:
                     entity.RowVersion = 1;
-                    continue;
+                    break;
                 case EntityState.Modified:
                     entity.RowVersion += 1;
-                    continue;
+                    break;
                 case EntityState.Detached:
                 case EntityState.Unchanged:
                 case EntityState.Deleted:
-                    default: continue;
+                    default: break;
+            }
+            
+            var auditAction = entry.State switch
+            {
+                EntityState.Added => AuditAction.Create,
+                EntityState.Modified => AuditAction.Update,
+                _ => (AuditAction?)null
+            };
+            
+            if (auditAction.HasValue)
+            {
+                auditLogsToAdd.Add(new AuditLog
+                {
+                    EntityName = entry.Entity.GetType().Name,
+                    EntityId = entity.Id.ToString(),
+                    UserId = entity.SavedById,
+                    Action = auditAction.Value,
+                    Timestamp = DateTime.UtcNow,
+                    UserName = await GetCurrentUserName(entity.SavedById, ct)
+                });
             }
         }
+        
+        await AuditLogs.AddRangeAsync(auditLogsToAdd, ct);
 
         return await base.SaveChangesAsync(ct);
     }
@@ -100,7 +126,21 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             .WithMany()
             .HasForeignKey(s => s.SavedById)
             .OnDelete(DeleteBehavior.NoAction);
-        
+
+        //Ensure default website settings are configured when first creating the database.
+        modelBuilder.Entity<Settings>()
+            .HasData([new Settings
+                {
+                    Id = 1,
+                    DefaultWorkingHoursStart = new TimeSpan(9, 0, 0),
+                    DefaultWorkingHoursEnd = new TimeSpan(17, 0, 0),
+                    DefaultBreakTimeStart = new TimeSpan(12, 0, 0),
+                    DefaultBreakTimeEnd = new TimeSpan(13, 0, 0),
+                    DefaultUserRole = RoleName.User,
+                    Version = 1,
+                    RowVersion = 1,
+                    SavedAt = new DateTime(2025, 11, 27, 15, 29, 5, DateTimeKind.Utc)
+                }]);
         
         //Auto-Include navigation properties
         modelBuilder.Entity<User>()
@@ -110,5 +150,16 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
         modelBuilder.Entity<UserRole>()
             .Navigation(ur => ur.Role)
             .AutoInclude();
+    }
+    
+    private async Task<string?> GetCurrentUserName(int? userId, CancellationToken ct)
+    {
+        if (!userId.HasValue) return null;
+
+        var user = await Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId.Value, ct);
+
+        return user != null ? $"{user.FirstName} {user.LastName}" : null;
     }
 }

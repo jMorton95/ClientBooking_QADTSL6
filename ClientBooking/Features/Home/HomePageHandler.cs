@@ -13,7 +13,7 @@ public class HomePageHandler : IRequestHandler
         app.MapGet("/get", GetHandler);
     }
 
-    private static async Task<RazorComponentResult> 
+    private static async Task<Results<RazorComponentResult, HtmxRedirectResult>> 
         GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext)
     {
         try
@@ -28,7 +28,9 @@ public class HomePageHandler : IRequestHandler
 
             if (userId == null || user == null)
             {
-                return new RazorComponentResult<ErrorMessageComponent>(new { ErrorMessage = "User not found." });
+                //Clear faulty sessions.
+                await sessionStateManager.LogoutAsync();
+                return new HtmxRedirectResult("/login");
             }
             
             var systemSettings = await dataContext.Settings

@@ -1,4 +1,5 @@
 using ClientBooking.Features;
+using ClientBooking.Features.Audit;
 using ClientBooking.Features.Bookings.Cancel;
 using ClientBooking.Features.Bookings.Create;
 using ClientBooking.Features.Bookings.Update;
@@ -34,7 +35,8 @@ public static class ConfigureEndpoints
             .MapRequestHandlers<CreateBookingHandler>()
             .MapRequestHandlers<BookingsHandler>()
             .MapRequestHandlers<CancelBookingHandler>()
-            .MapRequestHandlers<UpdateBookingHandler>();
+            .MapRequestHandlers<UpdateBookingHandler>()
+            .MapRequestHandlers<AuditHandler>();
             
         var api = app.MapGroup("/api/");
                 

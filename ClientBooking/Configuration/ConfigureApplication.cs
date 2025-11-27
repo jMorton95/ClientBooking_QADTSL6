@@ -69,4 +69,5 @@ public static class ConfigureApplication
 public class ConfigurationSettings
 {
     public string? SystemAccountPassword { get; set; }
+    public string? AuditLogPassword { get; set; }
 }
