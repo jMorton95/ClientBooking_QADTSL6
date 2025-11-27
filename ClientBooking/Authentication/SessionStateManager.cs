@@ -49,7 +49,8 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
         var authProperties = new AuthenticationProperties
         {
             IsPersistent = persistSession,
-            ExpiresUtc = persistSession ? DateTimeOffset.UtcNow.Add(TimeSpan.FromHours(3)) : null
+            IssuedUtc = DateTimeOffset.UtcNow,
+            ExpiresUtc = persistSession ? DateTimeOffset.UtcNow.Add(TimeSpan.FromHours(3)) : null,
         };
         
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);

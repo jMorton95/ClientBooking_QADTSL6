@@ -95,6 +95,13 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 
+app.Use(async (context, next) => 
+{
+    context.Response.Headers.XFrameOptions = "DENY";
+    await next();
+});
+
+
 //Apply our Frontend components to their defined website routes, configure authorisation policy defaults.
 app.MapRazorComponents<App>()
     .RequireAuthorization(nameof(RoleName.User));
