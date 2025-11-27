@@ -40,6 +40,8 @@ public class HomePageHandler : IRequestHandler
             var todayBookings = await GetTodayBookings(dataContext, userId.Value);
             var upcomingBookings = await GetUpcomingBookings(dataContext, userId.Value);
             var weeklyHours = await GetWeeklyHours(dataContext, userId.Value);
+            var pastBookings = await GetPastBookings(dataContext, userId.Value);
+            var otherUsersUpcomingBookings = await GetOtherUsersUpcomingBookings(dataContext, userId.Value);
 
             return new RazorComponentResult<HomePageComponent>(new 
             { 
@@ -47,7 +49,9 @@ public class HomePageHandler : IRequestHandler
                 WeeklyStats = weeklyStats,
                 TodayBookings = todayBookings,
                 UpcomingBookings = upcomingBookings,
-                WeeklyHours = weeklyHours
+                WeeklyHours = weeklyHours,
+                PastBookings = pastBookings,
+                OtherUsersUpcomingBookings = otherUsersUpcomingBookings
             });
         }
         catch (Exception ex)
@@ -153,5 +157,57 @@ public class HomePageHandler : IRequestHandler
             DailyHours = dailyHours,
             TotalHours = dailyHours.Sum(d => d.HoursWorked)
         };
+    }
+    
+    private static async Task<List<BookingDto>> GetPastBookings(DataContext dataContext, int userId)
+    {
+        var oneWeekAgo = DateTime.UtcNow.Date.AddDays(-30);
+        var today = DateTime.UtcNow.Date;
+
+        return await dataContext.UserBookings
+            .Where(ub => ub.UserId == userId && 
+                         ub.Booking.StartDateTime >= oneWeekAgo && 
+                         ub.Booking.StartDateTime < today)
+            .Include(ub => ub.Booking)
+            .ThenInclude(b => b.Client)
+            .OrderByDescending(ub => ub.Booking.StartDateTime)
+            .Select(ub => new BookingDto
+            {
+                Id = ub.Booking.Id,
+                ClientName = ub.Booking.Client.Name,
+                StartDateTime = ub.Booking.StartDateTime,
+                EndDateTime = ub.Booking.EndDateTime,
+                Status = ub.Booking.Status,
+                Notes = ub.Booking.Notes
+            })
+            .ToListAsync();
+    }
+
+    private static async Task<List<BookingDto>> GetOtherUsersUpcomingBookings(DataContext dataContext, int currentUserId)
+    {
+        var today = DateTime.UtcNow.Date;
+        var nextWeek = today.AddDays(30);
+
+        return await dataContext.UserBookings
+            .Where(ub => ub.UserId != currentUserId && 
+                         ub.Booking.StartDateTime >= today && 
+                         ub.Booking.StartDateTime < nextWeek &&
+                         ub.Booking.Status == BookingStatus.Scheduled)
+            .Include(ub => ub.Booking)
+            .ThenInclude(b => b.Client)
+            .Include(ub => ub.User)
+            .OrderBy(ub => ub.Booking.StartDateTime)
+            .Take(5)
+            .Select(ub => new BookingDto
+            {
+                Id = ub.Booking.Id,
+                ClientName = ub.Booking.Client.Name,
+                StartDateTime = ub.Booking.StartDateTime,
+                EndDateTime = ub.Booking.EndDateTime,
+                Status = ub.Booking.Status,
+                Notes = ub.Booking.Notes,
+                UserName = ub.User.FirstName + " " + ub.User.LastName
+            })
+            .ToListAsync();
     }
 }

@@ -17,6 +17,8 @@ public class BookingDto
     public DateTime EndDateTime { get; set; }
     public BookingStatus Status { get; set; }
     public string Notes { get; set; } = string.Empty;
+    
+    public string? UserName { get; set; }
 }
 
 public class WeeklyHours

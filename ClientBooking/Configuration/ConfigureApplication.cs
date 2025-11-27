@@ -36,7 +36,6 @@ public static class ConfigureApplication
             builder.Services.Configure<ConfigurationSettings>(
                 builder.Configuration.GetSection("ConfigurationSettings"));
         }
-
         
         //Add business logic
         public void AddCustomAuthenticationServices()
