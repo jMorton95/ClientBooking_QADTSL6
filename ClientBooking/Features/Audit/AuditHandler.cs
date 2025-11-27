@@ -80,7 +80,7 @@ public class AuditHandler : IRequestHandler
         var totalPages = (int)Math.Ceiling(totalCount / (double)1);
         
         var auditLogs = await dataContext.AuditLogs
-            .Skip((pageNumber - 60) * 60)
+            .Skip((pageNumber - 1) * 60)
             .Take(60)
             .ToListAsync();
             
