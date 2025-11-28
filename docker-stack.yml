@@ -38,7 +38,7 @@ services:
       - DatabaseSettings__Database=client-booking
       - DatabaseSettings__Username=postgres
       - DatabaseSettings__Password=${DB_PASSWORD}
-      - ConfigurationSettings__AuditLogPassword=${API_CLIENT_ID}
+      - ConfigurationSettings__AuditLogPassword=${AUDIT_LOG_PASSWORD}
     deploy:
       update_config:
         order: start-first
