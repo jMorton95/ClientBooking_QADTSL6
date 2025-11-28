@@ -57,8 +57,8 @@ jobs:
       - name: Create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./envfile
-          echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" >> ./envfile
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
+          echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
           echo "APP_DOMAIN=$APP_DOMAIN" >> ./envfile
           echo "DB_NAME=$DB_NAME" >> ./envfile
  
