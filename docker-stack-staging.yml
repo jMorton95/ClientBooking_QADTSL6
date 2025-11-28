@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   traefik:
     image: traefik:v3.1
@@ -29,13 +31,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.web.loadbalancer.server.port=8080"
-      - "traefik.http.routers.web.rule=Host(`joshmorton.co.uk`) || Host(`www.joshmorton.co.uk`)"
+      - "traefik.http.routers.web.rule=Host(`staging.joshmorton.co.uk`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
     environment:
       - DatabaseSettings__Host=db
       - DatabaseSettings__Port=5432
-      - DatabaseSettings__Database=client-booking
+      - DatabaseSettings__Database=client_booking_staging
       - DatabaseSettings__Username=postgres
       - DatabaseSettings__Password=${DB_PASSWORD}
       - ConfigurationSettings__AuditLogPassword=${AUDIT_LOG_PASSWORD}
@@ -49,11 +51,11 @@ services:
     image: postgres:18.1
     user: postgres
     volumes:
-      - database-data:/var/lib/postgresql
+      - staging-database-data:/var/lib/postgresql
     secrets:
       - db-password
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: client_booking_staging
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
     healthcheck:
       test: ["CMD", "pg_isready"]
@@ -62,7 +64,7 @@ services:
       retries: 5
 
 volumes:
-  database-data:
+  staging-database-data:
   letsencrypt:
 
 secrets:
