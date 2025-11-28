@@ -14,7 +14,8 @@ services:
     depends_on:
       - db
     networks:
-      - staging-public
+      - traefik-public
+      - staging-internal
 
   db:
     image: postgres:18.1
