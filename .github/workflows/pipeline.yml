@@ -1,0 +1,56 @@
+name: deploy-pipeline
+
+on:
+  push:
+    branches:
+      - "main"
+
+permissions:
+  packages: write
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/jmorton95/ClientBooking_QADTSL6:latest
+            ghcr.io/jmorton95/ClientBooking_QADTSL6:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-image
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: create env file
+        run: |
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
+          echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
+
+      - name: Docker Stack Deploy
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: client-booking
+          file: docker-stack.yml
+          host: joshmorton.co.uk
+          user: deploy
+          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          env_file: ./envfile
