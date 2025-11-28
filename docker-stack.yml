@@ -23,6 +23,8 @@ services:
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik-public
 
   app:
     image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
@@ -67,4 +69,8 @@ volumes:
 
 secrets:
   db-password:
+    external: true
+
+networks:
+  traefik-public:
     external: true
