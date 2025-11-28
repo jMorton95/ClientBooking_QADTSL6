@@ -19,6 +19,8 @@ services:
         order: start-first
     depends_on:
       - db
+    networks:
+      - traefik-public
 
   db:
     image: postgres:18.1
@@ -38,8 +40,11 @@ services:
 
 volumes:
   staging-database-data:
-  letsencrypt:
 
 secrets:
   db-password:
+    external: true
+
+networks:
+  traefik-public:
     external: true
