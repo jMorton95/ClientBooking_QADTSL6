@@ -1,12 +1,6 @@
 services:
   app:
     image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.staging.rule=Host(`staging.joshmorton.co.uk`)"
-      - "traefik.http.routers.staging.entrypoints=websecure"
-      - "traefik.http.routers.staging.tls.certresolver=myresolver"
-      - "traefik.http.services.staging.loadbalancer.server.port=8080"
     environment:
       - DatabaseSettings__Host=db
       - DatabaseSettings__Port=5432
@@ -20,7 +14,7 @@ services:
     depends_on:
       - db
     networks:
-      - traefik-public
+      - staging-public
 
   db:
     image: postgres:18.1
@@ -37,6 +31,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - staging-public
 
 volumes:
   staging-database-data:
@@ -46,5 +42,5 @@ secrets:
     external: true
 
 networks:
-  traefik-public:
+  staging-public:
     external: true
