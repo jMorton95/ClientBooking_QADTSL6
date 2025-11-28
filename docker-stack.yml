@@ -43,7 +43,8 @@ services:
       update_config:
         order: start-first
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:18.1
