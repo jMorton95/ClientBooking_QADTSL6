@@ -46,12 +46,10 @@ jobs:
             echo "STACK_NAME=client-booking" >> $GITHUB_ENV
             echo "STACK_FILE=docker-stack.yml" >> $GITHUB_ENV
             echo "APP_DOMAIN=joshmorton.co.uk" >> $GITHUB_ENV
-            echo "DB_NAME=client-booking" >> $GITHUB_ENV
           else
             echo "STACK_NAME=client-booking-staging" >> $GITHUB_ENV
             echo "STACK_FILE=docker-stack-staging.yml" >> $GITHUB_ENV
             echo "APP_DOMAIN=staging.joshmorton.co.uk" >> $GITHUB_ENV
-            echo "DB_NAME=client_booking_staging" >> $GITHUB_ENV
           fi
 
       - name: Create env file
@@ -60,7 +58,6 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
           echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
           echo "APP_DOMAIN=$APP_DOMAIN" >> ./envfile
-          echo "DB_NAME=$DB_NAME" >> ./envfile
  
       - name: Deploy Docker Stack
         uses: cssnr/stack-deploy-action@v1
