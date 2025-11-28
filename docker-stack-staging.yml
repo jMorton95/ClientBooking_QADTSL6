@@ -32,7 +32,8 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - staging-public
+      - traefik-public
+      - staging-internal
 
 volumes:
   staging-database-data:
@@ -42,5 +43,6 @@ secrets:
     external: true
 
 networks:
-  staging-public:
+  staging-internal:
+  traefik-public:
     external: true
