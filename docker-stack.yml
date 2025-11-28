@@ -25,7 +25,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   app:
-    image: ghcr.io/jmorton95/ClientBooking_QADTSL6:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.web.loadbalancer.server.port=8080"
