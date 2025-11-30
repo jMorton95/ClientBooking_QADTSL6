@@ -28,10 +28,10 @@ services:
     image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.rule=Host(`staging.joshmorton.co.uk`)"
-      - "traefik.http.routers.entrypoints=websecure"
-      - "traefik.http.routers.tls.certresolver=myresolver"
-      - "traefik.http.services.loadbalancer.server.port=8080"
+      - "traefik.http.services.web.loadbalancer.server.port=8080"
+      - "traefik.http.routers.web.rule=Host(`staging.joshmorton.co.uk`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
     environment:
       - DatabaseSettings__Host=db
       - DatabaseSettings__Port=5432
