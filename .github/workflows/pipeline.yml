@@ -64,7 +64,7 @@ jobs:
         with:
           name: ${{ env.STACK_NAME }}
           file: ${{ env.STACK_FILE }}
-          host: joshmorton.co.uk
+          host:  ${{ env.APP_DOMAIN }}
           user: deploy
           ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           env_file: ./envfile

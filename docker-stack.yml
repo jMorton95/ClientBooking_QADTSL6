@@ -23,17 +23,15 @@ services:
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik-public
 
   app:
     image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prod.rule=Host(`joshmorton.co.uk`) || Host(`www.joshmorton.co.uk`)"
-      - "traefik.http.routers.prod.entrypoints=websecure"
-      - "traefik.http.routers.prod.tls.certresolver=myresolver"
-      - "traefik.http.services.prod.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rule=Host(`joshmorton.co.uk`) || Host(`www.joshmorton.co.uk`)"
+      - "traefik.http.routers.entrypoints=websecure"
+      - "traefik.http.routers.tls.certresolver=myresolver"
+      - "traefik.http.services.loadbalancer.server.port=8080"
     environment:
       - DatabaseSettings__Host=db
       - DatabaseSettings__Port=5432
@@ -69,8 +67,4 @@ volumes:
 
 secrets:
   db-password:
-    external: true
-
-networks:
-  traefik-public:
     external: true
