@@ -53,8 +53,8 @@ services:
     secrets:
       - db-password
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
