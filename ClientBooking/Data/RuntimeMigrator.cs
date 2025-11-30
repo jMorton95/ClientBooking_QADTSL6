@@ -12,10 +12,7 @@ public static class RuntimeMigrator
         using var scope = app.Services.CreateScope();
         
         var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-        
-        if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
-        {
-            await dbContext.Database.MigrateAsync();
-        }
+
+        await dbContext.Database.MigrateAsync();
     }    
 }

@@ -1,16 +1,41 @@
 services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=josh@staging.joshmorton.co.uk"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+
   app:
     image: ghcr.io/jmorton95/clientbooking_qadtsl6:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.staging.rule=Host(`staging.joshmorton.co.uk`)"
-      - "traefik.http.routers.staging.entrypoints=websecure"
-      - "traefik.http.routers.staging.tls.certresolver=myresolver"
-      - "traefik.http.services.staging.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rule=Host(`staging.joshmorton.co.uk`)"
+      - "traefik.http.routers.entrypoints=websecure"
+      - "traefik.http.routers.tls.certresolver=myresolver"
+      - "traefik.http.services.loadbalancer.server.port=8080"
     environment:
       - DatabaseSettings__Host=db
       - DatabaseSettings__Port=5432
-      - DatabaseSettings__Database=client_booking_staging
+      - DatabaseSettings__Database=client-booking
       - DatabaseSettings__Username=postgres
       - DatabaseSettings__Password=${DB_PASSWORD}
       - ConfigurationSettings__AuditLogPassword=${AUDIT_LOG_PASSWORD}
@@ -19,19 +44,17 @@ services:
         order: start-first
     depends_on:
       - db
-    networks:
-      - traefik-public
 
   db:
     image: postgres:18.1
     user: postgres
     volumes:
-      - staging-database-data:/var/lib/postgresql
+      - database-data:/var/lib/postgresql
     secrets:
       - db-password
     environment:
-      POSTGRES_DB: client_booking_staging
-      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
@@ -39,12 +62,9 @@ services:
       retries: 5
 
 volumes:
-  staging-database-data:
+  database-data:
+  letsencrypt:
 
 secrets:
   db-password:
-    external: true
-
-networks:
-  traefik-public:
     external: true
