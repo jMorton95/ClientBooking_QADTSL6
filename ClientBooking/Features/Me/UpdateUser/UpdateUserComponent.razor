@@ -3,6 +3,8 @@
 @using ClientBooking.Data.Entities
 @using ClientBooking.Shared.Models
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+
 
 @if (Section == "working-hours")
 {
@@ -49,6 +51,8 @@
     }
     return;
 }
+
+<PageTitle>Update Profile</PageTitle>
 
 <div class="space-y-6">
     <div class="bg-white rounded-lg shadow-sm border p-6">

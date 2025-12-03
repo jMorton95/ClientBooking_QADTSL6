@@ -1,6 +1,9 @@
 ﻿@attribute [Authorize]
 @page "/client/edit/{Id:int}"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Update Client</PageTitle>
 
 <div class="space-y-6" hx-get="@($"/client/edit/get/{Id}")" hx-trigger="load" hx-swap="innerHTML" id="edit-client-container">
     <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>

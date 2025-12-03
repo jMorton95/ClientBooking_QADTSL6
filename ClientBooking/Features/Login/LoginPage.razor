@@ -6,8 +6,11 @@
 @using ClientBooking.Components.Layout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager NavigationManager
 @inject ISessionStateManager SessionStateManager
+
+<PageTitle>Login</PageTitle>
 
 <CascadingValue Value="ValidationErrors">
   <div id="login-container-div" class="min-h-screen flex items-center justify-center p-4">
