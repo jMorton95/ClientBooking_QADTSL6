@@ -38,7 +38,7 @@ public class AuditHandler : IRequestHandler
     }
 
     private static async Task<RazorComponentResult>
-        PostHandler([FromForm] string auditPassword, DataContext dataContext, ISessionStateManager sessionStateManager, IOptions<ConfigurationSettings> configurationSettings)
+        PostHandler([FromForm] string auditPassword, DataContext dataContext, ISessionStateManager sessionStateManager, IOptions<ConfigurationSettings> configurationSettings, ILogger<AuditHandler> logger)
     {
         try
         {
@@ -51,6 +51,7 @@ public class AuditHandler : IRequestHandler
 
             if (!string.Equals(auditPassword, configurationSettings.Value.AuditLogPassword, StringComparison.InvariantCulture))
             {
+                logger.LogWarning("Invalid Audit login attempt for user {UserSessionId}.", userSessionId);
                 return new RazorComponentResult<ErrorMessageComponent>(new { ErrorMessage = "Invalid audit password." });
             }
 
@@ -64,12 +65,15 @@ public class AuditHandler : IRequestHandler
                 await dataContext.SaveChangesAsync();
                 
                 await sessionStateManager.RefreshUserSession(dataContext);
+                
+                logger.LogInformation("User {UserSessionId} has been assigned the audit role.", userSessionId);
             }
             
             return await PopulateAuditLogPage(dataContext, 60);
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error processing audit password.");
             return new RazorComponentResult<ErrorMessageComponent>(new { ErrorMessage = $"Unable to process your request: {e.Message}" });
         }
     }

@@ -42,7 +42,6 @@ public static class ConfigureApplication
         {
             builder.Services
                 .AddScoped<ISessionStateManager, SessionStateManager>()
-                .AddScoped<IGetUserProfileService, GetUserProfileService>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
                 .AddScoped<IBookingService, BookingService>()
                 .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();

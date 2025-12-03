@@ -24,7 +24,11 @@ public class UpdateSettingsHandler : IRequestHandler
     }
     
     private static async Task<RazorComponentResult<UpdateSettingsComponent>>
-        PostHandler([FromForm] UpdateSettingsRequest updateSettingsRequest, IValidator<UpdateSettingsRequest> validator, DataContext dataContext)
+        PostHandler(
+            [FromForm] UpdateSettingsRequest updateSettingsRequest,
+            IValidator<UpdateSettingsRequest> validator,
+            DataContext dataContext,
+            ILogger<UpdateSettingsHandler> logger)
     {
         try
         {
@@ -32,6 +36,7 @@ public class UpdateSettingsHandler : IRequestHandler
 
             if (!validationResult.IsValid)
             {
+                logger.LogError("Validation failed for update settings request.");
                 return new RazorComponentResult<UpdateSettingsComponent>(new
                 {
                     updateSettingsRequest,
@@ -52,6 +57,7 @@ public class UpdateSettingsHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred updating settings.");
             return new RazorComponentResult<UpdateSettingsComponent>(new
             {
                 updateSettingsRequest,

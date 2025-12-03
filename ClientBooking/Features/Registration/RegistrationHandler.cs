@@ -19,7 +19,8 @@ public class RegistrationHandler : IRequestHandler
         DataContext dataContext,
         IPasswordHelper passwordHelper,
         ISessionStateManager sessionManager,
-        ICreateRegisteredUserService  createRegisteredUserService)
+        ICreateRegisteredUserService createRegisteredUserService,
+        ILogger<RegistrationHandler> logger)
     {
         try
         {
@@ -38,6 +39,7 @@ public class RegistrationHandler : IRequestHandler
             //Ensure an account for this email address doesn't already exist
             if (await dataContext.Users.AnyAsync(u => u.Email == registrationRequest.Email))
             {
+                logger.LogError("An account with email address {email} already exists.", registrationRequest.Email);
                 return new RazorComponentResult<RegistrationPage>(new {
                     registrationRequest,
                     ErrorMessage = "An account with this email address already exists."
@@ -48,14 +50,15 @@ public class RegistrationHandler : IRequestHandler
             var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
             var newUser = await createRegisteredUserService.CreateUserWithDefaultSettings(registrationRequest, hashedPassword);
             
+            logger.LogInformation("User {Email} successfully registered.", registrationRequest.Email);
+            
             //Store the userId in the newly created session and inform HTMX to redirect.
             await sessionManager.LoginAsync(newUser, persistSession: true);
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
         {
-            //TODO: Add Logging
-            Console.WriteLine(ex);
+            logger.LogError(ex, "An error occurred while trying to register a new user.");
             return TypedResults.InternalServerError(ex.Message);
         }
     }

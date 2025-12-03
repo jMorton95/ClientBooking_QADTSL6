@@ -12,7 +12,8 @@ public class BookingsHandler : IRequestHandler
 
     private static async Task<RazorComponentResult<BookingsComponent>> Handler(
         DataContext dataContext, 
-        ISessionStateManager sessionStateManager)
+        ISessionStateManager sessionStateManager,
+        ILogger<BookingsHandler> logger)
     {
         try
         {
@@ -20,6 +21,7 @@ public class BookingsHandler : IRequestHandler
             var user = await dataContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
             if (userId == null || user == null)
             {
+                logger.LogError("User Session or User not found when trying to load bookings.");
                 return new RazorComponentResult<BookingsComponent>(new 
                 { 
                     IsCriticalError = true,
@@ -53,6 +55,7 @@ public class BookingsHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while loading bookings.");
             return new RazorComponentResult<BookingsComponent>(new
             {
                 IsCriticalError = true,

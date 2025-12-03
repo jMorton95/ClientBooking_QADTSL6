@@ -14,7 +14,7 @@ public class HomePageHandler : IRequestHandler
     }
 
     private static async Task<Results<RazorComponentResult, HtmxRedirectResult>> 
-        GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext)
+        GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<HomePageHandler> logger)
     {
         try
         {
@@ -58,6 +58,7 @@ public class HomePageHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while loading home page.");
             return new RazorComponentResult<ErrorMessageComponent>(new
             {
                 ErrorMessage = $"Critical error occurred: {ex.Message}."

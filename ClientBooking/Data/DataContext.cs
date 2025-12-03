@@ -13,10 +13,10 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
-    
     public DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
     
     public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
     {

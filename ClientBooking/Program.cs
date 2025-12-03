@@ -3,9 +3,11 @@ global using Microsoft.EntityFrameworkCore;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
+using ClientBooking.Shared;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.EntityFrameworkCore.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +62,11 @@ builder.AddPostgresDatabaseFromConfiguration();
 builder.AddCustomAuthenticationServices();
 
 builder.AddCustomValidators();
+
+//Configure logging for application using our custom provider to log all custom events.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Services.AddSingleton<ILoggerProvider, DatabaseLoggerProvider>();
 
 //Runtime environment behaviour
 if (builder.Environment.IsProduction()) { }
