@@ -6,23 +6,19 @@ public class RequestAuditMiddleware(
 {
     public async Task InvokeAsync(HttpContext context, ISessionStateManager sessionManager)
     {
-        try
-        {
-            //Only log GET requests that do not request a file extension.
-            if (context.Request.Method != HttpMethods.Get || Path.HasExtension(context.Request.Path.Value))
-            {
-                await next(context);
-                return;
-            }
-            
-            var user = sessionManager.GetUserSessionId();
-            var url = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
         
-            logger.LogInformation("User: {User}, URL: {URL}", user, url);
-        }
-        finally
+        //Only log GET requests that do not request a file extension.
+        if (context.Request.Method != HttpMethods.Get || Path.HasExtension(context.Request.Path.Value))
         {
             await next(context);
+            return;
         }
+        
+        var user = sessionManager.GetUserSessionId();
+        var url = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
+    
+        logger.LogInformation("User: {User}, URL: {URL}", user, url);
+        
+        await next(context);
     }
 }

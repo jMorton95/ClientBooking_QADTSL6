@@ -29,13 +29,6 @@ public static class ConfigureApplication
             
             builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         }
-
-        //Register custom configuration settings, injected by environment variables
-        public void AddConfigurationValues()
-        {
-            builder.Services.Configure<ConfigurationSettings>(
-                builder.Configuration.GetSection("ConfigurationSettings"));
-        }
         
         //Add business logic
         public void AddCustomAuthenticationServices()
@@ -63,9 +56,4 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<BookingRequest>, CreateBookingValidator>();
         }
     }
-}
-
-public class ConfigurationSettings
-{
-    public string? AuditLogPassword { get; set; }
 }
