@@ -11,7 +11,7 @@ public class HealthCheckHandler : IRequestHandler
     }
 
     private static async Task<Results<Ok<HealthCheckResponse>, InternalServerError<string>>> 
-        HandleHealthCheck(ISessionStateManager sessionManager, DataContext dataContext)
+        HandleHealthCheck(ISessionStateManager sessionManager, DataContext dataContext, ILogger<HealthCheckHandler> logger)
     {
         try
         {
@@ -22,6 +22,7 @@ public class HealthCheckHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred during health check.");
             return TypedResults.InternalServerError(ex.Message);
         }
     }

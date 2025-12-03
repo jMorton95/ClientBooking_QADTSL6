@@ -15,7 +15,7 @@ public class UpdateClientHandler : IRequestHandler
     }
     
     private static async Task<RazorComponentResult<UpdateClientComponent>>
-        GetHandler([FromRoute] int id, DataContext dataContext)
+        GetHandler([FromRoute] int id, DataContext dataContext, ILogger<UpdateClientHandler> logger)
     {
         try
         {
@@ -24,6 +24,7 @@ public class UpdateClientHandler : IRequestHandler
 
             if (client == null)
             {
+                logger.LogError("Client not found when trying to load client: {clientId}.", id);
                 return new RazorComponentResult<UpdateClientComponent>(new { ClientNotFound = true });
             }
 
@@ -36,6 +37,7 @@ public class UpdateClientHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while loading the client: {clientId}.", id);
             return new RazorComponentResult<UpdateClientComponent>(new
             {
                 ErrorMessage = $"An error occurred while loading the client: {ex.Message}"
@@ -44,7 +46,10 @@ public class UpdateClientHandler : IRequestHandler
     }
     
     private static async Task<RazorComponentResult<UpdateClientComponent>>
-        PostHandler([FromRoute] int id, [FromForm] ClientRequest clientRequest, IValidator<ClientRequest> validator, DataContext dataContext)
+        PostHandler([FromRoute] int id, [FromForm] ClientRequest clientRequest,
+            IValidator<ClientRequest> validator,
+            DataContext dataContext,
+            ILogger<UpdateClientHandler> logger)
     {
         try
         {
@@ -64,6 +69,7 @@ public class UpdateClientHandler : IRequestHandler
 
             if (client == null)
             {
+                logger.LogError("Client not found when trying to update client: {clientId}.", id);
                 return new RazorComponentResult<UpdateClientComponent>(new { id, ClientNotFound = true });
             }
 
@@ -72,6 +78,7 @@ public class UpdateClientHandler : IRequestHandler
 
             if (emailExists)
             {
+                logger.LogError("Client with email address {email} already exists.", clientRequest.Email);
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
                     id,
@@ -93,6 +100,7 @@ public class UpdateClientHandler : IRequestHandler
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred updating client: {clientId}.", id);
             return new RazorComponentResult<UpdateClientComponent>(new
             {
                 id,

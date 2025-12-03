@@ -15,7 +15,7 @@ public class ToggleAdminHandler : IRequestHandler
     }
 
     private static async Task<Results<HtmxRedirectResult, BadRequest<string>>> 
-        Handler([FromForm] Request request, ISessionStateManager sessionStateManager, DataContext dataContext)
+        Handler([FromForm] Request request, ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<ToggleAdminHandler> logger)
     {
         try
         {
@@ -24,13 +24,13 @@ public class ToggleAdminHandler : IRequestHandler
 
             if (userId == null)
             {
+                logger.LogError("User Session not found when trying to toggle admin role.");
                 return TypedResults.BadRequest("Error occurred accessing user session context");
             }
             
-            
             //Access DB admin role, or create it if it does not exist.
             var adminRole = await dataContext.Roles.FirstOrDefaultAsync(x => x.Name == RoleName.Admin)
-                            ?? await CreateAdminRoleIfNotExists(dataContext);
+                            ?? await CreateAdminRoleIfNotExists(dataContext, logger);
 
             //Assign / remove administrator role from the current user session.
             switch (request.AssignAdministrator) 
@@ -39,6 +39,8 @@ public class ToggleAdminHandler : IRequestHandler
                 {
                     var newAdminUserRole = new UserRole{UserId = userId.Value,  RoleId = adminRole.Id};
                     await dataContext.UserRoles.AddAsync(newAdminUserRole);
+                    
+                    logger.LogInformation("User {userId} assigned administrator role.", userId);
                     break;
                 }
                 case false:
@@ -50,7 +52,9 @@ public class ToggleAdminHandler : IRequestHandler
                     {
                         dataContext.Remove(userRoleToDelete);
                     }
-
+                        
+                    logger.LogInformation("User {userId} removed administrator role.", userId);
+                    
                     break;
                 }
             }
@@ -64,29 +68,21 @@ public class ToggleAdminHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An unexpected error occurred while trying to toggle admin role.");
             return TypedResults.BadRequest(ex.Message);
         }
     }
 
     private record Request(bool AssignAdministrator);
 
-    private static async Task<Role> CreateAdminRoleIfNotExists(DataContext dataContext)
+    private static async Task<Role> CreateAdminRoleIfNotExists(DataContext dataContext, ILogger logger)
     {
         var adminRole = new Role { Name = RoleName.Admin };
         await dataContext.Roles.AddAsync(adminRole);
         await dataContext.SaveChangesAsync();
-        return adminRole;
-    }
-
-    private static async Task RefreshUserSession(DataContext dataContext, ISessionStateManager sessionStateManager, int userId)
-    {
-        var user = await dataContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-
-        if (user is null)
-        {
-            return;
-        }
         
-        await sessionStateManager.LoginAsync(user);
+        logger.LogInformation("Created administrator role.");
+        
+        return adminRole;
     }
 }

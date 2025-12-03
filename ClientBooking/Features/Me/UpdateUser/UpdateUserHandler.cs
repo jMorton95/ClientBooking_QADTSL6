@@ -18,7 +18,7 @@ public class UpdateUserHandler : IRequestHandler
     }
 
     private static async Task<Results<RazorComponentResult<UpdateUserComponent>, BadRequest<string>>>
-        GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext)
+        GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<UpdateUserHandler> logger)
     {
         var userId = sessionStateManager.GetUserSessionId();
 
@@ -31,6 +31,7 @@ public class UpdateUserHandler : IRequestHandler
 
         if (user == null)
         {
+            logger.LogError("User not found when trying to load user profile for user with id: {userId}.", userId);
             return TypedResults.BadRequest("Unable to load user context.");
         }
         
@@ -45,14 +46,16 @@ public class UpdateUserHandler : IRequestHandler
 
     private static async Task<RazorComponentResult<UpdateUserComponent>>
         PostHandler([FromForm] UserProfile userProfile, ISessionStateManager sessionStateManager,
-            IValidator<UserProfile> validator, DataContext dataContext, IUserWorkingHoursService userWorkingHoursService)
+            IValidator<UserProfile> validator, DataContext dataContext, IUserWorkingHoursService userWorkingHoursService, 
+            ILogger<UpdateUserHandler> logger)
     {
         try
         {
             var userId = sessionStateManager.GetUserSessionId();
             
             if (userId is null)
-            {
+            { 
+                logger.LogError("User Session not found when trying to update user profile.");
                 return new RazorComponentResult<UpdateUserComponent>(new 
                 { 
                     userProfile,
@@ -64,6 +67,7 @@ public class UpdateUserHandler : IRequestHandler
             
             if (user is null)
             {
+                logger.LogError("User not found when trying to update user profile.");
                 return new RazorComponentResult<UpdateUserComponent>(new 
                 { 
                     userProfile,
@@ -112,6 +116,7 @@ public class UpdateUserHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred updating user profile.");
             return new RazorComponentResult<UpdateUserComponent>(new
             {
                 userProfile,
@@ -124,7 +129,8 @@ public class UpdateUserHandler : IRequestHandler
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleWorkingHours(
         [FromForm] UserProfile userProfile,
         DataContext dataContext,
-        ISessionStateManager sessionManager)
+        ISessionStateManager sessionManager,
+        ILogger<UpdateUserHandler> logger)
     {
         try
         {
@@ -151,6 +157,7 @@ public class UpdateUserHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred updating working hours.");
             return new RazorComponentResult<UpdateUserComponent>(new 
             { 
                 UserProfile = userProfile,
@@ -163,26 +170,40 @@ public class UpdateUserHandler : IRequestHandler
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleBreakTime(
         [FromForm] UserProfile userProfile,
         [FromServices] DataContext dataContext,
-        [FromServices] ISessionStateManager sessionManager)
+        [FromServices] ISessionStateManager sessionManager,
+        ILogger<UpdateUserHandler> logger)
     {
-        var userId = sessionManager.GetUserSessionId();
-        var user = await dataContext.Users.FindAsync(userId);
-        
-        if (user != null)
+        try
         {
-            user.UseSystemBreakTime = userProfile.UseSystemBreakTime;
-            await dataContext.SaveChangesAsync();
-        }
-        
-        var systemSettings = await dataContext.Settings
-            .OrderByDescending(s => s.Version)
-            .FirstAsync();
+            var userId = sessionManager.GetUserSessionId();
+            var user = await dataContext.Users.FindAsync(userId);
+            
+            if (user != null)
+            {
+                user.UseSystemBreakTime = userProfile.UseSystemBreakTime;
+                await dataContext.SaveChangesAsync();
+            }
+            
+            var systemSettings = await dataContext.Settings
+                .OrderByDescending(s => s.Version)
+                .FirstAsync();
 
-        return new RazorComponentResult<UpdateUserComponent>(new 
-        { 
-            UserProfile = user?.MapToUserProfile(systemSettings) ?? userProfile,
-            Section = "break-time"
-        });
+            return new RazorComponentResult<UpdateUserComponent>(new 
+            { 
+                UserProfile = user?.MapToUserProfile(systemSettings) ?? userProfile,
+                Section = "break-time"
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error occurred updating break time.");
+            return new RazorComponentResult<UpdateUserComponent>(new 
+            { 
+                UserProfile = userProfile,
+                Section = "break-time",
+                ErrorMessage = $"Failed to update break hours: {ex.Message} "
+            });
+        }
     }
 }
 

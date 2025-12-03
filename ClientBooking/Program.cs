@@ -1,8 +1,10 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
+using ClientBooking.Authentication;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
+using ClientBooking.Shared;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
@@ -18,9 +20,6 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
 
 //Override Appsettings values with values injected in from Github Secrets, during pipeline run.
 builder.Configuration.AddEnvironmentVariables();
-
-//Allow injection of custom configuration variables
-builder.AddConfigurationValues();
 
 //Enable HTTP Context services.
 builder.Services.AddHttpContextAccessor();
@@ -50,9 +49,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorizationBuilder()
        .AddPolicy(nameof(RoleName.User), policy => policy.RequireAuthenticatedUser())
        .AddPolicy(nameof(RoleName.Admin), policy => policy.RequireAuthenticatedUser()
-           .RequireRole(nameof(RoleName.Admin)))
-       .AddPolicy(nameof(RoleName.Audit), policy => policy.RequireAuthenticatedUser()
-           .RequireRole(nameof(RoleName.Audit)));
+           .RequireRole(nameof(RoleName.Admin)));
 
 //Configure our database connection and custom services.
 builder.AddPostgresDatabaseFromConfiguration();
@@ -60,6 +57,11 @@ builder.AddPostgresDatabaseFromConfiguration();
 builder.AddCustomAuthenticationServices();
 
 builder.AddCustomValidators();
+
+//Configure logging for application using our custom provider to log all custom events.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Services.AddSingleton<ILoggerProvider, DatabaseLoggerProvider>();
 
 //Runtime environment behaviour
 if (builder.Environment.IsProduction()) { }
@@ -98,12 +100,14 @@ app.Use(async (context, next) =>
     await next();
 });
 
-
 //Apply our Frontend components to their defined website routes, configure authorisation policy defaults.
 app.MapRazorComponents<App>()
     .RequireAuthorization(nameof(RoleName.User));
 
 //Map custom application endpoints, mostly POST requests.
 app.MapApplicationRequestHandlers();
+
+//Add middleware to audit all requests made to the application, used to track engagement.
+app.UseMiddleware<RequestAuditMiddleware>();
 
 app.Run();

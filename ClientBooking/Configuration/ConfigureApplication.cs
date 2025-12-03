@@ -29,20 +29,12 @@ public static class ConfigureApplication
             
             builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         }
-
-        //Register custom configuration settings, injected by environment variables
-        public void AddConfigurationValues()
-        {
-            builder.Services.Configure<ConfigurationSettings>(
-                builder.Configuration.GetSection("ConfigurationSettings"));
-        }
         
         //Add business logic
         public void AddCustomAuthenticationServices()
         {
             builder.Services
                 .AddScoped<ISessionStateManager, SessionStateManager>()
-                .AddScoped<IGetUserProfileService, GetUserProfileService>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
                 .AddScoped<IBookingService, BookingService>()
                 .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();
@@ -64,9 +56,4 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<BookingRequest>, CreateBookingValidator>();
         }
     }
-}
-
-public class ConfigurationSettings
-{
-    public string? AuditLogPassword { get; set; }
 }

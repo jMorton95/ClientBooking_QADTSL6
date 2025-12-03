@@ -19,7 +19,7 @@ public interface ISessionStateManager
     Task RefreshUserSession(DataContext dataContext);
 }
 
-public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISessionStateManager
+public class SessionStateManager(IHttpContextAccessor httpContextAccessor, ILogger<SessionStateManager> logger) : ISessionStateManager
 {
     private HttpContext HttpContext => httpContextAccessor.HttpContext!;
 
@@ -56,11 +56,18 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
         };
         
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+        
+        logger.LogInformation("User {UserEmail} logged in. Persistent Session: {PersistentSession}", user.Email, persistSession.ToString());
     }
 
     //Destroy the currently active session
-    public async Task LogoutAsync() => await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    
+    public async Task LogoutAsync()
+    {
+        var userId = GetUserSessionId();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        logger.LogInformation("User {userId} logged out.", userId);
+    }
+
     //Determine whether a session is active or not.
     public bool IsAuthenticated() => GetUserSessionId() != null;
 
@@ -95,5 +102,7 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor) : ISe
         }
         
         await LoginAsync(user);
+        
+        logger.LogInformation("User {userId} session refreshed.", userId);
     }
 }

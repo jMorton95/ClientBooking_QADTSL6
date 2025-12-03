@@ -12,11 +12,12 @@
                 @if (IsUserAdministrator)
                 {
                     <a href="/admin/settings" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Site Settings</a>
+                    <a href="/admin/audit" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Audit Logs</a>
                 }
             </nav>
 
             <div class="flex items-center space-x-4">
-                <span class=" text-xs text-center text-red-700 block">For testing, toggle to enable administrator features.</span>
+                <span class=" text-xs text-center text-red-700 block">For testing, toggle to <span class="font-bold"> @(IsUserAdministrator ? "disable" : "enable" )</span> administrator features.</span>
                 
                 <form hx-post="/toggle/admin" hx-include="[name='AssignAdministrator']" hx-swap="none" class="flex items-center">
                     <AntiforgeryToken />

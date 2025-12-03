@@ -14,11 +14,11 @@ public class CreateClientHandler : IRequestHandler
     }
 
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<CreateClientPage>>>
-        Handler([FromForm] ClientRequest clientRequest, IValidator<ClientRequest> validator, DataContext dataContext)
+        Handler([FromForm] ClientRequest clientRequest, IValidator<ClientRequest> validator, DataContext dataContext, ILogger<CreateClientHandler> logger)
     {
         try
         {
-            var validationResult = await  validator.ValidateAsync(clientRequest);
+            var validationResult = await validator.ValidateAsync(clientRequest);
             
             if (!validationResult.IsValid)
             {
@@ -33,6 +33,7 @@ public class CreateClientHandler : IRequestHandler
 
             if (doesClientEmailAlreadyExist)
             {
+                logger.LogError("Client with email address {email} already exists.", clientRequest.Email);
                 return new RazorComponentResult<CreateClientPage>(new
                 {
                     createClientRequest = clientRequest,
@@ -49,6 +50,7 @@ public class CreateClientHandler : IRequestHandler
         }
         catch (Exception e)
         {
+            logger.LogError(e, "An unexpected error occurred while trying to create client.");
             return new RazorComponentResult<CreateClientPage>(new
             {
                 createClientRequest = clientRequest,
