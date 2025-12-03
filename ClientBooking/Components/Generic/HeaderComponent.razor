@@ -16,7 +16,7 @@
             </nav>
 
             <div class="flex items-center space-x-4">
-                <span class=" text-xs text-center text-red-700 block">For testing, toggle to enable administrator features.</span>
+                <span class=" text-xs text-center text-red-700 block">For testing, toggle to <span class="font-bold"> @(IsUserAdministrator ? "disable" : "enable" )</span> administrator features.</span>
                 
                 <form hx-post="/toggle/admin" hx-include="[name='AssignAdministrator']" hx-swap="none" class="flex items-center">
                     <AntiforgeryToken />

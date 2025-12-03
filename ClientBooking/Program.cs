@@ -1,5 +1,6 @@
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.EntityFrameworkCore;
+using ClientBooking.Authentication;
 using ClientBooking.Components;
 using ClientBooking.Configuration;
 using ClientBooking.Data;
@@ -105,12 +106,14 @@ app.Use(async (context, next) =>
     await next();
 });
 
-
 //Apply our Frontend components to their defined website routes, configure authorisation policy defaults.
 app.MapRazorComponents<App>()
     .RequireAuthorization(nameof(RoleName.User));
 
 //Map custom application endpoints, mostly POST requests.
 app.MapApplicationRequestHandlers();
+
+//Add middleware to audit all requests made to the application, used to track engagement.
+app.UseMiddleware<RequestAuditMiddleware>();
 
 app.Run();
