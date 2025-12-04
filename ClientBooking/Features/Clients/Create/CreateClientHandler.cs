@@ -25,7 +25,7 @@ public class CreateClientHandler : IRequestHandler
             {
                 return new RazorComponentResult<CreateClientPage>(new
                 {
-                    createClientRequest = clientRequest,
+                    clientRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
@@ -37,7 +37,7 @@ public class CreateClientHandler : IRequestHandler
                 logger.LogError("Client with email address {email} already exists.", clientRequest.Email);
                 return new RazorComponentResult<CreateClientPage>(new
                 {
-                    createClientRequest = clientRequest,
+                    clientRequest,
                     ErrorMessage = "Client with this email address already exists.",
                 });
             }
@@ -54,7 +54,7 @@ public class CreateClientHandler : IRequestHandler
             logger.LogError(e, "An unexpected error occurred while trying to create client.");
             return new RazorComponentResult<CreateClientPage>(new
             {
-                createClientRequest = clientRequest,
+                clientRequest,
                 ErrorMessage = e.Message,
             });
         }

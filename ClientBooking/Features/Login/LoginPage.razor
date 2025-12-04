@@ -13,71 +13,72 @@
 <PageTitle>Login</PageTitle>
 
 <CascadingValue Value="ValidationErrors">
-  <div id="login-container-div" class="min-h-screen flex items-center justify-center p-4">
-    <EditForm EditContext="_editContext" hx-post="/login" hx-target="#login-container-div" id="login"
-              class="font-[sans-serif] w-full max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-lg p-8">
-      <h2 class="text-3xl text-gray-800 font-extrabold text-center mb-12">Enter your username and password.</h2>
-      
-      <div class="grid lg:grid-cols-2 gap-12">
-        
-        <div class="hidden lg:flex items-center justify-center bg-gray-50 rounded-lg p-8">
-          <div class="text-center">
-            <svg class="w-24 h-24 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">Welcome Back</h3>
-            <p class="text-gray-600">Sign in to access your account and manage your bookings.</p>
+  <div id="login-container-div" class="min-h-screen bg-gray-50 flex  justify-center py-6 sm:px-6 lg:px-8">
+    <EditForm EditContext="_editContext" hx-post="/login" hx-target="#login-container-div" id="login" class="w-full max-w-md space-y-8">
+      <div class="bg-white rounded-lg shadow-sm border p-8">
+        <div class="text-center mb-8">
+          <div class="flex justify-center mb-6">
+            <div class="p-3 bg-blue-100 rounded-lg">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
           </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <p class="text-gray-600">Sign in to your account</p>
         </div>
 
         <div class="space-y-6">
           <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
             <InputText @bind-Value="LoginRequest.Email"
                        type="email"
                        id="email"
-                       class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                       placeholder="Email"/>
-            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Email)"/>
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                       placeholder="you@example.com"/>
+            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Email)" />
           </div>
 
           <div>
+            <label for="passwordOne" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <InputText @bind-Value="LoginRequest.Password"
                        id="passwordOne"
                        type="password"
-                       class="w-full bg-gray-100 rounded py-3 px-6 text-sm focus:bg-transparent focus:outline-blue-600"
-                       placeholder="Password"/>
-            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)"/>
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                       placeholder="••••••••"/>
+            <FluentValidationMessage TModel="LoginRequest" For="@(x => x.Password)" />
           </div>
 
-          <div class="flex items-center gap-3">
-            <div class="relative flex items-center">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
               <InputCheckbox @bind-Value="LoginRequest.RememberMe"
                              id="rememberMe"
-                             class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"/>
+                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"/>
+              <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
             </div>
-            <label for="rememberMe" class="text-sm text-gray-800 cursor-pointer">Remember me on this device</label>
+            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">Forgot password?</a>
           </div>
 
           @if (ErrorMessage != null)
           {
-            <div class="validation-message">
-              <div>@ErrorMessage</div>
+            <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+              <div class="text-sm text-red-700">@ErrorMessage</div>
             </div>
           }
 
-          <div class="space-y-4">
-            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 rounded text-sm px-6 py-3 transition-colors duration-200">
-              Log in
+          <div>
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+              Sign in
             </button>
+          </div>
 
-            <div class="text-center">
-              <a href="/register" class="text-blue-600 hover:text-blue-700 text-sm transition-colors duration-200">
-                Don't have an account? Sign up here
-              </a>
-            </div>
+          <div class="text-center">
+            <p class="text-sm text-gray-600">
+              Don't have an account? 
+              <a href="/register" class="font-medium text-blue-600 hover:text-blue-500">Sign up</a>
+            </p>
           </div>
         </div>
-
       </div>
     </EditForm>
   </div>

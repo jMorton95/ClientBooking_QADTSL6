@@ -35,7 +35,7 @@ public class UpdateClientHandler : IRequestHandler
 
             return new RazorComponentResult<UpdateClientComponent>(new 
             { 
-                id, ClientRequest = clientRequest 
+                id, clientRequest 
             });
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class UpdateClientHandler : IRequestHandler
             {
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
-                    id, ClientRequest = clientRequest,
+                    id, clientRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
@@ -88,8 +88,7 @@ public class UpdateClientHandler : IRequestHandler
                 logger.LogError("Client with email address {email} already exists.", clientRequest.Email);
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
-                    id,
-                    ClientRequest = clientRequest,
+                    id, clientRequest,
                     ErrorMessage = "Another client with this email address already exists.",
                 });
             }
@@ -100,8 +99,7 @@ public class UpdateClientHandler : IRequestHandler
             
             return new RazorComponentResult<UpdateClientComponent>(new
             {
-                id,
-                ClientRequest = clientRequest,
+                id, clientRequest,
                 ShowSuccessMessage = true
             });
         }

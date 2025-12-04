@@ -4,7 +4,7 @@
 @* Renders validation error message, if found *@
 @if (_messages.Any())
 {
-    <div class="validation-message">
+    <div class="validation-message mt-1 text-sm text-red-600">
         @foreach (var message in _messages)
         {
             <div>@message</div>
