@@ -10,26 +10,26 @@ permissions:
   packages: write
 
 jobs:
-    test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
+  test:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
 
-      - name: Restore
-        run: dotnet restore ClientBooking/ClientBooking.csproj
+    - name: Restore
+      run: dotnet restore ClientBooking/ClientBooking.csproj
 
-      - name: Build
-        run: dotnet build ClientBooking/ClientBooking.csproj --configuration Release
+    - name: Build
+      run: dotnet build ClientBooking/ClientBooking.csproj --configuration Release
 
-      - name: Run automated tests
-        run: dotnet test ClientBooking.Tests.Integration/ClientBooking.Tests.Integration.csproj --configuration Release
+    - name: Run automated tests
+      run: dotnet test ClientBooking.Tests.Integration/ClientBooking.Tests.Integration.csproj --configuration Release
 
-      - name: Run unit tests
-        run: dotnet test ClientBooking.Tests.Unit/ClientBooking.Tests.Unit.csproj --configuration Release
+    - name: Run unit tests
+      run: dotnet test ClientBooking.Tests.Unit/ClientBooking.Tests.Unit.csproj --configuration Release
 
   build-and-push-image:
     needs: test
