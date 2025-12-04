@@ -2,6 +2,8 @@
 
 namespace ClientBooking.Features.Bookings;
 
+//Class for holding booking request data
+//DateTime overrides are used to specify UTC time
 public class BookingRequest
 {
     public string Notes { get; set; } = string.Empty;

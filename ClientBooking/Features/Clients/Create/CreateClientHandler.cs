@@ -1,5 +1,4 @@
 ﻿using ClientBooking.Data;
-using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Shared.Mapping;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +12,8 @@ public class CreateClientHandler : IRequestHandler
         app.MapPost("/client/create", Handler).RequireAuthorization();
     }
 
+    //Request handler that creates a new client entity in the database.
+    //The client request is validated and used to create the client entity.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<CreateClientPage>>>
         Handler([FromForm] ClientRequest clientRequest, IValidator<ClientRequest> validator, DataContext dataContext, ILogger<CreateClientHandler> logger)
     {

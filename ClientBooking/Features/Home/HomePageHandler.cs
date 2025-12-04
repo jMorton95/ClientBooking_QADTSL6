@@ -6,6 +6,7 @@ using ClientBooking.Shared.Mapping;
 
 namespace ClientBooking.Features.Home;
 
+//TODO: Abstract helper methods into an IHomePageService
 public class HomePageHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
@@ -13,6 +14,9 @@ public class HomePageHandler : IRequestHandler
         app.MapGet("/get", GetHandler);
     }
 
+    //Request handler that returns the home page.
+    //The user id is used to retrieve the user entity from the database.
+    //The user is used to pre-populate the home page.
     private static async Task<Results<RazorComponentResult, HtmxRedirectResult>> 
         GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<HomePageHandler> logger)
     {
@@ -66,6 +70,8 @@ public class HomePageHandler : IRequestHandler
         }
     }
 
+    //Helper methods that retrieve data for the home page.
+    //The weekly stats include the total number of bookings, completed bookings and total hours worked.
     private static async Task<WeeklyStats> GetWeeklyStats(DataContext dataContext, int userId)
     {
         var startOfWeek = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
@@ -86,6 +92,9 @@ public class HomePageHandler : IRequestHandler
         };
     }
 
+    //Helper methods that retrieve data for the home page.
+    //The bookings are ordered by start date time.
+    //The bookings are filtered to only include today's bookings and upcoming bookings.'
     private static async Task<List<BookingDto>> GetTodayBookings(DataContext dataContext, int userId)
     {
         var today = DateTime.UtcNow.Date;
@@ -110,6 +119,9 @@ public class HomePageHandler : IRequestHandler
             .ToListAsync();
     }
 
+    //Helper methods that retrieve data for the home page.
+    //The bookings are ordered by start date time.
+    //The bookings are filtered to only include upcoming bookings.
     private static async Task<List<BookingDto>> GetUpcomingBookings(DataContext dataContext, int userId)
     {
         var tomorrow = DateTime.UtcNow.Date.AddDays(1);
@@ -136,6 +148,8 @@ public class HomePageHandler : IRequestHandler
             .ToListAsync();
     }
 
+    //Helper methods that retrieve data for the home page.
+    //The daily hours are grouped by date and the total hours are calculated.
     private static async Task<WeeklyHours> GetWeeklyHours(DataContext dataContext, int userId)
     {
         var startOfWeek = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.Date.DayOfWeek);
@@ -162,6 +176,9 @@ public class HomePageHandler : IRequestHandler
         };
     }
     
+    //Helper methods that retrieve data for the home page.
+    //The bookings are ordered by start date time.
+    //The bookings are filtered to only include past bookings.
     private static async Task<List<BookingDto>> GetPastBookings(DataContext dataContext, int userId)
     {
         var oneWeekAgo = DateTime.UtcNow.Date.AddDays(-30);
@@ -186,6 +203,9 @@ public class HomePageHandler : IRequestHandler
             .ToListAsync();
     }
 
+    //Helper methods that retrieve data for the home page.
+    //The bookings are ordered by start date time.
+    //The bookings are filtered to only include upcoming bookings from other users.
     private static async Task<List<BookingDto>> GetOtherUsersUpcomingBookings(DataContext dataContext, int currentUserId)
     {
         var today = DateTime.UtcNow.Date;

@@ -1,8 +1,6 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
-using ClientBooking.Shared.Extensions;
-using ClientBooking.Shared.Mapping;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +15,9 @@ public class CreateBookingHandler : IRequestHandler
         app.MapPost("/booking/create/{clientId:int}/toggle-recurring", ToggleRecurringSection).RequireAuthorization();
     }
 
+    //Request handler that returns the booking form page.
+    //The client id is used to retrieve the client and user entities from the database.
+    //The booking request is used to pre-populate the form fields.
     private static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
         [FromRoute] int clientId,
         [FromServices] DataContext dataContext,
@@ -60,6 +61,9 @@ public class CreateBookingHandler : IRequestHandler
         }
     }
 
+    //Request handler that creates a new booking based on the booking request.
+    //The client id is used to retrieve the client entity from the database.
+    //The booking request is validated and used to create the new booking.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<BookingFormComponent>>> PostHandler(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int clientId,
@@ -71,7 +75,7 @@ public class CreateBookingHandler : IRequestHandler
     {
         try
         {
-            //Ensure all entities related in this transaction are present.
+            //Ensure all entities related to this transaction are present.
             var (userId, user, client, systemSettings) = await ArrangeRequestEntities(sessionManager, clientId, dataContext);
             if (userId is null || client is null || user is null)
             {
@@ -125,6 +129,8 @@ public class CreateBookingHandler : IRequestHandler
         }
     }
     
+    //Request handler that toggles the recurring section of the booking form.
+    //The client id is used to retrieve the client entity from the database.
     private static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int clientId,
@@ -164,6 +170,8 @@ public class CreateBookingHandler : IRequestHandler
     }
 
 
+    //Helper method to ensure all entities required for this transaction are present.
+    //Returns the client, user and system settings.
     private static async Task<(int? UserId, User? User, Client? Client, Settings SystemSettings)> 
         ArrangeRequestEntities(ISessionStateManager sessionStateManager, int clientId, DataContext dataContext)
     {

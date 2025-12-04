@@ -15,7 +15,6 @@ public interface ISessionStateManager
     Task LogoutAsync();
     bool IsAuthenticated();
     bool IsUserSessionAdministrator();
-    bool IsUserSessionAuditor();
     Task RefreshUserSession(DataContext dataContext);
 }
 
@@ -73,8 +72,7 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor, ILogg
 
     public bool IsUserSessionAdministrator() => HasSpecificRole(RoleName.Admin);
 
-    public bool IsUserSessionAuditor() => HasSpecificRole(RoleName.Audit);
-
+    //Helper method to determine whether a user has a specific role.
     private bool HasSpecificRole(RoleName roleName)
     {
         if (!Enum.IsDefined(roleName))
@@ -91,6 +89,7 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor, ILogg
         return hasSpecificRole;
     }
     
+    //Refresh the user session by re-logging in with the same user details.
     public async Task RefreshUserSession(DataContext dataContext)
     {
         var userId = GetUserSessionId();

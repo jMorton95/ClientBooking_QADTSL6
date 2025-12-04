@@ -2,6 +2,7 @@
 
 namespace ClientBooking.Features.Home;
 
+// Models used in HomePage to display data
 public class WeeklyStats
 {
     public int TotalBookings { get; set; }

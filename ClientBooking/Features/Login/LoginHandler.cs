@@ -18,6 +18,7 @@ public class LoginHandler : IRequestHandler
     private const int MaxFailedAttempts = 3;
     private static readonly DateTime LockoutDuration = DateTime.UtcNow.AddHours(1);
 
+    //Login Handler endpoint logic
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, BadRequest<string>>> HandleAsync(
         [FromForm] Request request,
         IValidator<LoginRequest> validator,

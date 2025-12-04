@@ -1,6 +1,17 @@
 ﻿@using System.Linq.Expressions
 @typeparam TModel
 
+@* Renders validation error message, if found *@
+@if (_messages.Any())
+{
+    <div class="validation-message">
+        @foreach (var message in _messages)
+        {
+            <div>@message</div>
+        }
+    </div>
+}
+
 @code {
     //Pass a specific property of an object, alongside a dictionary of validation errors for the object.
     [Parameter] public Expression<Func<TModel, object>>? For { get; set; }
@@ -37,15 +48,4 @@
             _messages = [];
         }
     }
-}
-
-@* Renders validation error message, if found *@
-@if (_messages.Any())
-{
-    <div class="validation-message">
-        @foreach (var message in _messages)
-        {
-            <div>@message</div>
-        }
-    </div>
 }

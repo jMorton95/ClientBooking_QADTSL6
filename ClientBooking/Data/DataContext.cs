@@ -5,6 +5,7 @@ using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Data;
 
+//Global repository pattern that exposes our Database Context through Entity Framework Core (Object Relational Mapper)
 public class DataContext(DbContextOptions<DataContext> options, ISessionStateManager sessionStateManager) : DbContext(options)
 {
     public DbSet<Settings> Settings => Set<Settings>();
@@ -18,6 +19,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
     
+    //When saving changes, override the default behavior add audit logs and increment the row version of each entity.
     public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
         var auditLogsToAdd = new List<AuditLog>();
@@ -76,6 +78,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
         return await base.SaveChangesAsync(ct);
     }
     
+    //Configuration that runs at database creation time to define relationships between entities and individual properties.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -152,6 +155,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             .AutoInclude();
     }
     
+    //Helper method to get the current user's name from the database.
     private async Task<string?> GetCurrentUserName(int? userId, CancellationToken ct)
     {
         if (!userId.HasValue) return null;

@@ -14,6 +14,10 @@ public class UpdateBookingHandler : IRequestHandler
         app.MapPost("/booking/update/{bookingId:int}/toggle-recurring", ToggleRecurringSection).RequireAuthorization();
     }
 
+    //Request handler that returns the booking form page.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is used to pre-populate the form fields.
+    //The booking id is also used to determine whether the user has permission to edit the booking.
     private static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
         [FromRoute] int bookingId,
         [FromServices] DataContext dataContext,
@@ -99,6 +103,11 @@ public class UpdateBookingHandler : IRequestHandler
         }
     }
 
+    //Request handler that updates an existing booking based on the booking request.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is validated and used to update the booking.
+    //The booking id is also used to determine whether the user has permission to edit the booking.
+    //The booking service is used to enforce booking scheduling rules.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<BookingFormComponent>>> PostHandler(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int bookingId,
@@ -187,6 +196,10 @@ public class UpdateBookingHandler : IRequestHandler
         }
     }
 
+    
+    //Request handler that toggles the recurring section of the booking form.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is used to pre-populate the form fields.
     private static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int bookingId,

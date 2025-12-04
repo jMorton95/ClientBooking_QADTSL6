@@ -13,6 +13,9 @@ public class RegistrationHandler : IRequestHandler
         app.MapPost("register", Handler).AllowAnonymous();
     }
     
+    //Request handler that registers a new user.
+    //The registration request is validated and used to create the user entity.
+    //The user is then logged in and redirected to the home page.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<RegistrationPage>, InternalServerError<string>>> Handler(
         [FromForm] Request request, 
         IValidator<RegistrationRequest> validator,

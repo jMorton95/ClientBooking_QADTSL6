@@ -5,6 +5,8 @@ using ClientBooking.Shared.Enums;
 
 namespace ClientBooking.Shared.Mapping;
 
+//Extension methods for converting BookingRequest to Booking and BookingRequest to List<UserBooking>
+//Used to create a new Booking or List<UserBooking> from a BookingRequest
 public static class BookingMapping
 {
     extension(BookingRequest bookingRequest)
@@ -22,7 +24,7 @@ public static class BookingMapping
             };
         }
     }
-
+    
     extension(List<BookingRequest> bookingRequests)
     {
         public List<UserBooking> ToNewBookings(Client client, int userId, Guid? seriesId)
@@ -44,7 +46,6 @@ public static class BookingMapping
                 },
                 UserId = userId
             }).ToList();
-           
         }
     }
 }

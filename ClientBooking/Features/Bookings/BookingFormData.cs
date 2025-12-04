@@ -12,6 +12,7 @@ public class BookingFormData
     public TimeSpan BreakTimeEnd { get; set; }
     public bool DoesWorkWeekends { get; set; }
     
+    //Helper method to get the form data for a client
     public static BookingFormData GetFormData(Client client, User user, Settings systemSettings)
     {
         var (workingHoursStart, workingHoursEnd, breakTimeStart, breakTimeEnd) = user.GetEffectiveWorkingHours(systemSettings);

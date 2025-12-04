@@ -1,5 +1,6 @@
 ﻿namespace ClientBooking.Configuration;
 
+//Class used to map database settings from appsettings.json & environment variables
 public class DatabaseSettings()
 {
     public string? Host { get; init; }
