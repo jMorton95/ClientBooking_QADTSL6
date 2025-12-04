@@ -4,6 +4,9 @@ using ClientBooking.Shared.Models;
 
 namespace ClientBooking.Shared.Mapping;
 
+//Mapper for Settings
+//Used to convert Settings to UpdateSettingsRequest and vice versa
+//TimeOnly overrides are used to convert TimeSpan to TimeOnly
 public static class SettingsMapping
 {
     public static UpdateSettingsRequest ToUpdateSettingsRequest(this Settings settings)

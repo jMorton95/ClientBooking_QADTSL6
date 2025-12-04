@@ -17,6 +17,9 @@ public class UpdateUserHandler : IRequestHandler
         app.MapPost("/user/profile/toggle-break-time", ToggleBreakTime).RequireAuthorization();
     }
 
+    //Request handler that returns the user profile page.
+    //The user id is used to retrieve the user entity from the database.
+    //The user is used to pre-populate the user profile form.
     private static async Task<Results<RazorComponentResult<UpdateUserComponent>, BadRequest<string>>>
         GetHandler(ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<UpdateUserHandler> logger)
     {
@@ -44,6 +47,11 @@ public class UpdateUserHandler : IRequestHandler
         return new RazorComponentResult<UpdateUserComponent>(new { userProfile });
     }
 
+    
+    //Request handler that updates the user profile.
+    //The user id is used to retrieve the user entity from the database.
+    //The user profile is validated and used to update the user.
+    //The user id is also used to determine whether the user has permission to edit the user profile.
     private static async Task<RazorComponentResult<UpdateUserComponent>>
         PostHandler([FromForm] UserProfile userProfile, ISessionStateManager sessionStateManager,
             IValidator<UserProfile> validator, DataContext dataContext, IUserWorkingHoursService userWorkingHoursService, 
@@ -126,6 +134,9 @@ public class UpdateUserHandler : IRequestHandler
     }
     
     //TODO: Refactor Handler logic for WorkingHours/BreakHours to pull shared behaviour from a single method.
+    //Toggles the working hours section of the user profile form.
+    //The user profile is used to pre-populate the form fields.
+    //The user id is also used to determine whether the user has permission to edit the user profile.
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleWorkingHours(
         [FromForm] UserProfile userProfile,
         DataContext dataContext,
@@ -167,6 +178,9 @@ public class UpdateUserHandler : IRequestHandler
         }
     }
 
+    //Toggles the break time section of the user profile form.
+    //The user profile is used to pre-populate the form fields.
+    //The user id is also used to determine whether the user has permission to edit the user profile.
     private static async Task<RazorComponentResult<UpdateUserComponent>> ToggleBreakTime(
         [FromForm] UserProfile userProfile,
         [FromServices] DataContext dataContext,

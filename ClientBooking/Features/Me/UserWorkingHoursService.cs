@@ -8,6 +8,7 @@ public interface IUserWorkingHoursService
     public Task<Result<UserProfile>> EnforceUserWorkingHoursRules(UserProfile userProfile);
 }
 
+//Service that validates user working hours against system settings
 public class UserWorkingHoursService(DataContext dataContext) : IUserWorkingHoursService
 {
     public async Task<Result<UserProfile>> EnforceUserWorkingHoursRules(UserProfile userProfile)

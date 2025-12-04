@@ -1,8 +1,10 @@
 ﻿using ClientBooking.Data.Entities;
-using ClientBooking.Features.Clients.Shared;
+using ClientBooking.Features.Clients;
 
 namespace ClientBooking.Shared.Mapping;
 
+//Mapper for Client entities
+//Used to convert ClientRequest to Client and vice versa
 public static class ClientMapping
 {
     public static Client MapCreateClientRequestToEntity(this ClientRequest clientRequest)

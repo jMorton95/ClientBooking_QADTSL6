@@ -29,6 +29,9 @@
         <Content Include="..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
+        <Content Include="..\dockerfile">
+            <Link>dockerfile</Link>
+        </Content>
         <Content Include="..\package.json">
             <Link>package.json</Link>
         </Content>

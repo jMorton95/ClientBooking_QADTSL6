@@ -1,11 +1,13 @@
 ﻿using ClientBooking.Data;
 using ClientBooking.Data.Entities;
-using ClientBooking.Shared.Services;
 using System.Threading.Channels;
 
 namespace ClientBooking.Shared;
 
 
+//Custom logger provider that writes logs to the database
+//This works by creating a channel and a background worker that writes logs to the database
+//The channel is unbounded so that the background worker can keep writing logs even if the application crashes
 public class DatabaseLoggerProvider : ILoggerProvider
 {
     public Channel<ErrorLog> Channel { get; } =
@@ -20,7 +22,6 @@ public class DatabaseLoggerProvider : ILoggerProvider
 
         Task.Run(BackgroundWorker);
     }
-    
 
     public ILogger CreateLogger(string categoryName)
         => new DatabaseLogger(categoryName, this);

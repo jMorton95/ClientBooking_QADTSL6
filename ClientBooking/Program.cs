@@ -111,3 +111,12 @@ app.MapApplicationRequestHandlers();
 app.UseMiddleware<RequestAuditMiddleware>();
 
 app.Run();
+
+
+
+
+
+namespace ClientBooking
+{
+    public class Program { }
+}

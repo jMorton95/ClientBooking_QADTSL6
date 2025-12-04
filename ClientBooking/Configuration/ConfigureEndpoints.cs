@@ -23,6 +23,7 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
+        //Invoke our generic function that registers endpoints that implement IRequestHandler
         app.MapRequestHandlers<RegistrationHandler>()
             .MapRequestHandlers<LoginHandler>()
             .MapRequestHandlers<LogoutHandler>()

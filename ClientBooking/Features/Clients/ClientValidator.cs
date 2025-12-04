@@ -1,11 +1,12 @@
-﻿using ClientBooking.Features.Clients.Shared;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace ClientBooking.Features.Clients.Create;
+namespace ClientBooking.Features.Clients;
 
-public class CreateClientValidator : AbstractValidator<ClientRequest>
+public class ClientValidator : AbstractValidator<ClientRequest>
 {
-    public CreateClientValidator()
+    //Validation rules for creating a client
+    //Name and email must follow the Maximum Length constraint applied to their database table
+    public ClientValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Client name is required.")

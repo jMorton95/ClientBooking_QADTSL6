@@ -4,6 +4,8 @@ using ClientBooking.Data.Entities;
 
 namespace ClientBooking.Data;
 
+
+//Abstract base class for all entities to enforce generic auditable properties
 public abstract class Entity
 {
     [Required, Key]

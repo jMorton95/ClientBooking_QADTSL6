@@ -10,6 +10,8 @@ public class HealthCheckHandler : IRequestHandler
         app.MapGet("/healthcheck", HandleHealthCheck);
     }
 
+    //Request handler that returns the health check response.
+    //The health check response contains information about the database connection and the user session id.
     private static async Task<Results<Ok<HealthCheckResponse>, InternalServerError<string>>> 
         HandleHealthCheck(ISessionStateManager sessionManager, DataContext dataContext, ILogger<HealthCheckHandler> logger)
     {

@@ -30,6 +30,9 @@ public interface IBookingService
 
 public class BookingService(DataContext dataContext) : IBookingService
 {
+    //Entry point method that uses control flow to determine what approach we use to validate a booking request.
+    //This collects all validation errors into a dictionary and returns them as a result.
+    //TODO: Abstract this into a strategy pattern.
     public async Task<Result<List<BookingRequest>>> EnforceBookingSchedulingRules(
         BookingRequest request, 
         Client client, 
@@ -75,6 +78,7 @@ public class BookingService(DataContext dataContext) : IBookingService
             : Result<List<BookingRequest>>.Success([request]);
     }
 
+    //Invoke individual validation methods to ensure booking request does not overlap with any other bookings.
     public async Task EnsureBookingRequestHasNoOverlaps(
         Dictionary<string, string[]> validationErrors, 
         BookingRequest request, 
@@ -91,6 +95,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         await CheckOverlappingClientBookings(validationErrors, request, client, optionalExcludeBookingId, optionalExcludeSeriesId);
     }
 
+    //Ensures a booking request is within the user's working hours and break time.
     public void CheckRequestIsWithinUserSchedule(Dictionary<string, string[]> validationErrors, BookingRequest request, User user, Settings systemSettings)
     {
         var (userWorkingHoursStart, userWorkingHoursEnd, userBreakTimeStart, userBreakTimeEnd)
@@ -115,6 +120,8 @@ public class BookingService(DataContext dataContext) : IBookingService
         }
     }
 
+    //Checks for any overlapping bookings between the user and client.
+    //This excludes the booking being validated itself, and any bookings in the same series as the validated booking.
     public async Task CheckOverlappingUserBookings(
         Dictionary<string, string[]> validationErrors, 
         BookingRequest request, 
@@ -138,7 +145,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         {
             overlappingUserBookingsQuery = overlappingUserBookingsQuery.Where(y => y.Booking.RecurrenceSeriesId != optionalExcludeSeriesId.Value);
         }
-
+        
         var overlappingUserBookings = await overlappingUserBookingsQuery
             .AsSplitQuery()
             .ToListAsync();
@@ -155,6 +162,9 @@ public class BookingService(DataContext dataContext) : IBookingService
         }
     }
 
+    
+    //Checks for any overlapping bookings between the client and other clients.
+    //This excludes the booking being validated itself, and any bookings in the same series as the validated booking.
     public async Task CheckOverlappingClientBookings(
         Dictionary<string, string[]> validationErrors, 
         BookingRequest request, 
@@ -173,7 +183,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         {
             overlappingClientBookingsQuery = overlappingClientBookingsQuery.Where(x => x.Booking.Id != optionalExcludeBookingId.Value);
         }
-
+        
         if (optionalExcludeSeriesId.HasValue)
         {
             overlappingClientBookingsQuery = overlappingClientBookingsQuery.Where(x => x.Booking.RecurrenceSeriesId != optionalExcludeSeriesId.Value);
@@ -195,6 +205,8 @@ public class BookingService(DataContext dataContext) : IBookingService
         }
     }
     
+    //If the booking request is recurring, this method will return a list of all the recurring bookings.
+    //Each booking in the list will have the same start and end time, but a different date based on the recurrence pattern and number of recurrences.
     public List<BookingRequest> PlotRecurringBookingRequests(BookingRequest request)
     {
         var requestedRecurrencePattern = request.RecurrencePattern;
@@ -228,6 +240,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         return allRecurrences;
     }
     
+    //Creates a new booking entity and adds it to the database.
     public async Task CreateBooking(List<BookingRequest> request, Client client, int userId)
     {
         Guid? seriesId = request.Count > 1 ? Guid.NewGuid() : null;
@@ -237,6 +250,10 @@ public class BookingService(DataContext dataContext) : IBookingService
         await dataContext.SaveChangesAsync();
     }
 
+    //Updates an existing booking entity in the database.
+    //If the booking is recurring, this method will also create new recurring bookings based on the updated request.
+    //If the booking is no longer recurring, this method will cancel any existing recurring bookings.
+    //If the booking is no longer recurring, this method will also remove the recurrence series ID from the booking entity.
     public async Task UpdateBooking(Booking existingBooking, List<BookingRequest> validatedUpdatedBooking, Client client, int userId)
     {
         var existingBookingRequest = validatedUpdatedBooking.First();
@@ -282,6 +299,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         await dataContext.SaveChangesAsync(); 
     }
 
+    //Returns all bookings in a given series, excluding any cancelled bookings.
     public Task<List<Booking>> GetBookingsInSeriesAsync(Guid recurrenceSeriesId, int? bookingIdToExclude = null)
     {
         var query = dataContext.Bookings
@@ -293,6 +311,7 @@ public class BookingService(DataContext dataContext) : IBookingService
         return query.OrderBy(b => b.StartDateTime).ToListAsync();
     }
 
+    //Cancels all bookings in a given series, excluding any cancelled bookings.
     public async Task CancelEntireSeriesAsync(Guid recurrenceSeriesId, int userId, int? bookingIdToExclude = null)
     {
         var seriesBookings = await GetBookingsInSeriesAsync(recurrenceSeriesId, bookingIdToExclude);

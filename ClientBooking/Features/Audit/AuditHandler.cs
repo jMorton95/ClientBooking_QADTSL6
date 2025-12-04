@@ -1,12 +1,8 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Components.Generic;
-using ClientBooking.Configuration;
 using ClientBooking.Data;
-using ClientBooking.Data.Entities;
-using ClientBooking.Data.JoiningTables;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace ClientBooking.Features.Audit;
 
@@ -17,6 +13,7 @@ public class AuditHandler : IRequestHandler
         app.MapGet("/admin/audit/get", GetHandler).RequireAuthorization(nameof(RoleName.Admin));
     }
 
+    //Request handler that returns the audit log page for administrators.
     private static async Task<RazorComponentResult> GetHandler(
         DataContext dataContext,
         ISessionStateManager sessionStateManager,
@@ -34,6 +31,7 @@ public class AuditHandler : IRequestHandler
         }
     }
     
+    //Helper method that populates the audit log page with the audit logs.
     private static async Task<RazorComponentResult> PopulateAuditLogPage(DataContext dataContext, int pageNumber)
     {
         var totalCount = await dataContext.AuditLogs.CountAsync();

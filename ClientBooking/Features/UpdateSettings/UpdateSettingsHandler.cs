@@ -10,10 +10,13 @@ public class UpdateSettingsHandler : IRequestHandler
 {
     public static void Map(IEndpointRouteBuilder app)
     {
+        //Endpoints require admin role to access
         app.MapGet("/admin/settings/get", GetHandler).RequireAuthorization(nameof(RoleName.Admin));
         app.MapPost("/admin/settings", PostHandler).RequireAuthorization(nameof(RoleName.Admin));
     }
 
+    //Request handler that returns the settings page.
+    //The most recent settings record is retrieved from the database and used to pre-populate the form fields.
     private static async Task<RazorComponentResult<UpdateSettingsComponent>> GetHandler(DataContext dataContext)
     {
         var settings = await dataContext.Settings
@@ -23,6 +26,8 @@ public class UpdateSettingsHandler : IRequestHandler
         return new RazorComponentResult<UpdateSettingsComponent>(new {UpdateSettingsRequest = settings.ToUpdateSettingsRequest()});
     }
     
+    //Request handler that updates the settings record.
+    //The update settings request is validated and used to create a new settings record.
     private static async Task<RazorComponentResult<UpdateSettingsComponent>>
         PostHandler(
             [FromForm] UpdateSettingsRequest updateSettingsRequest,

@@ -4,6 +4,8 @@ namespace ClientBooking.Features.UpdateSettings;
 
 public class UpdateSettingsValidator : AbstractValidator<UpdateSettingsRequest>
 {
+    //Validation rules for updating settings
+    //Working hours and break hours must be valid must be valid
     public UpdateSettingsValidator()
     {
         RuleFor(x => x.DefaultWorkingHoursStart)

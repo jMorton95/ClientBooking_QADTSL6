@@ -10,6 +10,9 @@ public class BookingsHandler : IRequestHandler
         app.MapGet("/bookings/get", Handler).RequireAuthorization();
     }
 
+    //Request handler that returns the bookings page.
+    //The user id is used to retrieve the user and their bookings from the database.
+    //The user is used to pre-populate the bookings table.
     private static async Task<RazorComponentResult<BookingsComponent>> Handler(
         DataContext dataContext, 
         ISessionStateManager sessionStateManager,

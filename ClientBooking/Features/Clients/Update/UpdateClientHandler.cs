@@ -1,5 +1,4 @@
 ﻿using ClientBooking.Data;
-using ClientBooking.Features.Clients.Shared;
 using ClientBooking.Shared.Mapping;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +13,10 @@ public class UpdateClientHandler : IRequestHandler
         app.MapPost("/client/edit/{id:int}", PostHandler).RequireAuthorization();
     }
     
+    
+    //Request handler that returns the client edit page.
+    //The client id is used to retrieve the client entity from the database.
+    //The client request is used to pre-populate the form fields.
     private static async Task<RazorComponentResult<UpdateClientComponent>>
         GetHandler([FromRoute] int id, DataContext dataContext, ILogger<UpdateClientHandler> logger)
     {
@@ -32,7 +35,7 @@ public class UpdateClientHandler : IRequestHandler
 
             return new RazorComponentResult<UpdateClientComponent>(new 
             { 
-                id, ClientRequest = clientRequest 
+                id, clientRequest 
             });
         }
         catch (Exception ex)
@@ -45,6 +48,10 @@ public class UpdateClientHandler : IRequestHandler
         }
     }
     
+    //Request handler that updates an existing client based on the client request.
+    //The client id is used to retrieve the client entity from the database.
+    //The client request is validated and used to update the client.
+    //The client id is also used to determine whether the user has permission to edit the client.
     private static async Task<RazorComponentResult<UpdateClientComponent>>
         PostHandler([FromRoute] int id, [FromForm] ClientRequest clientRequest,
             IValidator<ClientRequest> validator,
@@ -59,7 +66,7 @@ public class UpdateClientHandler : IRequestHandler
             {
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
-                    id, ClientRequest = clientRequest,
+                    id, clientRequest,
                     ValidationErrors = validationResult.ToDictionary()
                 });
             }
@@ -81,8 +88,7 @@ public class UpdateClientHandler : IRequestHandler
                 logger.LogError("Client with email address {email} already exists.", clientRequest.Email);
                 return new RazorComponentResult<UpdateClientComponent>(new
                 {
-                    id,
-                    ClientRequest = clientRequest,
+                    id, clientRequest,
                     ErrorMessage = "Another client with this email address already exists.",
                 });
             }
@@ -93,8 +99,7 @@ public class UpdateClientHandler : IRequestHandler
             
             return new RazorComponentResult<UpdateClientComponent>(new
             {
-                id,
-                ClientRequest = clientRequest,
+                id, clientRequest,
                 ShowSuccessMessage = true
             });
         }

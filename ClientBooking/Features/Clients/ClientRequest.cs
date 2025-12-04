@@ -1,4 +1,4 @@
-﻿namespace ClientBooking.Features.Clients.Shared;
+﻿namespace ClientBooking.Features.Clients;
 
 public class ClientRequest
 {
