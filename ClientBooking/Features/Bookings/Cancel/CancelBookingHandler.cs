@@ -14,7 +14,8 @@ public class CancelBookingHandler : IRequestHandler
         app.MapPost("/booking/{bookingId:int}/cancel", PostHandler).RequireAuthorization();
     }
 
-    private static RazorComponentResult<CancelBookingComponent> GetHandler([FromRoute] int bookingId, ISessionStateManager sessionStateManager)
+    //Request handler that returns the cancel booking page.
+    private static RazorComponentResult<CancelBookingComponent> GetHandler([FromRoute] int bookingId, ISessionStateManager sessionStateManager, ILogger<CancelBookingHandler> logger)
     {
         try
         {
@@ -28,6 +29,7 @@ public class CancelBookingHandler : IRequestHandler
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred loading booking cancel page.");
             return new RazorComponentResult<CancelBookingComponent>(new
             {
                 ErrorMessage = e.Message
@@ -35,8 +37,9 @@ public class CancelBookingHandler : IRequestHandler
         }
     }
 
+    //Request handler that updates a booking to cancel it.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<CancelBookingComponent>>>
-        PostHandler([FromRoute] int bookingId, ISessionStateManager sessionStateManager, DataContext dataContext)
+        PostHandler([FromRoute] int bookingId, ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<CancelBookingHandler> logger)
     {
         try
         {
@@ -50,7 +53,6 @@ public class CancelBookingHandler : IRequestHandler
             
             if (!string.IsNullOrEmpty(bookingErrors))
             {
-                
                 return new RazorComponentResult<CancelBookingComponent>(new
                 {
                     ErrorMessage = "Cannot cancel a booking you did not schedule.",
@@ -65,6 +67,7 @@ public class CancelBookingHandler : IRequestHandler
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred cancelling booking.");
             return new RazorComponentResult<CancelBookingComponent>(new
             {
                 ErrorMessage = e.Message
@@ -72,6 +75,7 @@ public class CancelBookingHandler : IRequestHandler
         }
     }
 
+    //Checks if the booking can be cancelled and returns an error message if not.
     private static string? CheckBookingForErrors(Booking? booking, int? userId)
     {
         if (booking == null || userId == null)

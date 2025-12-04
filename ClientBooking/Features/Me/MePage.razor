@@ -1,6 +1,9 @@
 ﻿@attribute [Authorize]
 @page "/me"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Profile</PageTitle>
 
 <div class="space-y-6" hx-get="/user/get" hx-trigger="load" hx-swap="innerHTML" id="user-profile-form-container">
     <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>

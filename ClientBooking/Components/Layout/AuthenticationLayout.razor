@@ -1,5 +1,38 @@
 ﻿@inherits LayoutComponentBase
 
-<div>
-    @Body
+<div class="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+                <div class="flex items-center space-x-3">
+                    <div class="p-1.5 bg-blue-100 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-900">Propel Client Booking</h1>
+                        <p class="text-xs text-gray-500">Proof of concept application.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <a href="/login" 
+                       class="text-gray-700 hover:text-blue-600 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                        Sign In
+                    </a>
+                    <a href="/register" 
+                       class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                        Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
+        @Body
+    </main>
+    
 </div>

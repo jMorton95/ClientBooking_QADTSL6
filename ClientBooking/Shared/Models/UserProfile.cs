@@ -2,6 +2,7 @@
 
 namespace ClientBooking.Shared.Models;
 
+//Model for the UserProfile endpoint
 public class UserProfile
 {
     public required string FirstName { get; set; }
@@ -15,6 +16,8 @@ public class UserProfile
     public bool UseSystemWorkingHours { get; set; } = true;
     public bool UseSystemBreakTime { get; set; } = true;
     
+    //Helper method to ensure effective working hours are populated by personal overrides, or system defaults.
+    //Required because of the way we allow users to override system defaults.
     public void AssignEffectiveHours(Settings systemSettings)
     {
         WorkingHoursStart = UseSystemWorkingHours ? systemSettings.DefaultWorkingHoursStart.ToTimeOnly() : WorkingHoursStart;

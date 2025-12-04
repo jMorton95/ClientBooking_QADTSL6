@@ -1,5 +1,6 @@
 using ClientBooking.Features;
 using ClientBooking.Features.Audit;
+using ClientBooking.Features.Audit.Errors;
 using ClientBooking.Features.Bookings.Cancel;
 using ClientBooking.Features.Bookings.Create;
 using ClientBooking.Features.Bookings.Update;
@@ -22,6 +23,7 @@ public static class ConfigureEndpoints
 {
     public static void MapApplicationRequestHandlers(this WebApplication app)
     {
+        //Invoke our generic function that registers endpoints that implement IRequestHandler
         app.MapRequestHandlers<RegistrationHandler>()
             .MapRequestHandlers<LoginHandler>()
             .MapRequestHandlers<LogoutHandler>()
@@ -36,7 +38,8 @@ public static class ConfigureEndpoints
             .MapRequestHandlers<BookingsHandler>()
             .MapRequestHandlers<CancelBookingHandler>()
             .MapRequestHandlers<UpdateBookingHandler>()
-            .MapRequestHandlers<AuditHandler>();
+            .MapRequestHandlers<AuditHandler>()
+            .MapRequestHandlers<ErrorHandler>();
             
         var api = app.MapGroup("/api/");
                 

@@ -14,16 +14,22 @@ public class UpdateBookingHandler : IRequestHandler
         app.MapPost("/booking/update/{bookingId:int}/toggle-recurring", ToggleRecurringSection).RequireAuthorization();
     }
 
+    //Request handler that returns the booking form page.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is used to pre-populate the form fields.
+    //The booking id is also used to determine whether the user has permission to edit the booking.
     private static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
         [FromRoute] int bookingId,
         [FromServices] DataContext dataContext,
-        [FromServices] ISessionStateManager sessionManager)
+        [FromServices] ISessionStateManager sessionManager,
+        ILogger<UpdateBookingHandler> logger)
     {
         try
         {
             var userId = sessionManager.GetUserSessionId();
             if (userId == null)
             {
+                logger.LogError("User Session not found when trying to load booking: {bookingId}.", bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "User not found." 
@@ -37,6 +43,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (booking == null)
             {
+                logger.LogError("Booking not found when trying to load booking: {bookingId}.", bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "Booking not found." 
@@ -45,6 +52,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (booking.UserBookings.All(ub => ub.UserId != userId))
             {
+                logger.LogError("User {userId} does not have permission to edit booking {bookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "You don't have permission to edit this booking." 
@@ -58,6 +66,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (user == null)
             {
+                logger.LogError("User not found when trying to load booking: {bookingId}.", bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "User not found." 
@@ -86,6 +95,7 @@ public class UpdateBookingHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while loading the booking: {bookingId}.", bookingId);
             return new RazorComponentResult<BookingFormComponent>(new
             {
                 ErrorMessage = $"An error occurred while loading the booking: {ex.Message}"
@@ -93,10 +103,19 @@ public class UpdateBookingHandler : IRequestHandler
         }
     }
 
+    //Request handler that updates an existing booking based on the booking request.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is validated and used to update the booking.
+    //The booking id is also used to determine whether the user has permission to edit the booking.
+    //The booking service is used to enforce booking scheduling rules.
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<BookingFormComponent>>> PostHandler(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int bookingId,
-        IValidator<BookingRequest> validator, DataContext dataContext, ISessionStateManager sessionManager, IBookingService bookingService)
+        IValidator<BookingRequest> validator,
+        DataContext dataContext,
+        ISessionStateManager sessionManager,
+        IBookingService bookingService,
+        ILogger<UpdateBookingHandler> logger)
     {
         try
         {
@@ -109,6 +128,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (userId == null || existingBooking == null)
             {
+                logger.LogError("User Session or Booking not found when trying to update booking: {bookingId}.", bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "Booking not found." 
@@ -117,6 +137,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (existingBooking.UserBookings.All(ub => ub.UserId != userId))
             {
+                logger.LogError("User {userId} does not have permission to update booking {bookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "You don't have permission to edit this booking." 
@@ -129,6 +150,7 @@ public class UpdateBookingHandler : IRequestHandler
             var validationResult = await validator.ValidateAsync(bookingRequest);
             if (!validationResult.IsValid)
             {
+                logger.LogError("Validation failed for booking request by user {UserId} for booking {BookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
                     BookingRequest = bookingRequest,
@@ -149,6 +171,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (analysedBookingRequestResult is { IsSuccess: false, ValidationErrors.Count: > 0 })
             {
+                logger.LogError("Enforcement rules failed for booking request by user {UserId} for booking {BookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
                     BookingRequest = bookingRequest,
@@ -165,6 +188,7 @@ public class UpdateBookingHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An unexpected error occurred while trying to update booking: {bookingId}.", bookingId);
             return new RazorComponentResult<BookingFormComponent>(new
             {
                 ErrorMessage = $"An unexpected error occurred while updating the booking: {ex.Message}"
@@ -172,17 +196,23 @@ public class UpdateBookingHandler : IRequestHandler
         }
     }
 
+    
+    //Request handler that toggles the recurring section of the booking form.
+    //The booking id is used to retrieve the booking entity from the database.
+    //The booking request is used to pre-populate the form fields.
     private static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int bookingId,
         [FromServices] DataContext dataContext,
-        [FromServices] ISessionStateManager sessionManager)
+        [FromServices] ISessionStateManager sessionManager,
+        ILogger<UpdateBookingHandler> logger)
     {
         try
         {
             var userId = sessionManager.GetUserSessionId();
             if (userId == null)
             {
+                logger.LogError("User Session not found when trying to toggle recurring section.");
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "User not found." 
@@ -196,6 +226,7 @@ public class UpdateBookingHandler : IRequestHandler
 
             if (booking == null || booking.UserBookings.All(ub => ub.UserId != userId))
             {
+                logger.LogError("User {userId} does not have permission to toggle recurring section for booking {bookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
                     ErrorMessage = "Booking not found or access denied." 
@@ -216,6 +247,7 @@ public class UpdateBookingHandler : IRequestHandler
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "An error occurred while trying to toggle recurring section for booking: {bookingId}.", bookingId);
             return new RazorComponentResult<BookingFormComponent>(new 
             { 
                 BookingRequest = bookingRequest,

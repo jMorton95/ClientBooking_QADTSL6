@@ -18,12 +18,14 @@ public class LoginHandler : IRequestHandler
     private const int MaxFailedAttempts = 3;
     private static readonly DateTime LockoutDuration = DateTime.UtcNow.AddHours(1);
 
+    //Login Handler endpoint logic
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, BadRequest<string>>> HandleAsync(
         [FromForm] Request request,
         IValidator<LoginRequest> validator,
         IPasswordHelper passwordHelper,
         DataContext dataContext,
-        ISessionStateManager sessionManager)
+        ISessionStateManager sessionManager,
+        ILogger<LoginHandler> logger)
     {
         try
         {
@@ -42,12 +44,12 @@ public class LoginHandler : IRequestHandler
             var (user, error) = await ValidateCredentialsAsync(
                 request.LoginRequest.Email, 
                 request.LoginRequest.Password, 
-                passwordHelper, 
-                dataContext);
+                passwordHelper, dataContext, logger);
 
             //Inform User of authentication failure.
             if (user is null || error is not null)
             {
+                logger.LogWarning("Login attempt failed for user {Email}.", request.LoginRequest.Email);
                 return new RazorComponentResult<LoginPage>(new
                 {
                     request.LoginRequest,
@@ -57,11 +59,12 @@ public class LoginHandler : IRequestHandler
             
             //Create the user session and redirect them to the home page.
             await sessionManager.LoginAsync(user, persistSession: request.LoginRequest.RememberMe);
+            
             return new HtmxRedirectResult("/");
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            logger.LogError(ex, "An error occurred while trying to authenticate the user.");
             return TypedResults.BadRequest(ex.Message);
         }
     }
@@ -72,7 +75,8 @@ public class LoginHandler : IRequestHandler
         string email, 
         string password, 
         IPasswordHelper passwordHelper, 
-        DataContext dataContext)
+        DataContext dataContext,
+        ILogger<LoginHandler> logger)
     {
         var user = await dataContext.Users.SingleOrDefaultAsync(u => u.Email == email);
         
@@ -84,6 +88,7 @@ public class LoginHandler : IRequestHandler
         //If already locked out, return early to ensure successful attempts do not bypass timeout.
         if (user.IsLockedOut && user.LockoutEnd > DateTime.UtcNow)
         {
+            logger.LogWarning("Login attempt failed for user {Email} due to account lockout. This lockout end: {lockoutEnd}", email, user.LockoutEnd);
             return (user, $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}");
         }
 
@@ -91,12 +96,14 @@ public class LoginHandler : IRequestHandler
         if (!passwordHelper.CheckPassword(password, user.HashedPassword))
         {
             await HandleFailedLoginAsync(user, dataContext);
+            logger.LogWarning("Login attempt failed for user {Email}.", email);
+            
             return (user, user.IsLockedOut 
                 ? $"Incorrect password, your account has been locked. You can try again at {user.LockoutEnd}"
                 : "Incorrect password.");
         }
 
-        //Otherwise, succesfully log the user in.
+        //Otherwise, successfully log the user in.
         await HandleSuccessfulLoginAsync(user, dataContext);
         return (user, null);
     }

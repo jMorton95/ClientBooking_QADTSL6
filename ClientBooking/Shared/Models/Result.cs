@@ -1,5 +1,6 @@
 ﻿namespace ClientBooking.Shared.Models;
 
+//Generic result class that can be used to return a value or an error
 public class Result<T>
 {
     public bool IsSuccess { get; }

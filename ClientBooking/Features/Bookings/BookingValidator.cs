@@ -1,11 +1,14 @@
 ﻿using ClientBooking.Shared.Enums;
 using FluentValidation;
 
-namespace ClientBooking.Features.Bookings.Create;
+namespace ClientBooking.Features.Bookings;
 
-public class CreateBookingValidator: AbstractValidator<BookingRequest>
+public class BookingValidator: AbstractValidator<BookingRequest>
 {
-    public CreateBookingValidator()
+    //Validation rules for creating a booking
+    //Start and end date and time must be valid and start and end on the same day
+    //If the booking is recurring, the recurrence pattern and number of recurrences must be specified
+    public BookingValidator()
     {
         RuleFor(x => x.StartDateTime)
             .NotEmpty().WithMessage("Start date and time is required.")

@@ -16,6 +16,7 @@ public class RegistrationRequest
     public string PasswordTwo { get; set; } = "";
 
     //Convert a password from a RegistrationRequest into a readily save-able database object.
+    //The hashed password is stored in the database as a byte array of length 64.
     public User MapRegistrationRequestToUser(string hashedPassword, Role defaultRole, Settings settings) => new()
     {
         FirstName = FirstName,

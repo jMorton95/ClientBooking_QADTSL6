@@ -1,9 +1,7 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
 using ClientBooking.Features.Bookings;
-using ClientBooking.Features.Bookings.Create;
-using ClientBooking.Features.Clients.Create;
-using ClientBooking.Features.Clients.Shared;
+using ClientBooking.Features.Clients;
 using ClientBooking.Features.Login;
 using ClientBooking.Features.Me;
 using ClientBooking.Features.Me.UpdateUser;
@@ -29,20 +27,12 @@ public static class ConfigureApplication
             
             builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         }
-
-        //Register custom configuration settings, injected by environment variables
-        public void AddConfigurationValues()
-        {
-            builder.Services.Configure<ConfigurationSettings>(
-                builder.Configuration.GetSection("ConfigurationSettings"));
-        }
         
         //Add business logic
         public void AddCustomAuthenticationServices()
         {
             builder.Services
                 .AddScoped<ISessionStateManager, SessionStateManager>()
-                .AddScoped<IGetUserProfileService, GetUserProfileService>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
                 .AddScoped<IBookingService, BookingService>()
                 .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();
@@ -60,13 +50,8 @@ public static class ConfigureApplication
                 .AddScoped<IValidator<LoginRequest>, LoginValidator>()
                 .AddScoped<IValidator<UpdateSettingsRequest>, UpdateSettingsValidator>()
                 .AddScoped<IValidator<UserProfile>, UserProfileValidator>()
-                .AddScoped<IValidator<ClientRequest>, CreateClientValidator>()
-                .AddScoped<IValidator<BookingRequest>, CreateBookingValidator>();
+                .AddScoped<IValidator<ClientRequest>, ClientValidator>()
+                .AddScoped<IValidator<BookingRequest>, BookingValidator>();
         }
     }
-}
-
-public class ConfigurationSettings
-{
-    public string? AuditLogPassword { get; set; }
 }

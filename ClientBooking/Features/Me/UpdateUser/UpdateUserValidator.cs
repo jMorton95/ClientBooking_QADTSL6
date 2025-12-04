@@ -5,6 +5,9 @@ namespace ClientBooking.Features.Me.UpdateUser;
 
 public class UserProfileValidator : AbstractValidator<UserProfile>
 {
+    //Validation rules for updating a user profile
+    //Name and email must follow the Maximum Length constraint applied to their database table
+    //If the user is overriding system working hours, the start and end must be valid
     public UserProfileValidator()
     {
         RuleFor(x => x.FirstName)
