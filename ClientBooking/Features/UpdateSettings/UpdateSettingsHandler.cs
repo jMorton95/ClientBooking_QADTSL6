@@ -17,10 +17,10 @@ public class UpdateSettingsHandler : IRequestHandler
 
     //Request handler that returns the settings page.
     //The most recent settings record is retrieved from the database and used to pre-populate the form fields.
-    private static async Task<RazorComponentResult<UpdateSettingsComponent>> GetHandler(DataContext dataContext)
+    public static async Task<RazorComponentResult<UpdateSettingsComponent>> GetHandler(DataContext dataContext)
     {
         var settings = await dataContext.Settings
-            .OrderByDescending(x => x.Id)
+            .OrderByDescending(x => x.Version)
             .FirstAsync();
 
         return new RazorComponentResult<UpdateSettingsComponent>(new {UpdateSettingsRequest = settings.ToUpdateSettingsRequest()});
@@ -28,7 +28,7 @@ public class UpdateSettingsHandler : IRequestHandler
     
     //Request handler that updates the settings record.
     //The update settings request is validated and used to create a new settings record.
-    private static async Task<RazorComponentResult<UpdateSettingsComponent>>
+    public static async Task<RazorComponentResult<UpdateSettingsComponent>>
         PostHandler(
             [FromForm] UpdateSettingsRequest updateSettingsRequest,
             IValidator<UpdateSettingsRequest> validator,

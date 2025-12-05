@@ -25,6 +25,8 @@ public class SessionStateManager(IHttpContextAccessor httpContextAccessor, ILogg
     //Hook into HttpContext to access a User ID claim.
     public int? GetUserSessionId()
     {
+        if (HttpContext?.User is null) return null;
+        
         var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
         if (int.TryParse(userIdClaim, out var userId))

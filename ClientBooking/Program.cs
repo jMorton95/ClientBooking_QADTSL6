@@ -86,14 +86,14 @@ if (!app.Environment.IsDevelopment())
 //Server static HTML/CSS/JS files and register routes.
 app.MapStaticAssets();
 app.UseRouting();
+    app.UseAntiforgery();
 
 
 //Apply auth/security middleware
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAntiforgery();
 
-
+//Prevent clickjacking
 app.Use(async (context, next) => 
 {
     context.Response.Headers.XFrameOptions = "DENY";
@@ -111,12 +111,3 @@ app.MapApplicationRequestHandlers();
 app.UseMiddleware<RequestAuditMiddleware>();
 
 app.Run();
-
-
-
-
-
-namespace ClientBooking
-{
-    public class Program { }
-}

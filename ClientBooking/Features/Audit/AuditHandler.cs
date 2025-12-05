@@ -14,7 +14,7 @@ public class AuditHandler : IRequestHandler
     }
 
     //Request handler that returns the audit log page for administrators.
-    private static async Task<RazorComponentResult> GetHandler(
+    public static async Task<RazorComponentResult> GetHandler(
         DataContext dataContext,
         ISessionStateManager sessionStateManager,
         ILogger<AuditHandler> logger,
@@ -35,7 +35,7 @@ public class AuditHandler : IRequestHandler
     private static async Task<RazorComponentResult> PopulateAuditLogPage(DataContext dataContext, int pageNumber)
     {
         var totalCount = await dataContext.AuditLogs.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalCount / (double)1);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)60);
         
         var auditLogs = await dataContext.AuditLogs
             .OrderByDescending(x => x.Id)
