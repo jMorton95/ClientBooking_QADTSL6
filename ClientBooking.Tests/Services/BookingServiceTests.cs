@@ -176,7 +176,7 @@ public class BookingServiceTests : UnitTestContext
             Email = "test@user.com",
             HashedPassword = "",
             DoesWorkWeekends = true,
-            WorkingHoursStart = new TimeSpan(9, 0, 0),
+            WorkingHoursStart = new TimeSpan(16, 0, 0),
             WorkingHoursEnd = new TimeSpan(17, 0, 0),
             BreakTimeStart = new TimeSpan(12, 0, 0),
             BreakTimeEnd = new TimeSpan(13, 0, 0)
