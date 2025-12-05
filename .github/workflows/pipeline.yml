@@ -28,62 +28,62 @@ jobs:
       - name: Run unit tests
         run: dotnet test ClientBooking.Tests/ClientBooking.Tests.csproj --configuration Release
 
-  # build-and-push-image:
-  #   needs: test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v4
+  build-and-push-image:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  #     - name: Login to GHCR
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: https://ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v6
-  #       with:
-  #         context: .
-  #         push: true
-  #         tags: |
-  #           ghcr.io/jmorton95/clientbooking_qadtsl6:latest
-  #           ghcr.io/jmorton95/clientbooking_qadtsl6:${{ github.sha }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/jmorton95/clientbooking_qadtsl6:latest
+            ghcr.io/jmorton95/clientbooking_qadtsl6:${{ github.sha }}
 
-  # deploy:
-  #   needs: build-and-push-image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v4
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  #     - name: Set deployment variables
-  #       id: set-vars
-  #       run: |
-  #         if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-  #           echo "STACK_NAME=client-booking" >> $GITHUB_ENV
-  #           echo "STACK_FILE=docker-stack.yml" >> $GITHUB_ENV
-  #           echo "APP_DOMAIN=joshmorton.co.uk" >> $GITHUB_ENV
-  #         else
-  #           echo "STACK_NAME=client-booking-staging" >> $GITHUB_ENV
-  #           echo "STACK_FILE=docker-stack-staging.yml" >> $GITHUB_ENV
-  #           echo "APP_DOMAIN=staging.joshmorton.co.uk" >> $GITHUB_ENV
-  #         fi
+      - name: Set deployment variables
+        id: set-vars
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "STACK_NAME=client-booking" >> $GITHUB_ENV
+            echo "STACK_FILE=docker-stack.yml" >> $GITHUB_ENV
+            echo "APP_DOMAIN=joshmorton.co.uk" >> $GITHUB_ENV
+          else
+            echo "STACK_NAME=client-booking-staging" >> $GITHUB_ENV
+            echo "STACK_FILE=docker-stack-staging.yml" >> $GITHUB_ENV
+            echo "APP_DOMAIN=staging.joshmorton.co.uk" >> $GITHUB_ENV
+          fi
 
-  #     - name: Create env file
-  #       run: |
-  #         echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-  #         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
-  #         echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
-  #         echo "APP_DOMAIN=$APP_DOMAIN" >> ./envfile
+      - name: Create env file
+        run: |
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
+          echo "AUDIT_LOG_PASSWORD=${{ secrets.AUDIT_LOG_PASSWORD }}" | sed 's/</\\</g' >> ./envfile
+          echo "APP_DOMAIN=$APP_DOMAIN" >> ./envfile
  
-  #     - name: Deploy Docker Stack
-  #       uses: cssnr/stack-deploy-action@v1
-  #       with:
-  #         name: ${{ env.STACK_NAME }}
-  #         file: ${{ env.STACK_FILE }}
-  #         host:  ${{ env.APP_DOMAIN }}
-  #         user: deploy
-  #         ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-  #         env_file: ./envfile
+      - name: Deploy Docker Stack
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: ${{ env.STACK_NAME }}
+          file: ${{ env.STACK_FILE }}
+          host:  ${{ env.APP_DOMAIN }}
+          user: deploy
+          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          env_file: ./envfile
