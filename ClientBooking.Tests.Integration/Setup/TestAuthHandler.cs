@@ -14,11 +14,10 @@ public class TestAuthHandler(
     ISystemClock clock)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder, clock)
 {
-    public const string Scheme = "TestAuth";
+    public new const string Scheme = "TestAuth";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        // Fake user for testing
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, "1"),

@@ -1,5 +1,5 @@
 ﻿using ClientBooking.Data;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,37 +7,48 @@ using Microsoft.Extensions.Hosting;
 
 namespace ClientBooking.Tests.Integration.Setup;
 
-
 public class IntegrationTestApplicationFactory : WebApplicationFactory<global::Program>
 {
+    private readonly string _databaseName = $"TestDb_{Guid.NewGuid():N}";
+
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        builder.ConfigureServices((_, services) =>
+        builder.UseEnvironment("IntegrationTesting");
+        
+        builder.ConfigureServices((context, services) =>
         {
-            var descriptorType =
-                typeof(DbContextOptions<DataContext>);
-
-            var descriptor = services
-                .SingleOrDefault(s => s.ServiceType == descriptorType);
-
-            if (descriptor is not null)
-            {
+            // Remove existing DataContext
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<DataContext>));
+            if (descriptor != null)
                 services.Remove(descriptor);
-            }
+
+            // Create new test DB in the container
+            var connectionString = SharedContainerFixture.DatabaseContainer.GetConnectionString();
+            var builderConnection = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
+            {
+                Database = _databaseName
+            };
+
+            // Add DbContext pointing to new database
+            services.AddDbContext<DataContext>(options =>
+                options.UseNpgsql(builderConnection.ConnectionString));
             
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = TestAuthHandler.Scheme;
-                    options.DefaultChallengeScheme = TestAuthHandler.Scheme;
-                })
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                    TestAuthHandler.Scheme, options => { });
-            
-            services.AddDbContext<DataContext>(options => 
-                options.UseNpgsql(SharedContainerFixture.DatabaseContainer?.GetConnectionString()));
-            
+            services.AddAntiforgery(options =>
+            {
+                // This will accept any token for testing
+                options.SuppressXFrameOptionsHeader = true;
+                options.HeaderName = "X-CSRF-TOKEN";
+            });
         });
 
-        return base.CreateHost(builder);
+        var host = base.CreateHost(builder);
+
+        // Ensure database exists and migrations are applied
+        using var scope = host.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        db.Database.EnsureCreated();
+        db.Database.Migrate();
+
+        return host;
     }
 }
