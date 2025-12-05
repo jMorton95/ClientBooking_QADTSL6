@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientBooking", "ClientBooking\ClientBooking.csproj", "{696C1B8A-C3B6-4660-A7B3-2AC9977C2948}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientBooking.Tests.Unit", "ClientBooking.Tests.Unit\ClientBooking.Tests.Unit.csproj", "{55D916D7-B81E-4C45-909E-5E3D718EE131}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientBooking.Tests", "ClientBooking.Tests\ClientBooking.Tests.csproj", "{55D916D7-B81E-4C45-909E-5E3D718EE131}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

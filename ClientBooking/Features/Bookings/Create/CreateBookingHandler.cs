@@ -18,7 +18,7 @@ public class CreateBookingHandler : IRequestHandler
     //Request handler that returns the booking form page.
     //The client id is used to retrieve the client and user entities from the database.
     //The booking request is used to pre-populate the form fields.
-    private static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
+    public static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
         [FromRoute] int clientId,
         [FromServices] DataContext dataContext,
         [FromServices] ISessionStateManager sessionManager,
@@ -64,7 +64,7 @@ public class CreateBookingHandler : IRequestHandler
     //Request handler that creates a new booking based on the booking request.
     //The client id is used to retrieve the client entity from the database.
     //The booking request is validated and used to create the new booking.
-    private static async Task<Results<HtmxRedirectResult, RazorComponentResult<BookingFormComponent>>> PostHandler(
+    public static async Task<Results<HtmxRedirectResult, RazorComponentResult<BookingFormComponent>>> PostHandler(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int clientId,
         [FromServices] IValidator<BookingRequest> validator,
@@ -131,7 +131,7 @@ public class CreateBookingHandler : IRequestHandler
     
     //Request handler that toggles the recurring section of the booking form.
     //The client id is used to retrieve the client entity from the database.
-    private static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
+    public static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int clientId,
         DataContext dataContext,

@@ -10,7 +10,7 @@ public class LogoutHandler : IRequestHandler
     }
 
     //Request handler that logs the user out by wiping their session state.
-    private static HtmxRedirectResult Handle(ISessionStateManager sessionManager)
+    public static HtmxRedirectResult Handle(ISessionStateManager sessionManager)
     {
         sessionManager.LogoutAsync();
 

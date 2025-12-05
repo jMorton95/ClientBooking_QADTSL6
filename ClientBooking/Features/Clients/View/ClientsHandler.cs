@@ -15,7 +15,7 @@ public class GetClientsHandler : IRequestHandler
     //Request handler that returns the clients page.
     //The clients are retrieved from the database and sorted based on the specified criteria.
     //The clients are also paginated.
-    private static async Task<Results<RazorComponentResult<ClientsComponent>, RazorComponentResult<ErrorMessageComponent>>> GetHandler(
+    public static async Task<Results<RazorComponentResult<ClientsComponent>, RazorComponentResult<ErrorMessageComponent>>> GetHandler(
         [FromServices] DataContext dataContext,
         ILogger<GetClientsHandler> logger,
         [FromQuery] int page = 1,

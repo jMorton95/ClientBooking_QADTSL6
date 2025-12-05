@@ -17,7 +17,7 @@ public class ToggleAdminHandler : IRequestHandler
     //Request handler that toggles the administrator role for the current user.
     //The request is validated and used to assign or remove the administrator role.
     //This is used purely for testing purposes as this application is in a proof of concept stage.
-    private static async Task<Results<HtmxRedirectResult, BadRequest<string>>> 
+    public static async Task<Results<HtmxRedirectResult, BadRequest<string>>> 
         Handler([FromForm] Request request, ISessionStateManager sessionStateManager, DataContext dataContext, ILogger<ToggleAdminHandler> logger)
     {
         try
@@ -76,10 +76,10 @@ public class ToggleAdminHandler : IRequestHandler
         }
     }
 
-    private record Request(bool AssignAdministrator);
+    public record Request(bool AssignAdministrator);
 
     //Helper method to create the administrator role if it does not exist.
-    private static async Task<Role> CreateAdminRoleIfNotExists(DataContext dataContext, ILogger logger)
+    public static async Task<Role> CreateAdminRoleIfNotExists(DataContext dataContext, ILogger logger)
     {
         var adminRole = new Role { Name = RoleName.Admin };
         await dataContext.Roles.AddAsync(adminRole);

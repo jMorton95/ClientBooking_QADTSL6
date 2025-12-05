@@ -8,16 +8,16 @@ namespace ClientBooking.Data;
 //Global repository pattern that exposes our Database Context through Entity Framework Core (Object Relational Mapper)
 public class DataContext(DbContextOptions<DataContext> options, ISessionStateManager sessionStateManager) : DbContext(options)
 {
-    public DbSet<Settings> Settings => Set<Settings>();
-    public DbSet<Client> Clients => Set<Client>();
-    public DbSet<Booking> Bookings => Set<Booking>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
-    public DbSet<UserBooking> UserBookings => Set<UserBooking>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
+    public virtual DbSet<Settings> Settings => Set<Settings>();
+    public virtual DbSet<Client> Clients => Set<Client>();
+    public virtual DbSet<Booking> Bookings => Set<Booking>();
+    public virtual DbSet<User> Users => Set<User>();
+    public virtual DbSet<Role> Roles => Set<Role>();
+    public virtual DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
+    public virtual DbSet<UserBooking> UserBookings => Set<UserBooking>();
+    public virtual DbSet<UserRole> UserRoles => Set<UserRole>();
+    public virtual DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public virtual DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
     
     //When saving changes, override the default behavior add audit logs and increment the row version of each entity.
     public override async Task<int> SaveChangesAsync(CancellationToken ct = new())
@@ -34,7 +34,7 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             
             if (entry is { Entity: Settings settings, State: EntityState.Added })
             {
-                var lastVersion = await Settings.OrderByDescending(s => s.Version).LastOrDefaultAsync(ct);
+                var lastVersion = await Settings.OrderByDescending(s => s.Version).FirstOrDefaultAsync(ct);
                 settings.Version = lastVersion?.Version + 1 ?? 1;
             }
             

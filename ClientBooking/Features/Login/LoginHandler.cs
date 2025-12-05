@@ -71,7 +71,7 @@ public class LoginHandler : IRequestHandler
     
     private record Request(LoginRequest LoginRequest);
     
-    private static async Task<(User? user, string? error)> ValidateCredentialsAsync(
+    public static async Task<(User? user, string? error)> ValidateCredentialsAsync(
         string email, 
         string password, 
         IPasswordHelper passwordHelper, 
