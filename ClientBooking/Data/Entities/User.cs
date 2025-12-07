@@ -43,7 +43,6 @@ public class User : Entity
     
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<UserBooking> UserBookings { get; set; } = new List<UserBooking>();
-    public ICollection<UserUnavailability> UnavailabilityPeriods { get; set; } = new List<UserUnavailability>();
     
     [NotMapped]
     public string FullName => $"{FirstName} {LastName}";

@@ -86,7 +86,7 @@ if (!app.Environment.IsDevelopment())
 //Server static HTML/CSS/JS files and register routes.
 app.MapStaticAssets();
 app.UseRouting();
-    app.UseAntiforgery();
+app.UseAntiforgery();
 
 
 //Apply auth/security middleware
