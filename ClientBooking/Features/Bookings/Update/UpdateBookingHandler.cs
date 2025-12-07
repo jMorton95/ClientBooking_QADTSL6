@@ -1,4 +1,5 @@
 ﻿using ClientBooking.Authentication;
+using ClientBooking.Components.Generic;
 using ClientBooking.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ public class UpdateBookingHandler : IRequestHandler
     //The booking id is used to retrieve the booking entity from the database.
     //The booking request is used to pre-populate the form fields.
     //The booking id is also used to determine whether the user has permission to edit the booking.
-    public static async Task<RazorComponentResult<BookingFormComponent>> GetHandler(
+    public static async Task<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>> GetHandler(
         [FromRoute] int bookingId,
         [FromServices] DataContext dataContext,
         [FromServices] ISessionStateManager sessionManager,
@@ -30,7 +31,7 @@ public class UpdateBookingHandler : IRequestHandler
             if (userId == null)
             {
                 logger.LogError("User Session not found when trying to load booking: {bookingId}.", bookingId);
-                return new RazorComponentResult<BookingFormComponent>(new 
+                return new RazorComponentResult<ErrorMessageComponent>(new 
                 { 
                     ErrorMessage = "User not found." 
                 });
@@ -44,7 +45,7 @@ public class UpdateBookingHandler : IRequestHandler
             if (booking == null)
             {
                 logger.LogError("Booking not found when trying to load booking: {bookingId}.", bookingId);
-                return new RazorComponentResult<BookingFormComponent>(new 
+                return new RazorComponentResult<ErrorMessageComponent>(new 
                 { 
                     ErrorMessage = "Booking not found." 
                 });
@@ -53,7 +54,7 @@ public class UpdateBookingHandler : IRequestHandler
             if (booking.UserBookings.All(ub => ub.UserId != userId))
             {
                 logger.LogError("User {userId} does not have permission to edit booking {bookingId}.", userId, bookingId);
-                return new RazorComponentResult<BookingFormComponent>(new 
+                return new RazorComponentResult<ErrorMessageComponent>(new 
                 { 
                     ErrorMessage = "You don't have permission to edit this booking." 
                 });
@@ -130,7 +131,7 @@ public class UpdateBookingHandler : IRequestHandler
             {
                 logger.LogError("User Session or Booking not found when trying to update booking: {bookingId}.", bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
-                { 
+                {   bookingRequest,
                     ErrorMessage = "Booking not found." 
                 });
             }
@@ -140,6 +141,7 @@ public class UpdateBookingHandler : IRequestHandler
                 logger.LogError("User {userId} does not have permission to update booking {bookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new 
                 { 
+                    bookingRequest,
                     ErrorMessage = "You don't have permission to edit this booking." 
                 });
             }
@@ -153,7 +155,7 @@ public class UpdateBookingHandler : IRequestHandler
                 logger.LogError("Validation failed for booking request by user {UserId} for booking {BookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
-                    BookingRequest = bookingRequest,
+                    bookingRequest,
                     BookingFormData = BookingFormData.GetFormData(existingBooking.Client, user!, systemSettings),
                     BookingId = bookingId,
                     IsEditMode = true,
@@ -174,7 +176,7 @@ public class UpdateBookingHandler : IRequestHandler
                 logger.LogError("Enforcement rules failed for booking request by user {UserId} for booking {BookingId}.", userId, bookingId);
                 return new RazorComponentResult<BookingFormComponent>(new
                 {
-                    BookingRequest = bookingRequest,
+                    bookingRequest,
                     BookingFormData = BookingFormData.GetFormData(existingBooking.Client, user!, systemSettings),
                     BookingId = bookingId,
                     IsEditMode = true,
@@ -200,7 +202,7 @@ public class UpdateBookingHandler : IRequestHandler
     //Request handler that toggles the recurring section of the booking form.
     //The booking id is used to retrieve the booking entity from the database.
     //The booking request is used to pre-populate the form fields.
-    public static async Task<RazorComponentResult<BookingFormComponent>> ToggleRecurringSection(
+    public static async Task<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>> ToggleRecurringSection(
         [FromForm] BookingRequest bookingRequest,
         [FromRoute] int bookingId,
         [FromServices] DataContext dataContext,
@@ -213,7 +215,7 @@ public class UpdateBookingHandler : IRequestHandler
             if (userId == null)
             {
                 logger.LogError("User Session not found when trying to toggle recurring section.");
-                return new RazorComponentResult<BookingFormComponent>(new 
+                return new RazorComponentResult<ErrorMessageComponent>(new 
                 { 
                     ErrorMessage = "User not found." 
                 });
@@ -227,9 +229,9 @@ public class UpdateBookingHandler : IRequestHandler
             if (booking == null || booking.UserBookings.All(ub => ub.UserId != userId))
             {
                 logger.LogError("User {userId} does not have permission to toggle recurring section for booking {bookingId}.", userId, bookingId);
-                return new RazorComponentResult<BookingFormComponent>(new 
+                return new RazorComponentResult<ErrorMessageComponent>(new 
                 { 
-                    ErrorMessage = "Booking not found or access denied." 
+                    ErrorMessage = "Booking not found or you do not have permission to access this booking." 
                 });
             }
 
