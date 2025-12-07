@@ -13,7 +13,6 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
     public virtual DbSet<Booking> Bookings => Set<Booking>();
     public virtual DbSet<User> Users => Set<User>();
     public virtual DbSet<Role> Roles => Set<Role>();
-    public virtual DbSet<UserUnavailability> UserUnavailabilities => Set<UserUnavailability>();
     public virtual DbSet<UserBooking> UserBookings => Set<UserBooking>();
     public virtual DbSet<UserRole> UserRoles => Set<UserRole>();
     public virtual DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -116,12 +115,6 @@ public class DataContext(DbContextOptions<DataContext> options, ISessionStateMan
             .HasOne(ur => ur.Role)
             .WithMany(r => r.UserRoles)
             .HasForeignKey(ur => ur.RoleId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<UserUnavailability>()
-            .HasOne(u => u.User)
-            .WithMany(x => x.UnavailabilityPeriods)
-            .HasForeignKey(u => u.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<Settings>()

@@ -86,12 +86,12 @@ if (!app.Environment.IsDevelopment())
 //Server static HTML/CSS/JS files and register routes.
 app.MapStaticAssets();
 app.UseRouting();
-    app.UseAntiforgery();
 
 
 //Apply auth/security middleware
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgery();
 
 //Prevent clickjacking
 app.Use(async (context, next) => 

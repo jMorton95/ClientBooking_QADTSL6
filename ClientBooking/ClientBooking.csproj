@@ -24,17 +24,28 @@
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     </ItemGroup>
-    
+
     <ItemGroup>
-        <Content Include="..\.dockerignore">
+        <None Include="..\.dockerignore">
             <Link>.dockerignore</Link>
-        </Content>
-        <Content Include="..\dockerfile">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="..\dockerfile">
             <Link>dockerfile</Link>
-        </Content>
-        <Content Include="..\package.json">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="..\docker-stack.yml">
+            <Link>docker-stack.yml</Link>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="..\docker-stack-staging.yml">
+            <Link>docker-stack-staging.yml</Link>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="..\package.json">
             <Link>package.json</Link>
-        </Content>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
     
     <ItemGroup>
