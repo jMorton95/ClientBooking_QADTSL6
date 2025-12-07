@@ -1,5 +1,6 @@
 ﻿using ClientBooking.Authentication;
 using ClientBooking.Data;
+using ClientBooking.Data.Entities;
 using ClientBooking.Features.Bookings;
 using ClientBooking.Features.Clients;
 using ClientBooking.Features.Login;
@@ -10,6 +11,7 @@ using ClientBooking.Features.UpdateSettings;
 using ClientBooking.Shared.Models;
 using ClientBooking.Shared.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 
 namespace ClientBooking.Configuration;
 
@@ -31,6 +33,8 @@ public static class ConfigureApplication
         //Add business logic
         public void AddCustomAuthenticationServices()
         {
+            builder.Services.AddSingleton<PasswordHasher<User>>();
+            
             builder.Services
                 .AddScoped<ISessionStateManager, SessionStateManager>()
                 .AddScoped<ICreateRegisteredUserService, CreateRegisteredUserService>()
@@ -38,8 +42,7 @@ public static class ConfigureApplication
                 .AddScoped<IUserWorkingHoursService, UserWorkingHoursService>();
                 
             builder.Services
-                .AddTransient<IPasswordHelper, PasswordHelper>()
-                .AddTransient<IPasswordHasher, PasswordHasher>();
+                .AddTransient<IPasswordService, PasswordService>();
         }
 
         //Add validation logic
