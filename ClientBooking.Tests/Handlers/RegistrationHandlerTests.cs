@@ -34,14 +34,19 @@ public class RegistrationHandlerTests : UnitTestContext
         validatorMock.Setup(v => v.ValidateAsync(requestDto, CancellationToken.None))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
+        
+        
         var newUser = new User
         {
             FirstName = "Test",
             LastName = "User",
             Email = requestDto.Email,
-            HashedPassword = passwordHelper.HashPassword(requestDto.PasswordTwo),
+            HashedPassword = "",
             IsActive = true
         };
+
+        var hashedPassword = passwordHelper.HashPassword(newUser, requestDto.PasswordTwo);
+        newUser.HashedPassword = hashedPassword;
 
         createUserServiceMock.Setup(s => s.CreateUserWithDefaultSettings(requestDto, It.IsAny<string>()))
             .ReturnsAsync(newUser);
@@ -131,9 +136,13 @@ public class RegistrationHandlerTests : UnitTestContext
             FirstName = "Existing",
             LastName = "User",
             Email = "test@example.com",
-            HashedPassword = passwordHelper.HashPassword("anypassword"),
+            HashedPassword = "",
             IsActive = true
         };
+        
+        var password = passwordHelper.HashPassword(existingUser, "anypassword");
+        existingUser.HashedPassword = password;
+        
         context.Users.Add(existingUser);
         await context.SaveChangesAsync();
 

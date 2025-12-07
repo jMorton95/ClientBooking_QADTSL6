@@ -111,7 +111,7 @@ public class BookingService(DataContext dataContext) : IBookingService
 
         if (request.StartDateTime.TimeOfDay < userBreakTimeEnd && request.EndDateTime.TimeOfDay > userBreakTimeStart)
         {
-            validationErrors.TryAdd("BreakTime", [$"Booking must not overlap your break hours. Reminder, your break time is: {userWorkingHoursStart} - {userWorkingHoursEnd}."]);
+            validationErrors.TryAdd("BreakTime", [$"Booking must not overlap your break hours. Reminder, your break time is: {userBreakTimeStart} - {userBreakTimeEnd}."]);
         }
 
         if (!user.DoesWorkWeekends && request.StartDateTime.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)

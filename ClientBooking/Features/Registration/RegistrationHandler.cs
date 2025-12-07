@@ -20,7 +20,7 @@ public class RegistrationHandler : IRequestHandler
         [FromForm] Request request, 
         IValidator<RegistrationRequest> validator,
         DataContext dataContext,
-        IPasswordHelper passwordHelper,
+        IPasswordService passwordService,
         ISessionStateManager sessionManager,
         ICreateRegisteredUserService createRegisteredUserService,
         ILogger<RegistrationHandler> logger)
@@ -49,9 +49,8 @@ public class RegistrationHandler : IRequestHandler
                 });
             }
 
-            //Hash the password and create the user in the database.
-            var hashedPassword = passwordHelper.HashPassword(registrationRequest.PasswordTwo);
-            var newUser = await createRegisteredUserService.CreateUserWithDefaultSettings(registrationRequest, hashedPassword);
+            //Create the user in the database.
+            var newUser = await createRegisteredUserService.CreateUserWithDefaultSettings(registrationRequest, registrationRequest.PasswordOne);
             
             logger.LogInformation("User {Email} successfully registered.", registrationRequest.Email);
             

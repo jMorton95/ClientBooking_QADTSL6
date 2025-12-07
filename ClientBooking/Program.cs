@@ -8,6 +8,7 @@ using ClientBooking.Shared;
 using ClientBooking.Shared.Enums;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,10 +78,16 @@ var app = builder.Build();
 await app.ApplyStartupDatabaseMigrations();
 
 //Add Middleware in Production for error page redirecting and strict transport security headers.
+//Also enable reverse proxy headers for load balancing for HTTP to HTTPS redirection.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHttpsRedirection();
     app.UseHsts();
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+    });
 }
 
 //Server static HTML/CSS/JS files and register routes.

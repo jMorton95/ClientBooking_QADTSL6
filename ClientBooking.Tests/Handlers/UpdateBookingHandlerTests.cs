@@ -1,4 +1,5 @@
 ﻿using ClientBooking.Authentication;
+using ClientBooking.Components.Generic;
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
 using ClientBooking.Data.JoiningTables;
@@ -94,11 +95,13 @@ public class UpdateBookingHandlerTests : UnitTestContext
     {
         var (user, _, booking, _) = await SeedEntities();
 
-        var result = await UpdateBookingHandler.GetHandler(
+        var response = await UpdateBookingHandler.GetHandler(
             booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
 
-        Assert.NotNull(result);
-        Assert.IsType<RazorComponentResult<BookingFormComponent>>(result);
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<BookingFormComponent>;
         Assert.Equal(booking.Id, result.Parameters["BookingId"]);
         Assert.True((bool)result.Parameters["IsEditMode"]);
         Assert.NotNull(result.Parameters["BookingRequest"]);
@@ -110,7 +113,12 @@ public class UpdateBookingHandlerTests : UnitTestContext
     {
         sessionMock.Setup(s => s.GetUserSessionId()).Returns((int?)null);
 
-        var result = await UpdateBookingHandler.GetHandler(1, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        var response = await UpdateBookingHandler.GetHandler(1, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<ErrorMessageComponent>;
 
         Assert.NotNull(result.Parameters["ErrorMessage"]);
     }
@@ -118,7 +126,12 @@ public class UpdateBookingHandlerTests : UnitTestContext
     [Fact]
     public async Task GetHandler_ReturnsError_WhenBookingNotFound()
     {
-        var result = await UpdateBookingHandler.GetHandler(999, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        var response = await UpdateBookingHandler.GetHandler(999, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<ErrorMessageComponent>;
 
         Assert.NotNull(result.Parameters["ErrorMessage"]);
     }
@@ -129,7 +142,12 @@ public class UpdateBookingHandlerTests : UnitTestContext
         var (_, _, booking, _) = await SeedEntities();
         sessionMock.Setup(s => s.GetUserSessionId()).Returns(999); // Different user
 
-        var result = await UpdateBookingHandler.GetHandler(booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        var response = await UpdateBookingHandler.GetHandler(booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<ErrorMessageComponent>;
 
         Assert.NotNull(result.Parameters["ErrorMessage"]);
     }
@@ -204,9 +222,14 @@ public class UpdateBookingHandlerTests : UnitTestContext
         var (user, _, booking, _) = await SeedEntities();
         var request = new BookingRequest();
 
-        var result = await UpdateBookingHandler.ToggleRecurringSection(
+        var response = await UpdateBookingHandler.ToggleRecurringSection(
             request, booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
 
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<BookingFormComponent>;
+        
         Assert.NotNull(result);
         Assert.True((bool)result.Parameters["IsEditMode"]);
         Assert.Equal("recurring", result.Parameters["Section"]);
@@ -217,8 +240,13 @@ public class UpdateBookingHandlerTests : UnitTestContext
     {
         sessionMock.Setup(s => s.GetUserSessionId()).Returns((int?)null);
 
-        var result = await UpdateBookingHandler.ToggleRecurringSection(new BookingRequest(), 1, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        var response = await UpdateBookingHandler.ToggleRecurringSection(new BookingRequest(), 1, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
 
+        var result = response.Result as RazorComponentResult<ErrorMessageComponent>;
+        
         Assert.NotNull(result.Parameters["ErrorMessage"]);
     }
 
@@ -228,8 +256,14 @@ public class UpdateBookingHandlerTests : UnitTestContext
         var (_, _, booking, _) = await SeedEntities();
         sessionMock.Setup(s => s.GetUserSessionId()).Returns(999);
 
-        var result = await UpdateBookingHandler.ToggleRecurringSection(new BookingRequest(), booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
+        var response = await UpdateBookingHandler.ToggleRecurringSection(new BookingRequest(), booking.Id, db, sessionMock.Object, Mock.Of<ILogger<UpdateBookingHandler>>());
 
+        
+        Assert.NotNull(response);
+        Assert.IsType<Results<RazorComponentResult<BookingFormComponent>, RazorComponentResult<ErrorMessageComponent>>>(response);
+        
+        var result = response.Result as RazorComponentResult<ErrorMessageComponent>;
+        
         Assert.NotNull(result.Parameters["ErrorMessage"]);
     }
 }

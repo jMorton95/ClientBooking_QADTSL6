@@ -22,7 +22,7 @@ public class LoginHandler : IRequestHandler
     private static async Task<Results<HtmxRedirectResult, RazorComponentResult<LoginPage>, BadRequest<string>>> HandleAsync(
         [FromForm] Request request,
         IValidator<LoginRequest> validator,
-        IPasswordHelper passwordHelper,
+        IPasswordService passwordService,
         DataContext dataContext,
         ISessionStateManager sessionManager,
         ILogger<LoginHandler> logger)
@@ -44,7 +44,7 @@ public class LoginHandler : IRequestHandler
             var (user, error) = await ValidateCredentialsAsync(
                 request.LoginRequest.Email, 
                 request.LoginRequest.Password, 
-                passwordHelper, dataContext, logger);
+                passwordService, dataContext, logger);
 
             //Inform User of authentication failure.
             if (user is null || error is not null)
@@ -74,7 +74,7 @@ public class LoginHandler : IRequestHandler
     public static async Task<(User? user, string? error)> ValidateCredentialsAsync(
         string email, 
         string password, 
-        IPasswordHelper passwordHelper, 
+        IPasswordService passwordService, 
         DataContext dataContext,
         ILogger<LoginHandler> logger)
     {
@@ -93,7 +93,7 @@ public class LoginHandler : IRequestHandler
         }
 
         //If password comparison fails, incur side effects.
-        if (!passwordHelper.CheckPassword(password, user.HashedPassword))
+        if (!passwordService.CheckPassword(user, password, user.HashedPassword))
         {
             await HandleFailedLoginAsync(user, dataContext);
             logger.LogWarning("Login attempt failed for user {Email}.", email);
