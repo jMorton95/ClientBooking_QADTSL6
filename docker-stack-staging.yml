@@ -33,6 +33,7 @@ services:
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
       - "traefik.http.routers.web.middlewares=login-rate-limit"
+      - "traefik.http.middlewares.login-rate-limit.ratelimit.period=10s"
       - "traefik.http.middlewares.login-rate-limit.rateLimit.average=50"
       - "traefik.http.middlewares.login-rate-limit.rateLimit.burst=25"
     environment:
