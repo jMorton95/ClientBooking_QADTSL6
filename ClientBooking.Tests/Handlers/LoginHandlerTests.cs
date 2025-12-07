@@ -40,10 +40,12 @@ public class LoginHandlerTests : UnitTestContext
             FirstName = "Test",
             LastName = "User",
             Email = "test@example.com",
-            HashedPassword = passwordHelper.HashPassword("correctpassword"),
             AccessFailedCount = 0,
             IsLockedOut = false
         };
+        
+        var password = passwordHelper.HashPassword(user, "anyPassword");
+        user.HashedPassword = password;
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
@@ -76,11 +78,13 @@ public class LoginHandlerTests : UnitTestContext
             FirstName = "Locked",
             LastName = "User",
             Email = "locked@example.com",
-            HashedPassword = passwordHelper.HashPassword("anyPassword"),
             AccessFailedCount = 5,
             IsLockedOut = true,
             LockoutEnd = DateTime.UtcNow.AddMinutes(10)
         };
+        
+        var password = passwordHelper.HashPassword(user, "anyPassword");
+        user.HashedPassword = password;
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
@@ -111,11 +115,13 @@ public class LoginHandlerTests : UnitTestContext
             FirstName = "Test",
             LastName = "User",
             Email = "test@example.com",
-            HashedPassword = passwordHelper.HashPassword("correctpassword"),
             AccessFailedCount = 2,
             IsLockedOut = true,
             LockoutEnd = DateTime.UtcNow.AddMinutes(-5)
         };
+
+        var password = passwordHelper.HashPassword(user, "correctpassword");
+        user.HashedPassword = password;
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
@@ -141,7 +147,7 @@ public class LoginHandlerTests : UnitTestContext
     {
         await using var context = CreateInMemoryContext();
 
-        var passwordHelperMock = new Mock<IPasswordHelper>();
+        var passwordHelperMock = new Mock<IPasswordService>();
         var loggerMock = new Mock<ILogger<LoginHandler>>().Object;
 
         var (user, error) = await LoginHandler.ValidateCredentialsAsync(
@@ -154,6 +160,6 @@ public class LoginHandlerTests : UnitTestContext
 
         Assert.Null(user);
         Assert.Equal("User not found.", error);
-        passwordHelperMock.Verify(ph => ph.CheckPassword(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        passwordHelperMock.Verify(ph => ph.CheckPassword(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 }

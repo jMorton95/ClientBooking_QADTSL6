@@ -3,6 +3,7 @@ using ClientBooking.Features.Registration;
 using ClientBooking.Shared.Enums;
 using ClientBooking.Shared.Services;
 using ClientBooking.Tests.Setup;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClientBooking.Tests.Services;
@@ -34,18 +35,19 @@ public class CreateRegisteredUserServiceTests : UnitTestContext
             LastName = "Doe",
             Email = "john.doe@example.com"
         };
-        var hashedPassword = "hashedpassword";
 
-        var service = new CreateRegisteredUserService(context);
-
+        var passwordHasher = new PasswordHasher<User>();
+        var service = new CreateRegisteredUserService(context, passwordHasher);
+        
         // Act
-        var user = await service.CreateUserWithDefaultSettings(registrationRequest, hashedPassword);
-
+        var user = await service.CreateUserWithDefaultSettings(registrationRequest, "plaintextpassword");
+        var hashedPassword = passwordHasher.HashPassword(user, "plaintextpassword"); 
+        
         // Assert
         Assert.NotNull(user);
         Assert.Equal("John", user.FirstName);
         Assert.Equal("Doe", user.LastName);
-        Assert.Equal(hashedPassword, user.HashedPassword);
+        Assert.True(passwordHasher.VerifyHashedPassword(user, hashedPassword, "plaintextpassword") is PasswordVerificationResult.Success);
         Assert.NotEmpty(user.UserRoles);
         Assert.Contains(user.UserRoles, ur => ur.Role.Name == RoleName.User);
 
@@ -84,7 +86,8 @@ public class CreateRegisteredUserServiceTests : UnitTestContext
         };
         var hashedPassword = "hashedpassword";
 
-        var service = new CreateRegisteredUserService(context);
+        var passwordHasher = new PasswordHasher<User>();
+        var service = new CreateRegisteredUserService(context, passwordHasher);
 
         // Act
         var user = await service.CreateUserWithDefaultSettings(registrationRequest, hashedPassword);
@@ -122,7 +125,8 @@ public class CreateRegisteredUserServiceTests : UnitTestContext
         context.Settings.Add(settings);
         await context.SaveChangesAsync();
 
-        var service = new CreateRegisteredUserService(context);
+        var passwordHasher = new PasswordHasher<User>();
+        var service = new CreateRegisteredUserService(context, passwordHasher);
 
         var user1 = new RegistrationRequest { FirstName = "User1", LastName = "Test", Email = "u1@test.com" };
         var user2 = new RegistrationRequest { FirstName = "User2", LastName = "Test", Email = "u2@test.com" };

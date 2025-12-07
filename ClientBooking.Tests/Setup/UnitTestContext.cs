@@ -2,6 +2,7 @@
 using ClientBooking.Data;
 using ClientBooking.Data.Entities;
 using ClientBooking.Features.Login;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,10 +29,10 @@ public class UnitTestContext
         return new FaultyDataContext(_dbName, sessionMock.Object);
     }
 
-    protected IPasswordHelper CreatePasswordHelper()
+    protected IPasswordService CreatePasswordHelper()
     {
-        var passwordHasher = new PasswordHasher();
-        return new PasswordHelper(passwordHasher);
+        var passwordHasher = new PasswordHasher<User>();
+        return new PasswordService(passwordHasher);
     }
 
     public class FaultyDataContext : DataContext
