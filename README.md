@@ -13,7 +13,12 @@
 git clone https://github.com/jMorton95/ClientBooking_QADTSL6.git
 cd ClientBooking_QADTSL6
 docker compose up
+```
+
+## Start the application
+```bash
 npm install
 npm start
 Navigate to localhost:5195
-Note: After docker compose up, you will need to either open a new Terminal before continuing, or 'control c' to cancel, but ensure the Docker container is running in Docker Desktop 
+Note: After docker compose up, you will need to either open a new Terminal before continuing, or 'control c' to cancel, but ensure the Docker container is running in Docker Desktop
+``` 
