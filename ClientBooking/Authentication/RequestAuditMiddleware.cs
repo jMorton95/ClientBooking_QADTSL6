@@ -16,7 +16,7 @@ public class RequestAuditMiddleware(
         var user = sessionManager.GetUserSessionId();
         var url = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
     
-        logger.LogInformation("User: {User}, URL: {URL}", user, url);
+        if (user != null) logger.LogInformation("User: {User}, URL: {URL}", user, url);
         
         await next(context);
     }
