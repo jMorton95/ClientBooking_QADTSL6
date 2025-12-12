@@ -39,6 +39,7 @@ public class AuditHandler : IRequestHandler
         
         var auditLogs = await dataContext.AuditLogs
             .OrderByDescending(x => x.Id)
+            .Where(al => al.UserId != null)
             .Skip((pageNumber - 1) * 60)
             .Take(60)
             .ToListAsync();
