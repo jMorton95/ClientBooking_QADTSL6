@@ -22,9 +22,9 @@ public class AuditHandlerTests : UnitTestContext
         // Seed some audit logs
         context.AuditLogs.AddRange(new[]
         {
-            new AuditLog { Id = 1, Action = AuditAction.Create, EntityName = "Test", EntityId = "1"},
-            new AuditLog { Id = 2, Action = AuditAction.Create, EntityName = "Test", EntityId = "2" },
-            new AuditLog { Id = 3, Action = AuditAction.Update, EntityName = "Test", EntityId = "2"}
+            new AuditLog { Id = 1, UserId = 1, Action = AuditAction.Create, EntityName = "Test", EntityId = "1"},
+            new AuditLog { Id = 2, UserId = 1, Action = AuditAction.Create, EntityName = "Test", EntityId = "2" },
+            new AuditLog { Id = 3, UserId = 1, Action = AuditAction.Update, EntityName = "Test", EntityId = "2"}
         });
         await context.SaveChangesAsync();
 
